@@ -3,6 +3,7 @@ from update_js import update_js
 from generate_display_tables import generate_display_tables
 from datetime import date, timedelta
 import subprocess
+import json
 
 def read_lexicon(lfile):
     conversion = {}
@@ -31,6 +32,19 @@ def parse_setup():
     args = parser.parse_args()
     return args
 
+def validate_geojson(gfile):
+    #TO DO: need to  ensure geo json feature name is called "name"
+    f = open(gfile)
+    geojson_lines = json.load(f)
+    f.close()
+    for feature in geojson_lines["features"]:
+        if "name" in feature["properties"]:
+            print("GeoJSON file has 'name' field") ## DEBUG
+            return 1
+        else:
+            print("GeoJSON file DOES NOT have 'name' field") ##DEBUG
+            return 0
+
 def primary_pipeline(args):
     pbf = args.input
     mf = args.metadata
@@ -55,7 +69,7 @@ def primary_pipeline(args):
     #         sd[spent[0]] = spent[1]
     with open("hardcoded_clusters.tsv") as inf:
         for entry in inf:
-            spent = entry.strip().split()
+            spent = entry.strip().split("\t")
             if spent[0] == 'cluster_id':
                 continue
             for s in spent[-1].split(","):
@@ -63,7 +77,7 @@ def primary_pipeline(args):
     rd = {}
     with open(args.sample_regions) as inf:
         for entry in inf:
-            spent = entry.strip().split()
+            spent = entry.strip().split("\t")
             rd[spent[0]] = spent[1]
     with open(mf) as inf:
         with open("clusterswapped.tsv","w+") as outf:
