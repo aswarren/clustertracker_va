@@ -40,4 +40,4 @@ Then navigate to the outermost index directory and run
 python3 -m http.server
 ```
 
-It is not required to make the website on a web-accessible directory, but the taxodium view (clicking view cluster on the site) will not function if it's not. You can work around this by uploading the cview.pb / cluster_taxodium.pb that is output by the pipeline directly to [taxodium](https://cov2tree.org/), then search for your cluster of interest from the website table using the search box on the resulting display. 
+It is not required to make the website on a web-accessible directory, but the taxonium view (clicking view cluster on the site) will not function if it's not. You can work around this by uploading the cview.pb / cluster_taxonium.pb that is output by the pipeline directly to [taxonium](https://cov2tree.org/), then search for your cluster of interest from the website table using the search box on the resulting display. 

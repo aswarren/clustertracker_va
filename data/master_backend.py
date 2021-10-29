@@ -28,7 +28,7 @@ def parse_setup():
     parser.add_argument("-t","--threads",type=int,help="Number of threads to use.", default = 4)
     parser.add_argument("-l","--lexicon",help="Optionally, link to a text file containing all names for the same region, one region per row, tab separated.", default = "")
     parser.add_argument("-X","--lookahead",type=int,help="Number to pass to parameter -X of introduce. Increase to merge nested clusters. Default 2", default = 2)
-    parser.add_argument("-H","--host",help="Web-accessible link to the current directory for taxodium cluster view.",default="https://raw.githubusercontent.com/jmcbroome/introduction-website/main/")
+    parser.add_argument("-H","--host",help="Web-accessible link to the current directory for taxonium cluster view.",default="https://raw.githubusercontent.com/jmcbroome/introduction-website/main/")
     args = parser.parse_args()
     return args
 
@@ -59,7 +59,7 @@ def primary_pipeline(args):
     update_js(args.geojson, conversion)
     print("Generating top cluster tables.")
     generate_display_tables(conversion, host = args.host)
-    print("Preparing taxodium view.")
+    print("Preparing taxonium view.")
     sd = {} 
     # with open("cluster_labels.tsv") as inf:
     #     for entry in inf:
@@ -73,7 +73,7 @@ def primary_pipeline(args):
             if spent[0] == 'cluster_id':
                 continue
             for s in spent[-1].split(","):
-                sd[s] = spent[9] + "_" + spent[0] # sd[sample name] = region_cluster id
+                sd[s] = spent[0] # sd[sample name] = cluster id
     rd = {} 
     with open(args.sample_regions) as inf:
         for entry in inf:

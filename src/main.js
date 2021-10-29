@@ -139,7 +139,7 @@ function loadTargetTable(target) {
         datatables_options: {"paging": true, "searching": true, "order": [[9,"desc"]]},
         custom_formatting: [
             [10, function (data,type,row,meta) {
-                return '<a href="' + encodeURI(data) + '" title="Click to View in Taxodium" target="_blank">View Cluster</a>';
+                return '<a href="' + encodeURI(data) + '" title="Click to View in Taxonium" target="_blank">View Cluster</a>';
               }
             ],[9, function (data,type,row,meta) {
                 return '<div title="Importance estimate based on cluster size and age. Not directly comparable between regions with varying sequencing levels.">' + data + "</div>"

@@ -19,7 +19,7 @@ if validate_geojson(args.geojson) != 1:
 # sort usable samples from metadata file
 nbad = 0
 ngood = 0
-new_metadf = open("metadata_taxonim.txt","w+") # metadata file formatted for Taxonium
+new_metadf = open("metadata_taxonium.txt","w+") # metadata file formatted for Taxonium
 badsamples = open("unlabeled_samples.txt","w+") # list of samples w/o valid county names
 with open(metadatafile) as inf:
     with open("sample_regions.tsv","w+") as outf:
@@ -64,7 +64,7 @@ print("Clearing out unparseable county samples.")
 subprocess.check_call("matUtils extract -i " + pbf + " -s sample_regions.tsv -o clean.pb", shell = True)
 #update the arguments parsed
 args.input = "clean.pb"
-args.metadata = "metadata_taxonim.txt"
+args.metadata = "metadata_taxonium.txt"
 args.sample_regions = "sample_regions.tsv"
 
 print("Starting main pipeline.")
