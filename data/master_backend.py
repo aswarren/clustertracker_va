@@ -39,10 +39,10 @@ def validate_geojson(gfile):
     f.close()
     for feature in geojson_lines["features"]:
         if "name" in feature["properties"]:
-            print("GeoJSON file has 'name' field") ## DEBUG
+            #print("GeoJSON file has 'name' field") ## DEBUG
             return 1
         else:
-            print("GeoJSON file DOES NOT have 'name' field") ##DEBUG
+            #print("GeoJSON file DOES NOT have 'name' field") ##DEBUG
             return 0
 
 def primary_pipeline(args):
@@ -60,7 +60,7 @@ def primary_pipeline(args):
     print("Generating top cluster tables.")
     generate_display_tables(conversion, host = args.host)
     print("Preparing taxodium view.")
-    sd = {}
+    sd = {} 
     # with open("cluster_labels.tsv") as inf:
     #     for entry in inf:
     #         spent = entry.strip().split()
@@ -73,16 +73,17 @@ def primary_pipeline(args):
             if spent[0] == 'cluster_id':
                 continue
             for s in spent[-1].split(","):
-                sd[s] = spent[9] + "_" + spent[0]
-    rd = {}
+                sd[s] = spent[9] + "_" + spent[0] # sd[sample name] = region_cluster id
+    rd = {} 
     with open(args.sample_regions) as inf:
         for entry in inf:
             spent = entry.strip().split("\t")
-            rd[spent[0]] = spent[1]
+            rd[spent[0]] = spent[1] # rd[sample name] = region
     with open(mf) as inf:
         with open("clusterswapped.tsv","w+") as outf:
             #clusterswapped is the same as the metadata input
-            #except with the country column updated. 
+            #except with the cluster ID field added, and "region" field added
+            #to account for blank values. 
             i = 0
             for entry in inf:
                 spent = entry.strip().split("\t")
@@ -92,10 +93,12 @@ def primary_pipeline(args):
                     i += 1
                     print("\t".join(spent),file=outf)
                     continue
+                #adds cluster id
                 if spent[0] in sd:
                     spent.append(sd[spent[0]])
                 else:
                     spent.append("N/A")
+                #adds region name
                 if spent[0] in rd:
                     spent.append(rd[spent[0]])
                 else:
