@@ -1,4 +1,4 @@
-var map = L.map('mapid', {'tap':false}).setView([37.8, -96], 4);
+var map = L.map('mapid', {'tap':false}).setView([36.77, -119.418], 5);
 var global_state = "default";
 var global_time = "";
 var global_state_id = "00";
@@ -64,13 +64,19 @@ info.onAdd = function (map) {
 
 // method that we will use to update the control based on feature properties passed
 info.update = function (props) {
-    // this._div.innerHTML = '<h4>US Population Density</h4>' +  (props ?
-    //     '<b>' + props.name + '</b><br />' + props.density + ' people / mi<sup>2</sup>'
-    //     : 'Hover over a state');
+    deftext = ' - Hover over a county';
     if (global_state == "default") {
-        this._div.innerHTML = '<h4># Clusters in ' + (props ? '<b>' + props.name + '</b><br />' + props.intros[global_time + "basecount"] : 'Hover over a state');
+        // total number of clusters
+        str = '<h4># Clusters '
+        if (props) {
+            countval = props.intros[global_time + "basecount"];
+            str += ' in <b>' + props.name + ' County</b><br />' + countval;
+        } else {
+            str += deftext;
+        }
     } else {
-        str = '<h4># Introductions to ' + global_state + ' from ';
+        // number of introductions into region from another region
+        str = '<h4># Introductions to ' + global_state 
         if (props) {
             keyval = global_time + "raw" + global_state_id;
             if (keyval in props.intros){
@@ -78,12 +84,22 @@ info.update = function (props) {
             } else {
                 countval = 0;
             }
-            str += '<b>' + props.name + '</b><br />' + countval;
+            str += ' from <b>' + props.name + '</b><br />' + countval;
         } else {
-            str += 'Hover over a state';
+            str += deftext;
         }
-        this._div.innerHTML = str;
     }
+    // // append time display period
+    // if (global_time == '') {
+    //     str += '<br />Since start of pandemic';
+    // } else if (global_time == '12_') {
+    //     str += '<br />Last 12 months';
+    // } else if (global_time == '6_') {
+    //     str += '<br />Last 6 months';
+    // } else if (global_time == '3_') {
+    //     str += '<br />Last 3 months';
+    // }
+    this._div.innerHTML = str;
 };
 
 function highlightFeature(e) {
