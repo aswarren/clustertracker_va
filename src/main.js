@@ -64,13 +64,13 @@ info.onAdd = function (map) {
 
 // method that we will use to update the control based on feature properties passed
 info.update = function (props) {
-    deftext = ' - Hover over a county';
+    deftext = ' - Hover over a county or state';
     if (global_state == "default") {
         // total number of clusters
         str = '<h4># Clusters '
         if (props) {
             countval = props.intros[global_time + "basecount"];
-            str += ' in <b>' + props.name + ' County</b><br />' + countval;
+            str += ' in <b>' + props.name + '</b><br />' + countval;
         } else {
             str += deftext;
         }
