@@ -28,7 +28,7 @@ def parse_setup():
     parser.add_argument("-t","--threads",type=int,help="Number of threads to use.", default = 4)
     parser.add_argument("-l","--lexicon",help="Optionally, link to a text file containing all names for the same region, one region per row, tab separated.", default = "")
     parser.add_argument("-X","--lookahead",type=int,help="Number to pass to parameter -X of introduce. Increase to merge nested clusters. Default 2", default = 2)
-    parser.add_argument("-H","--host",help="Web-accessible link to the current directory for taxonium cluster view.",default="https://raw.githubusercontent.com/jmcbroome/introduction-website/main/")
+    parser.add_argument("-H","--host",help="Web-accessible link to the current directory for taxonium cluster view.",default="https://storage.googleapis.com/ucsc-gi-cdph-bigtree/")
     args = parser.parse_args()
     return args
 
@@ -106,7 +106,7 @@ def primary_pipeline(args):
                 i += 1
                 print("\t".join(spent),file=outf)
     print("Generating viewable pb.")
-    subprocess.check_call("matUtils extract -i " + args.input + " -M clusterswapped.tsv -F cluster,region --write-taxodium cview.pb --title Cluster-Tracker -g " + args.annotation + " -f " + args.reference,shell=True)
+    subprocess.check_call("matUtils extract -i " + args.input + " -M clusterswapped.tsv -F cluster,region,paui,name,gisaid_accession --write-taxodium cview.pb --title Cluster-Tracker -g " + args.annotation + " -f " + args.reference,shell=True)
     print("Process completed; check website for results.")
 
 if __name__ == "__main__":
