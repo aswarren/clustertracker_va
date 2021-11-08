@@ -14,7 +14,8 @@ from master_backend import validate_geojson
 #         -remove non-US samples from public metadata
 #         -remove California samples from public metadata since county is unknown
 #         -For California metadata file, remove samples w/o a valid county name
-#.        -remove samples without a valid date (YYYY-MM-DD)
+#         -Handle cases where county matches a state name (e.g., "Nevada")
+#         -remove samples without a valid date (YYYY-MM-DD)
 #         -merge public and California-specific metadata files, adding/renaming fields as necessary
 #         -create file to store sample name/region association
 #     (2) Use merged metadata file to filter samples from protobuf file
@@ -23,8 +24,12 @@ from master_backend import validate_geojson
 #get arguments and assign variable names
 args = parse_setup()
 pbf = args.input
+
 #read lexicon to get list of allowable values for state/county names. 
 conversion = read_lexicon(args.lexicon)
+#list of U.S. counties witht the same name as a state
+county_state = {"Washington","Delaware","Wyoming","Ohio","Nevada","Mississippi","Texas","Iowa","Oklahoma","Utah","Indiana","Colorado","Arkansas","Idaho","Oregon","Hawaii","New York"}
+
 # check that GeoJSON file is formatted as required
 if validate_geojson(args.geojson) != 1:
     print("GeoJSON file DOES NOT have 'name' field")
@@ -58,7 +63,10 @@ for f in mfiles:
                             fields.append("USA")
                             print("\t".join(fields), file = metadata)
                             #add sample ID and county name to sample regions file
-                            print(fields[0] + "\t" + conversion[county], file = region_assoc)
+                            if county in county_state: #handle cases where county name matches state name
+                                print(fields[0] + "\t" + county + " County", file = region_assoc)
+                            else:
+                                print(fields[0] + "\t" + conversion[county], file = region_assoc)
                         else:
                             print(fields[0], file = badsamples) #does not have a valid date
                     else:
