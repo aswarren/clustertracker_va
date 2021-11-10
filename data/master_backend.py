@@ -1,4 +1,3 @@
-import sys #debug
 import argparse
 from update_js import update_js
 from generate_display_tables import generate_display_tables
@@ -58,7 +57,6 @@ def primary_pipeline(args):
     subprocess.check_call("matUtils introduce -i " + args.input + " -s " + args.sample_regions + " -u hardcoded_clusters.tsv -T " + str(args.threads) + " -X " + str(args.lookahead), shell=True)
     print("Updating map display data.")
     update_js(args.geojson, conversion)
-    sys.exit()
     print("Generating top cluster tables.")
     generate_display_tables(conversion, host = args.host)
     print("Preparing taxonium view.")
