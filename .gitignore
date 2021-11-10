@@ -9,3 +9,6 @@ data/NC_045512v2.fa
 data/ncbiGenes.gtf
 data/clean.pb
 data/cluster_labels.tsv
+.DS_Store
+data/.DS_Store
+*.pyc
