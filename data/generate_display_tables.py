@@ -1,4 +1,4 @@
-def generate_display_tables(conversion = {}, host = "https://raw.githubusercontent.com/jmcbroome/introduction-website/main/"):
+def generate_display_tables(conversion = {}, host = "https://storage.googleapis.com/ucsc-gi-cdph-bigtree/"):
     filelines = {}
     def fix_month(datestr):
         monthswap = {"Jan":"01","Feb":"02","Mar":"03","Apr":"04","May":"05","Jun":"06","Jul":"07","Aug":"08","Sep":"09","Oct":"10","Nov":"11","Dec":"12"}
@@ -58,7 +58,7 @@ def generate_display_tables(conversion = {}, host = "https://raw.githubuserconte
                 #generate a link to exist in the last column
                 #based on the global "host" variable.
                 #and including all html syntax.
-                link = "https://taxonium.org/?protoUrl=" + host + "data/cview.pb.gz"
+                link = "https://taxonium.org/?protoUrl=" + host + "cview.pb.gz"
                 link += '&search=[{"id":0.123,"category":"cluster","value":"'
                 link += spent[0]
                 link += '","enabled":true,"aa_final":"any","min_tips":1,"aa_gene":"S","search_for_ids":""}]'
@@ -74,7 +74,7 @@ def generate_display_tables(conversion = {}, host = "https://raw.githubuserconte
         print(header,file=outf)
         for gv,dl in sorted_defaults:
             spent = dl.split("\t")
-            link = "https://taxonium.org/?protoUrl=" + host + "data/cview.pb.gz"
+            link = "https://taxonium.org/?protoUrl=" + host + "cview.pb.gz"
             link += '&search=[{"id":0.123,"category":"cluster","value":"'
             link += spent[0]
             link += '","enabled":true,"aa_final":"any","min_tips":1,"aa_gene":"S","search_for_ids":""}]'
@@ -92,4 +92,4 @@ stateconv = {"AL":"Alabama","AK":"Alaska","AR":"Arkansas","AZ":"Arizona","CA":"C
     "WA":"Washington","WV":"West Virginia","WI":"Wisconsin","WY":"Wyoming","PR":"Puerto Rico"}
 stateconv.update({v:v for v in stateconv.values()})
 if __name__ == "__main__":
-    generate_display_tables(stateconv, host = "https://raw.githubusercontent.com/jmcbroome/introduction-website/main/")
+    generate_display_tables(stateconv, host = "https://storage.googleapis.com/ucsc-gi-cdph-bigtree/")
