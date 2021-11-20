@@ -38,27 +38,35 @@ python3 -m http.server
 
 ## Further Details: Data Processing and What the Python Scripts Do
 
-# /data/prepare_county_data.py 
+### /data/prepare_county_data.py 
 
 This script pre-processes the data and is a wrapper for the primary pipeline script (/data/master_backend.py). Its main functions are to merges the two metadata formats, sorts out unusable samples (those that cannot be attributed to a US state, don't have valid dates or don't have valid Calif. county names), and uses this list to extract usable samples from the original protobuf. It then runs the "master_backend" python script, which computes the introductions.
 
 Files generated:
-- clean.pb: MAT protobuf filtered to exclude unusable samples and samples outside the US. Required for input into "master_backend.py"
-- metadata_merged.tsv: Metadata file containing only the usable samples, created by combining metadata file #1 (public+GISAID metadata) and file #2 (CA county metadata). Required for input into "master_backend.py".
-- sample_regions.tsv: Stores the associations between the sample ID and the region name. Required for input into "master_backend.py"; important for matUtils introduce.
-- unlabeled_samples.txt: List of rejected samples, useful for debugging.
+- clean.pb: 
+  - MAT protobuf filtered to exclude unusable samples and samples outside the US. Required for input into "master_backend.py"
+- metadata_merged.tsv: 
+  - Metadata file containing only the usable samples, created by combining metadata file #1 (public+GISAID metadata) and file #2 (CA county metadata). Required for input into "master_backend.py".
+- sample_regions.tsv: 
+  - Stores the associations between the sample ID and the region name. Required for input into "master_backend.py"; important for matUtils introduce.
+- unlabeled_samples.txt: 
+  - List of rejected samples, useful for debugging.
 
-# /data/master_backend.py
+### /data/master_backend.py
 
 This script takes the cleaned protobuf file generated above and uses [matUtils introduce](https://usher-wiki.readthedocs.io/en/latest/matUtils.html#introduce) to calculate the number of new introductions of the virus genome into each geographic region (in this case, all counties in California plus all U.S. States). It then generates a series of data tables for use in the web app, and creates a protobuf suitable for viewing in Taxonium.
 
 Primary data output files:
-- hardcoded_clusters.tsv: Output from matUtils introduce containing information for all the clusters.
-- cview.pb: Final output protobuf of clusters, suitable for viewing in Taxonium.
+- hardcoded_clusters.tsv: 
+  - Output from matUtils introduce containing information for all the clusters.
+- cview.pb: 
+  - Final output protobuf of clusters, suitable for viewing in Taxonium.
 
 Output files for the UI and map:
-- region.js: This is the geoJSON file that is displayed in the Leaflet map, with all cluster counts and introductions.
-- display_tables/[region_name]_topclusters.tsv: Extracts the top 100 clusters from each region for quick display in the data table below the map.
+- region.js: 
+  - This is the geoJSON file that is displayed in the Leaflet map, with all cluster counts and introductions.
+- display_tables/[region_name]_topclusters.tsv: 
+  - Extracts the top 100 clusters from each region for quick display in the data table below the map.
 
 Misc. data output files:
 - clusterswapped.tsv: adds cluster ID field, "region" field, fills in blank values as needed
