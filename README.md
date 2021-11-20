@@ -17,7 +17,7 @@ This site uses python to perform backend setup and vanilla javascript for websit
 | Gene annotation GTF file | For example: ncbiGenes.gtf, can be downloaded [here](https://usher-wiki.readthedocs.io/en/latest/_downloads/2052d9a7147253e32a3420939550ac63/ncbiGenes.gtf)) |
 | FASTA reference sequence file | For example: NC_045512v2.fa, can be downloaded [here](https://raw.githubusercontent.com/yatisht/usher/5e83b71829dbe54a37af845fd23d473a8f67b839/test/NC_045512v2.fa)); used to produce a Taxonium view |
 
-Instructions:
+### Quickstart Instructions
 1. Clone this repository into your workspace of choice.
 2. Acquire the input data files and store in a directory that can be accesed from your workspace.
 3. Navigate to the "data" directory of this cloned repo, and run "prepare_county_data.py" with the files obtained above, ala the below.
