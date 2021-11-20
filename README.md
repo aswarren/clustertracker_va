@@ -7,7 +7,7 @@ A python script and a number of data files are required to preprocess the data (
 
 This site uses python to perform backend setup and vanilla javascript for website rendering. You will need to have the [UShER software suite](https://usher-wiki.readthedocs.io/en/latest/Installation.html) installed and available on your path. This site was built with UShER version 0.5.0; earlier versions of UShER may not function as anticipated. The python "dateutil" package is required. Some versions of python may be missing the dateutil standard package; it can be installed if needed via conda.
 
-Input data files:
+### Input data files
 
 | File | Description/Notes |
 | --- | --- |
@@ -41,7 +41,7 @@ python3 -m http.server
 
 This script pre-processes the data and is a wrapper for the primary pipeline script (/data/master_backend.py). Its main functions are to merge the two metadata files, sort out unusable samples (those that cannot be attributed to a US state, don't have valid dates, or don't have valid Calif. county names), and extract only the usable samples into a new protobuf. It then runs the "master_backend" python script (which, in turn, computes the introductions).
 
-Files generated:
+#### Files generated
 
 | File Name | Description |
 | --- | --- |
@@ -54,22 +54,21 @@ Files generated:
 
 This script takes the cleaned protobuf file generated above and uses [matUtils introduce](https://usher-wiki.readthedocs.io/en/latest/matUtils.html#introduce) to calculate the number of new introductions of the virus genome into each geographic region (in this case, all counties in California plus all U.S. States). It then generates a series of data tables for use in the web app, and creates a protobuf suitable for viewing in Taxonium.
 
-Primary data output files:
-
+#### Primary data output files
 
 | File Name | Description |
 | --- | --- |
 | hardcoded_clusters.tsv | Output from matUtils introduce containing information for all the clusters. |
 | cview.pb | Final output protobuf of clusters, suitable for viewing in Taxonium. |
 
-Output files for the UI and map:
+#### Output files for the UI and map
 
 | File Name | Description |
 | --- | --- |
 | region.js | This is the geoJSON file that is displayed in the Leaflet map, with all cluster counts and introductions. |
 | display_tables/[region_name]_topclusters.tsv | Series of files, one for each region, that extracts the top 100 clusters in that region for quick display in the data table below the map. Includes links to Taxonium and CA Big Tree Investigator. |
 
-Misc. data output files:
+#### Misc. data output files:
 - clusterswapped.tsv: modifies the metadata file to add cluster ID field, "region" field, and fills in blank values as needed
 
 ## Customizing Cluster-Tracker: The Pipeline and More Explanation
