@@ -3,7 +3,7 @@ Code to generate a webpage displaying SARS-CoV-2 clusters and introductions infe
 
 A python script and a number of data files are required to preprocess the data (described below).
 
-## Quickstart: Display the United States
+## Quickstart
 
 This site uses python to perform backend setup and vanilla javascript for website rendering. You will need to have the [UShER software suite](https://usher-wiki.readthedocs.io/en/latest/Installation.html) installed and available on your path. This site was built with UShER version 0.5.0; earlier versions of UShER may not function correctly. Some versions of python may be missing the dateutil standard package as well, which is a required dependency; it can be installed via conda.
 
@@ -35,9 +35,11 @@ python3 -m http.server
 ## Further Details: Data Processing and What the Python Scripts Do
 
 /data/prepare_county_data.py 
+
 This script pre-processes the data and is a wrapper for the primary pipeline script (/data/master_backend.py). It has 3 main functions: it merges the two metadata formats, strips out any unusable samples, and uses this to extract usable samples from the original protobuf. It then runs the "master_backend" python script, which then computes the introductions.
 
 /data/master_backend.py
+
 This script takes the cleaned protobuf file generated above and uses [matUtils introduce](https://usher-wiki.readthedocs.io/en/latest/matUtils.html#introduce) to calculate the number of new introductions of the virus genome into each geographic region (in this case, all counties in California plus all U.S. States). It then generates a series of data tables for use in the web app, and creates a protobuf suitable for viewing in Taxonium.
 
 ## Customizing Cluster-Tracker: The Pipeline and More Explanation
