@@ -41,6 +41,18 @@ python3 -m http.server
 
 This script pre-processes the data and is a wrapper for the primary pipeline script (/data/master_backend.py). Its main functions are to merge the two metadata files, sort out unusable samples (those that cannot be attributed to a US state, don't have valid dates, or don't have valid Calif. county names), and extract only the usable samples into a new protobuf. It then runs the "master_backend" python script (which, in turn, computes the introductions).
 
+#### Arguments
+
+| Parameter | Description |
+| --- | --- |
+| -i path/to/protobuf-file.pb | Path to the protobuf file that forms the basis of the web display. |
+| -m path/to/metadata-file.tsv | Path to the metadata file(s) (in TSV format) that correspond with the target protobuf file. If there is more than one file, separate them with commas. Currently, they must follow one of the two formats described above in the Quickstart section. |
+| -H web/accessible/link/to/index/directory | Optional. Only necessary if building the files required for the web site. This will be the location where your web app resides. |
+| -f path/to/NC_045512v2.fa | Path to a reference fasta. |
+| -a path/to/ncbiGenes.gtf | Path to a gtf annotation matching the reference. |
+| -j path/to/region-geojson-file.json | Path to the geojson file describing the regions of interest. For the CA Big Tree Cluster-Tracker, this file is called "us-states_ca-counties.geo.json" and is located in the "data" subdirectory. |
+| -l  path/to/lexicon-file.txt | A text file that aids in standarizing region names that occur in the metadata or can be parsed from the file name. List all variations for the region name separated by commas, with one line per region. The preferred region name should come first. For example, if "California" is the preferred region name but the metadata may contain "CA" or "Calif.", the line in the lexicon for this region would be: "California,CA,Calif." For the CA Big Tree Cluster-Tracker, this file is called "state_and_county_lexicon.txt", and is and is located in the "data" subdirectory. |
+
 #### Files generated
 
 | File Name | Description |
