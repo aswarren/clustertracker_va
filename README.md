@@ -1,5 +1,5 @@
 # Calfornia Big Tree Cluster-Tracker
-Code to generate a webpage displaying SARS-CoV-2 clusters and introductions inferred via [matUtils introduce](https://usher-wiki.readthedocs.io/en/latest/matUtils.html#introduce). Data for counties in the state of California and and for U.S. states are displayed on a map and in a table, with links to view and explore the data in Taxonium and the California Big Tree Investigator. This version is a customizaton for use with data produced from the Calfornia Big Tree; the original Cluster-Tracker project can be found at https://github.com/jmcbroome/introduction-website(https://github.com/jmcbroome/introduction-website). 
+Code to generate a webpage displaying SARS-CoV-2 clusters and introductions inferred via [matUtils introduce](https://usher-wiki.readthedocs.io/en/latest/matUtils.html#introduce). Data for counties in the state of California and and for U.S. states are displayed on a map and in a table, with links to view and explore the data in Taxonium and the [California Big Tree Investigator](https://github.com/pathogen-genomics/paui-mapper). This version is a customizaton for use with data produced from the Calfornia Big Tree; the original Cluster-Tracker project can be found [here](https://github.com/jmcbroome/introduction-website). 
 
 A python script and a number of data files are required to preprocess the data (described below).
 
@@ -11,11 +11,11 @@ This site uses python to perform backend setup and vanilla javascript for websit
 
 | File | Description/Notes |
 | --- | --- |
-| CA Big Tree MAT protobuf file | compatible with [UShER](https://usher-wiki.readthedocs.io/en/latest/matUtils.html#the-mutation-annotated-tree-mat-protocol-buffer-pb)) |
+| CA Big Tree MAT protobuf file | compatible with [UShER](https://usher-wiki.readthedocs.io/en/latest/matUtils.html#the-mutation-annotated-tree-mat-protocol-buffer-pb) |
 | Metadata file #1 describing public and GISAID data, in TSV format. | The first line of the file should be a header with the following columns: strain, genbank_accession,date, country, host, completeness, length, Nextstrain_clade, pangolin_lineage, Nextstrain_clade_usher, pango_lineage_usher |
 | Metadata file #2 describing Calfornia county data, in TSV format. | The first line of the file should be a header with the following columns: usherID, name, pango_lineage, nextclade_clade, gisaid_accession, county, collection_date, paui, sequencing_lab |
-| Gene annotation GTF file | For example: ncbiGenes.gtf, can be downloaded [here](https://usher-wiki.readthedocs.io/en/latest/_downloads/2052d9a7147253e32a3420939550ac63/ncbiGenes.gtf)) |
-| FASTA reference sequence file | For example: NC_045512v2.fa, can be downloaded [here](https://raw.githubusercontent.com/yatisht/usher/5e83b71829dbe54a37af845fd23d473a8f67b839/test/NC_045512v2.fa)); used to produce a Taxonium view |
+| Gene annotation GTF file | For example: ncbiGenes.gtf, can be downloaded [here](https://usher-wiki.readthedocs.io/en/latest/_downloads/2052d9a7147253e32a3420939550ac63/ncbiGenes.gtf) |
+| FASTA reference sequence file | For example: NC_045512v2.fa, can be downloaded [here](https://raw.githubusercontent.com/yatisht/usher/5e83b71829dbe54a37af845fd23d473a8f67b839/test/NC_045512v2.fa); used to produce a Taxonium view |
 
 ### Quickstart Instructions
 1. Clone this repository into your workspace of choice.
