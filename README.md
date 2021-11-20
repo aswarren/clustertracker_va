@@ -8,15 +8,13 @@ A python script and a number of data files are required to preprocess the data (
 This site uses python to perform backend setup and vanilla javascript for website rendering. You will need to have the [UShER software suite](https://usher-wiki.readthedocs.io/en/latest/Installation.html) installed and available on your path. This site was built with UShER version 0.5.0; earlier versions of UShER may not function as anticipated. The python "dateutil" package is required. Some versions of python may be missing the dateutil standard package; it can be installed if needed via conda.
 
 Input data files:
-- CA Big Tree MAT protobuf file (compatible with [UShER](https://usher-wiki.readthedocs.io/en/latest/matUtils.html#the-mutation-annotated-tree-mat-protocol-buffer-pb))
-- Metadata file #1 describing public and GISAID data, in TSV format.
-  - The first line of the file should be a header with the following columns: strain, genbank_accession,date, country, host, completeness, length, Nextstrain_clade, pangolin_lineage, Nextstrain_clade_usher, pango_lineage_usher
-- Metadata file #2 describing Calfornia county data, in TSV format. 
-  - The first line of the file should be a header with the following columns: usherID, name, pango_lineage, nextclade_clade, gisaid_accession, county, collection_date, paui, sequencing_lab
-- Gene annotation GTF file 
-  - (e.g., ncbiGenes.gtf, can be downloaded [here](https://usher-wiki.readthedocs.io/en/latest/_downloads/2052d9a7147253e32a3420939550ac63/ncbiGenes.gtf))
-- FASTA reference sequence file 
-  - (e.g., NC_045512v2.fa, can be downloaded [here](https://raw.githubusercontent.com/yatisht/usher/5e83b71829dbe54a37af845fd23d473a8f67b839/test/NC_045512v2.fa)) to produce a Taxonium view
+
+| File | Description/Notes |
+| CA Big Tree MAT protobuf file | compatible with [UShER](https://usher-wiki.readthedocs.io/en/latest/matUtils.html#the-mutation-annotated-tree-mat-protocol-buffer-pb)) |
+| Metadata file #1 describing public and GISAID data, in TSV format. | The first line of the file should be a header with the following columns: strain, genbank_accession,date, country, host, completeness, length, Nextstrain_clade, pangolin_lineage, Nextstrain_clade_usher, pango_lineage_usher |
+| Metadata file #2 describing Calfornia county data, in TSV format. | The first line of the file should be a header with the following columns: usherID, name, pango_lineage, nextclade_clade, gisaid_accession, county, collection_date, paui, sequencing_lab |
+| Gene annotation GTF file | For example: ncbiGenes.gtf, can be downloaded [here](https://usher-wiki.readthedocs.io/en/latest/_downloads/2052d9a7147253e32a3420939550ac63/ncbiGenes.gtf)) |
+| FASTA reference sequence file | For example: NC_045512v2.fa, can be downloaded [here](https://raw.githubusercontent.com/yatisht/usher/5e83b71829dbe54a37af845fd23d473a8f67b839/test/NC_045512v2.fa)); used to produce a Taxonium view |
 
 Instructions:
 1. Clone this repository into your workspace of choice.
@@ -40,36 +38,34 @@ python3 -m http.server
 
 ### /data/prepare_county_data.py 
 
-This script pre-processes the data and is a wrapper for the primary pipeline script (/data/master_backend.py). Its main functions are to merges the two metadata formats, sorts out unusable samples (those that cannot be attributed to a US state, don't have valid dates or don't have valid Calif. county names), and uses this list to extract usable samples from the original protobuf. It then runs the "master_backend" python script, which computes the introductions.
+This script pre-processes the data and is a wrapper for the primary pipeline script (/data/master_backend.py). Its main functions are to merge the two metadata files, sort out unusable samples (those that cannot be attributed to a US state, don't have valid dates, or don't have valid Calif. county names), and extract only the usable samples into a new protobuf. It then runs the "master_backend" python script (which, in turn, computes the introductions).
 
 Files generated:
-- clean.pb: 
-  - MAT protobuf filtered to exclude unusable samples and samples outside the US. Required for input into "master_backend.py"
-- metadata_merged.tsv: 
-  - Metadata file containing only the usable samples, created by combining metadata file #1 (public+GISAID metadata) and file #2 (CA county metadata). Required for input into "master_backend.py".
-- sample_regions.tsv: 
-  - Stores the associations between the sample ID and the region name. Required for input into "master_backend.py"; important for matUtils introduce.
-- unlabeled_samples.txt: 
-  - List of rejected samples, useful for debugging.
+
+| File Name | Description |
+| clean.pb | MAT protobuf filtered to exclude unusable samples and samples outside the US. Required for input into "master_backend.py" |
+| metadata_merged.tsv | Metadata file containing only the usable samples, created by combining metadata file #1 (public+GISAID metadata) and file #2 (CA county metadata). Required for input into "master_backend.py". |
+| sample_regions.tsv | Stores the associations between the sample ID and the region name. Required for input into "master_backend.py"; important for matUtils introduce. |
+| unlabeled_samples.txt | List of rejected samples, useful for debugging. |
 
 ### /data/master_backend.py
 
 This script takes the cleaned protobuf file generated above and uses [matUtils introduce](https://usher-wiki.readthedocs.io/en/latest/matUtils.html#introduce) to calculate the number of new introductions of the virus genome into each geographic region (in this case, all counties in California plus all U.S. States). It then generates a series of data tables for use in the web app, and creates a protobuf suitable for viewing in Taxonium.
 
 Primary data output files:
-- hardcoded_clusters.tsv: 
-  - Output from matUtils introduce containing information for all the clusters.
-- cview.pb: 
-  - Final output protobuf of clusters, suitable for viewing in Taxonium.
+
+| File Name | Description |
+| hardcoded_clusters.tsv | Output from matUtils introduce containing information for all the clusters. |
+| cview.pb | Final output protobuf of clusters, suitable for viewing in Taxonium. |
 
 Output files for the UI and map:
-- region.js: 
-  - This is the geoJSON file that is displayed in the Leaflet map, with all cluster counts and introductions.
-- display_tables/[region_name]_topclusters.tsv: 
-  - Extracts the top 100 clusters from each region for quick display in the data table below the map.
+
+| File Name | Description |
+| region.js | This is the geoJSON file that is displayed in the Leaflet map, with all cluster counts and introductions. |
+| display_tables/[region_name]_topclusters.tsv | Series of files, one for each region, that extracts the top 100 clusters in that region for quick display in the data table below the map. Includes links to Taxonium and CA Big Tree Investigator. |
 
 Misc. data output files:
-- clusterswapped.tsv: adds cluster ID field, "region" field, fills in blank values as needed
+- clusterswapped.tsv: modifies the metadata file to add cluster ID field, "region" field, and fills in blank values as needed
 
 ## Customizing Cluster-Tracker: The Pipeline and More Explanation
 
