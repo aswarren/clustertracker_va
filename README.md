@@ -10,6 +10,7 @@ This site uses python to perform backend setup and vanilla javascript for websit
 Input data files:
 
 | File | Description/Notes |
+| --- | --- |
 | CA Big Tree MAT protobuf file | compatible with [UShER](https://usher-wiki.readthedocs.io/en/latest/matUtils.html#the-mutation-annotated-tree-mat-protocol-buffer-pb)) |
 | Metadata file #1 describing public and GISAID data, in TSV format. | The first line of the file should be a header with the following columns: strain, genbank_accession,date, country, host, completeness, length, Nextstrain_clade, pangolin_lineage, Nextstrain_clade_usher, pango_lineage_usher |
 | Metadata file #2 describing Calfornia county data, in TSV format. | The first line of the file should be a header with the following columns: usherID, name, pango_lineage, nextclade_clade, gisaid_accession, county, collection_date, paui, sequencing_lab |
@@ -43,6 +44,7 @@ This script pre-processes the data and is a wrapper for the primary pipeline scr
 Files generated:
 
 | File Name | Description |
+| --- | --- |
 | clean.pb | MAT protobuf filtered to exclude unusable samples and samples outside the US. Required for input into "master_backend.py" |
 | metadata_merged.tsv | Metadata file containing only the usable samples, created by combining metadata file #1 (public+GISAID metadata) and file #2 (CA county metadata). Required for input into "master_backend.py". |
 | sample_regions.tsv | Stores the associations between the sample ID and the region name. Required for input into "master_backend.py"; important for matUtils introduce. |
@@ -54,13 +56,16 @@ This script takes the cleaned protobuf file generated above and uses [matUtils i
 
 Primary data output files:
 
+
 | File Name | Description |
+| --- | --- |
 | hardcoded_clusters.tsv | Output from matUtils introduce containing information for all the clusters. |
 | cview.pb | Final output protobuf of clusters, suitable for viewing in Taxonium. |
 
 Output files for the UI and map:
 
 | File Name | Description |
+| --- | --- |
 | region.js | This is the geoJSON file that is displayed in the Leaflet map, with all cluster counts and introductions. |
 | display_tables/[region_name]_topclusters.tsv | Series of files, one for each region, that extracts the top 100 clusters in that region for quick display in the data table below the map. Includes links to Taxonium and CA Big Tree Investigator. |
 
