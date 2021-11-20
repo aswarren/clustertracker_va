@@ -14,6 +14,7 @@ Input data files:
 - Gene annotation GTF file (e.g., ncbiGenes.gtf, can be downloaded [here](https://usher-wiki.readthedocs.io/en/latest/_downloads/2052d9a7147253e32a3420939550ac63/ncbiGenes.gtf))
 - FASTA reference sequence file (e.g., NC_045512v2.fa, can be downloaded [here](https://raw.githubusercontent.com/yatisht/usher/5e83b71829dbe54a37af845fd23d473a8f67b839/test/NC_045512v2.fa) to produce a Taxonium view
 
+Instructions:
 1. Clone this repository into your workspace of choice.
 2. Acquire the input data files and store in a diretory that can be accesed from your workspace.
 3. Navigate to the "data" directory of the cloned repo, and run "prepare_county_data.py" with the files obtained above, ala the below.
@@ -24,14 +25,22 @@ python3 prepare_county_data.py -i path/to/CA/Big/Tree/protobuf.pb -m path/to/met
 gzip cview.pb
 ```
 
-You can then view your results with a Python server initiated in the main directory.
+4. You can then view your results with a Python server initiated in the main directory.
 
 ```
 cd ..
 python3 -m http.server
 ```
 
-## The Pipeline and More Explanation
+## Further Details: Data Processing and What the Python Scripts Do
+
+/data/prepare_county_data.py 
+This script pre-processes the data and is a wrapper for the primary pipeline script (/data/master_backend.py). It has 3 main functions: it merges the two metadata formats, strips out any unusable samples, and uses this to extract usable samples from the original protobuf. It then runs the "master_backend" python script, which then computes the introductions.
+
+/data/master_backend.py
+This script takes the cleaned protobuf file generated above and uses [matUtils introduce](https://usher-wiki.readthedocs.io/en/latest/matUtils.html#introduce) to calculate the number of new introductions of the virus genome into each geographic region (in this case, all counties in California plus all U.S. States). It then generates a series of data tables for use in the web app, and creates a protobuf suitable for viewing in Taxonium.
+
+## Customizing Cluster-Tracker: The Pipeline and More Explanation
 
 To generate a website for your set of regions of interest, [you will first need to obtain a geojson representing your regions of interest.](https://geojson-maps.ash.ms). You will need to generate a sample-region two-column tsv, with sample identifiers in the first column and the ID of the region they are from in the second column. You will need what I'm calling a "lexicon" file to ensure compatibility between names- this is an unheaded csv containing in the first column the base name of each region to be used by the map, and comma separated after that, each other name for that region across your other files. An example is provided under data/state_lexicon.txt.
 
