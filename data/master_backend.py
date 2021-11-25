@@ -1,6 +1,7 @@
 import argparse
 from update_js import update_js
 from generate_display_tables import generate_display_tables
+from prepare_taxonium import prepare_taxonium
 from datetime import date, timedelta
 import subprocess
 import json
@@ -60,51 +61,7 @@ def primary_pipeline(args):
     print("Generating top cluster tables.")
     generate_display_tables(conversion, host = args.host)
     print("Preparing taxonium view.")
-    sd = {} 
-    # with open("cluster_labels.tsv") as inf:
-    #     for entry in inf:
-    #         spent = entry.strip().split()
-    #         if spent[0] == "sample":
-    #             continue
-    #         sd[spent[0]] = spent[1]
-    with open("hardcoded_clusters.tsv") as inf:
-        for entry in inf:
-            spent = entry.strip().split("\t")
-            if spent[0] == 'cluster_id':
-                continue
-            for s in spent[-1].split(","):
-                sd[s] = spent[0] # sd[sample name] = cluster id
-    rd = {} 
-    with open(args.sample_regions) as inf:
-        for entry in inf:
-            spent = entry.strip().split("\t")
-            rd[spent[0]] = spent[1] # rd[sample name] = region
-    with open(mf) as inf:
-        with open("clusterswapped.tsv","w+") as outf:
-            #clusterswapped is the same as the metadata input
-            #except with the cluster ID field added, and "region" field added
-            #to account for blank values. 
-            i = 0
-            for entry in inf:
-                spent = entry.strip().split("\t")
-                if i == 0:
-                    spent.append("cluster")
-                    spent.append("region")
-                    i += 1
-                    print("\t".join(spent),file=outf)
-                    continue
-                #adds cluster id
-                if spent[0] in sd:
-                    spent.append(sd[spent[0]])
-                else:
-                    spent.append("N/A")
-                #adds region name
-                if spent[0] in rd:
-                    spent.append(rd[spent[0]])
-                else:
-                    spent.append("None")
-                i += 1
-                print("\t".join(spent),file=outf)
+    prepare_taxonium(args.sample_regions, mf)
     print("Generating viewable pb.")
     subprocess.check_call("matUtils extract -i " + args.input + " -M clusterswapped.tsv -F cluster,region,paui,name,gisaid_accession --write-taxodium cview.pb --title Cluster-Tracker -g " + args.annotation + " -f " + args.reference,shell=True)
     print("Process completed; check website for results.")
