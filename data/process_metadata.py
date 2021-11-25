@@ -144,4 +144,4 @@ lexicon = {"Alameda":"Alameda County","Alpine":"Alpine County","Amador":"Amador 
     "SC":"South Carolina","SD":"South Dakota","TN":"Tennessee","TX":"Texas","UT":"Utah","VT":"Vermont","VA":"Virginia",
     "WA":"Washington","WV":"West Virginia","WI":"Wisconsin","WY":"Wyoming","PR":"Puerto Rico"}
 if __name__ == "__main__":
-    process_metadata(lexicon, metadata = "../../download-data/samplemeta.tsv,../../download-data/public.plusGisaid.latest.metadata.tsv")
+    process_metadata(lexicon, metadata = "samplemeta.tsv,public.plusGisaid.latest.metadata.tsv")
