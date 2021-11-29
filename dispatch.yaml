@@ -1,5 +1,5 @@
 dispatch:
   - url: "cluster-tracker.big-tree.ucsc.edu/*"
-      service: cluster-tracker.big-tree
+    service: cluster-tracker
   - url: "www.cluster-tracker.big-tree.ucsc.edu/*"
-      service: cluster-tracker.big-tree
+    service: cluster-tracker
