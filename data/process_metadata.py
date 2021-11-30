@@ -26,7 +26,7 @@ def process_metadata(conversion, metadata):
     region_assoc = open("sample_regions.tsv","w+") # file to store associations between sample ID and region name
     date_pattern = '[0-9]{4}-[0-9]{2}-[0-9]{2}'
     #write metadata header
-    print("strain\tname\tpangolin_lineage\tnextclade_clade\tgisaid_accession\tcounty\tdate\tpaui\tsequencing_lab\tgenbank_accession\tcountry", file = metadata)
+    print("strain\tname\tpangolin_lineage\tnextclade_clade\tgisaid_accession\tcounty\tdate\tlink_id\tsequencing_lab\tgenbank_accession\tcountry", file = metadata)
     for f in mfiles:
         with open(f) as inf:
             fields = inf.readline().strip().split("\t")
@@ -82,7 +82,7 @@ def process_metadata(conversion, metadata):
                                     newfields.append("") #gisaid_accession
                                     newfields.append("") #county name
                                     newfields.append(fields[2]) #date
-                                    newfields.append("") #paui
+                                    newfields.append("") #Link ID (PAUI)
                                     newfields.append("") #sequencing_lab
                                     newfields.append(fields[1]) #genbank_accession
                                     newfields.append("USA") #country
