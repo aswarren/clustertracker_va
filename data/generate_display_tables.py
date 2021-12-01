@@ -1,3 +1,27 @@
+def get_taxonium_link(host,cluster):
+    link = "https://taxonium.org/?protoUrl=" + host + "cview.pb.gz"
+    link += '&search=[{"id":0.123,"category":"cluster","value":"'
+    link += cluster
+    link += '","enabled":true,"aa_final":"any","min_tips":1,"aa_gene":"S","search_for_ids":""}]'
+    link += '&colourBy={"variable":"region","gene":"S","colourLines":false,"residue":"681"}'
+    link += "&zoomToSearch=0&blinking=false"
+    return link
+
+def get_investigator_link(items,pid_assoc):
+    link = "https://investigator.big-tree.ucsc.edu/?ids="
+    samples = items.split(",")
+    pids = []
+    for s in samples:
+        #get PAUI's from sample names
+        if s.startswith('CDPH') or s.startswith('USA/CA-CDPH'):
+            if s in pid_assoc:
+                pids.append(pid_assoc[s])
+    if pids:
+        link += ",".join(pids)
+    else:
+        link = "No identifiable samples"
+    return link
+
 def generate_display_tables(conversion = {}, host = "https://storage.googleapis.com/ucsc-gi-cdph-bigtree/"):
     filelines = {}
     def fix_month(datestr):
@@ -7,6 +31,12 @@ def generate_display_tables(conversion = {}, host = "https://storage.googleapis.
     default_growthvs = []
     default_lines = []
     totbuff = [] #track overall no valid date clusters to fill in at the end.
+    # get sample name/PAUI associations
+    pid_assoc = {} # links sample ID with personal id (PAUI)
+    with open("pids.tsv") as inf:
+        for entry in inf:
+            spent = entry.strip().split("\t")
+            pid_assoc[spent[0]] = spent[1]
     with open("hardcoded_clusters.tsv") as inf:
         cr = "None"
         buffer = []
@@ -51,7 +81,7 @@ def generate_display_tables(conversion = {}, host = "https://storage.googleapis.
             for t in totbuff[:100-len(default_lines)]:
                 default_lines.append(t[0])
                 default_growthvs.append(0-1/t[1])
-    header = "Cluster ID\tRegion\tSample Count\tEarliest Date\tLatest Date\tClade\tLineage\tInferred Origins\tInferred Origin Confidences\tGrowth Score\tClick to View"
+    header = "Cluster ID\tRegion\tSample Count\tEarliest Date\tLatest Date\tClade\tLineage\tInferred Origins\tInferred Origin Confidences\tGrowth Score\tClick to View in Taxonium\tClick to View in CA Big Tree Investigator"
     mout = open("cluster_labels.tsv","w+")
     print("sample\tcluster",file=mout)
     for reg, lines in filelines.items():
@@ -61,6 +91,7 @@ def generate_display_tables(conversion = {}, host = "https://storage.googleapis.
                 #process the line 
                 #into something more parseable.
                 spent = l.split("\t")
+                ilink = get_investigator_link(spent[-1],pid_assoc)
                 #save matching results to the other output files
                 #for downstream extraction of json
                 samples = spent[-1].split(",")
@@ -69,14 +100,9 @@ def generate_display_tables(conversion = {}, host = "https://storage.googleapis.
                 #generate a link to exist in the last column
                 #based on the global "host" variable.
                 #and including all html syntax.
-                link = "https://taxonium.org/?protoUrl=" + host + "cview.pb.gz"
-                link += '&search=[{"id":0.123,"category":"cluster","value":"'
-                link += spent[0]
-                link += '","enabled":true,"aa_final":"any","min_tips":1,"aa_gene":"S","search_for_ids":""}]'
-                link += '&colourBy={"variable":"region","gene":"S","colourLines":false,"residue":"681"}'
-                link += "&zoomToSearch=0&blinking=false"
+                link = get_taxonium_link(host,spent[0])
                 #additionally process the date strings
-                outline = [spent[0], spent[9], spent[1], fix_month(spent[2]), fix_month(spent[3]), spent[12], spent[13], spent[10], spent[11], spent[4], link]
+                outline = [spent[0], spent[9], spent[1], fix_month(spent[2]), fix_month(spent[3]), spent[12], spent[13], spent[10], spent[11], spent[4], link, ilink]
                 print("\t".join(outline),file=outf)
 
     mout.close()
@@ -85,13 +111,9 @@ def generate_display_tables(conversion = {}, host = "https://storage.googleapis.
         print(header,file=outf)
         for gv,dl in sorted_defaults:
             spent = dl.split("\t")
-            link = "https://taxonium.org/?protoUrl=" + host + "cview.pb.gz"
-            link += '&search=[{"id":0.123,"category":"cluster","value":"'
-            link += spent[0]
-            link += '","enabled":true,"aa_final":"any","min_tips":1,"aa_gene":"S","search_for_ids":""}]'
-            link += '&colourBy={"variable":"region","gene":"S","colourLines":false,"residue":"681"}'
-            link += "&zoomToSearch=0&blinking=false"
-            outline = [spent[0], spent[9], spent[1], fix_month(spent[2]), fix_month(spent[3]), spent[12], spent[13], spent[10], spent[11], spent[4], link]
+            ilink = get_investigator_link(spent[-1],pid_assoc)
+            link = get_taxonium_link(host,spent[0])
+            outline = [spent[0], spent[9], spent[1], fix_month(spent[2]), fix_month(spent[3]), spent[12], spent[13], spent[10], spent[11], spent[4], link, ilink]
             print("\t".join(outline), file = outf)
 lexicon = {"Alameda":"Alameda County","Alpine":"Alpine County","Amador":"Amador County","Butte":"Butte County",
     "Calaveras":"Calaveras County","Colusa":"Colusa County","Contra Costa":"Contra Costa County","Del Norte":"Del Norte County",

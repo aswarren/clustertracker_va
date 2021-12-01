@@ -24,6 +24,7 @@ def process_metadata(conversion, metadata):
     metadata = open("metadata_merged.tsv","w+") #output file for merged metadata
     badsamples = open("unlabeled_samples.txt","w+") # file for rejected sample names
     region_assoc = open("sample_regions.tsv","w+") # file to store associations between sample ID and region name
+    pid_assoc = open("pids.tsv","w+") # file to store associations between sample ID and personal IDs (paui's)
     date_pattern = '[0-9]{4}-[0-9]{2}-[0-9]{2}'
     #write metadata header
     print("strain\tname\tpangolin_lineage\tnextclade_clade\tgisaid_accession\tcounty\tdate\tlink_id\tsequencing_lab\tgenbank_accession\tcountry", file = metadata)
@@ -36,7 +37,7 @@ def process_metadata(conversion, metadata):
                 for entry in inf:
                     fields = entry.strip().split("\t")
                     # check for valid California county names
-                    county = fields[5]
+                    county = fields[5].strip()
                     if county != "":
                         #check if county is in lexicon
                         if county.upper() in (c.upper() for c in conversion): # convert all names to uppercase to avoid differences in case
@@ -51,6 +52,9 @@ def process_metadata(conversion, metadata):
                                     print(fields[0] + "\t" + county + " County", file = region_assoc)
                                 else:
                                     print(fields[0] + "\t" + conversion[county], file = region_assoc)
+                                #add PAUI to association file
+                                if fields[7].strip() != "":
+                                    print(fields[0] + "\t" + fields[7], file = pid_assoc)
                             else:
                                 print(fields[0], file = badsamples) #does not have a valid date
                         else:
@@ -104,6 +108,7 @@ def process_metadata(conversion, metadata):
     metadata.close()
     badsamples.close()
     region_assoc.close()
+    pid_assoc.close()
 
 lexicon = {"Alameda":"Alameda County","Alpine":"Alpine County","Amador":"Amador County","Butte":"Butte County",
     "Calaveras":"Calaveras County","Colusa":"Colusa County","Contra Costa":"Contra Costa County","Del Norte":"Del Norte County",

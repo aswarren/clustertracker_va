@@ -137,7 +137,14 @@ function loadTargetTable(target) {
         csv_options: {separator: '\t', delimiter: '\t'},
         datatables_options: {"paging": true, "searching": true, "order": [[9,"desc"]]},
         custom_formatting: [
-            [10, function (data,type,row,meta) {
+            [11, function (data,type,row,meta) {
+                if (data == "No identifiable samples") {
+                    return '<div title="No CDPH sample IDs were found in this cluster.">' + data + "</div>";
+                } else {
+                    return '<a href="' + encodeURI(data) + '" title="Click to View in CA Big Tree Investigator" target="_blank">View Samples</a>';
+                }
+              }
+            ],[10, function (data,type,row,meta) {
                 return '<a href="' + encodeURI(data) + '" title="Click to View in Taxonium" target="_blank">View Cluster</a>';
               }
             ],[9, function (data,type,row,meta) {
