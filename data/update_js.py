@@ -28,7 +28,7 @@ def update_js(target, conversion = {}):
             spent = entry.strip().split("\t")
             if spent[0] == "cluster_id":
                 continue
-            reg = conversion[spent[9]]
+            reg = conversion[spent[9].replace("_"," ")]
             if spent[10] == "indeterminate":
                 continue
             #get the date of this cluster's earliest sample into a usable form
@@ -50,7 +50,7 @@ def update_js(target, conversion = {}):
                     if reg not in ovc:
                         ovc[reg] = {}
                     for tlo in spent[10].split(","):
-                        orig = conversion[tlo]
+                        orig = conversion[tlo.replace("_"," ")]
                         if orig not in otvc:
                             otvc[orig] = 0
                         otvc[orig] += 1

@@ -7,20 +7,28 @@ def get_taxonium_link(host,cluster):
     link += "&zoomToSearch=0&blinking=false"
     return link
 
-def get_investigator_link(items,pid_assoc):
-    link = "https://investigator.big-tree.ucsc.edu/?ids="
-    samples = items.split(",")
+def get_investigator_link(pid_list,cluster_id,fname):
+    link = "No identifiable samples"
+    if pid_list != "":
+        link = "https://investigator.big-tree.ucsc.edu/?"
+        link += "file=" + fname
+        link += "&cid=" + cluster_id
+        #encode spaces
+        link = link.replace(" ","%20")
+    return link
+
+def get_sample_pauis(items,pid_assoc):
+    pid_list = ""
     pids = []
+    samples = items.split(",")
     for s in samples:
         #get PAUI's from sample names
         if s.startswith('CDPH') or s.startswith('USA/CA-CDPH'):
             if s in pid_assoc:
                 pids.append(pid_assoc[s])
     if pids:
-        link += ",".join(pids)
-    else:
-        link = "No identifiable samples"
-    return link
+        pid_list = ",".join(pids)
+    return pid_list
 
 def generate_display_tables(conversion = {}, host = "https://storage.googleapis.com/ucsc-gi-cdph-bigtree/"):
     filelines = {}
@@ -44,7 +52,7 @@ def generate_display_tables(conversion = {}, host = "https://storage.googleapis.
             spent = entry.strip().split("\t")
             if spent[0] == "cluster_id": 
                 continue
-            reg = conversion[spent[9]]
+            reg = conversion[spent[9].replace("_"," ")]
             if reg not in filelines:
                 filelines[reg] = []
             if cr == "None":
@@ -81,17 +89,20 @@ def generate_display_tables(conversion = {}, host = "https://storage.googleapis.
             for t in totbuff[:100-len(default_lines)]:
                 default_lines.append(t[0])
                 default_growthvs.append(0-1/t[1])
-    header = "Cluster ID\tRegion\tSample Count\tEarliest Date\tLatest Date\tClade\tLineage\tInferred Origins\tInferred Origin Confidences\tGrowth Score\tClick to View in Taxonium\tClick to View in CA Big Tree Investigator"
+    header = "Cluster ID\tRegion\tSample Count\tEarliest Date\tLatest Date\tClade\tLineage\tInferred Origins\tInferred Origin Confidences\tGrowth Score\tClick to View in Taxonium\tClick to View in CA Big Tree Investigator\tLink IDs"
     mout = open("cluster_labels.tsv","w+")
     print("sample\tcluster",file=mout)
     for reg, lines in filelines.items():
-        with open("display_tables/" + conversion[reg] + "_topclusters.tsv", "w+") as outf:
+        fname = conversion[reg].replace(" ", "_") + "_topclusters.tsv"
+        with open("display_tables/" + fname, "w+") as outf:
             print(header,file=outf)
             for l in lines:
                 #process the line 
                 #into something more parseable.
                 spent = l.split("\t")
-                ilink = get_investigator_link(spent[-1],pid_assoc)
+                #get California sample PAUIs and create link to BT Investigator
+                pid_list = get_sample_pauis(spent[-1],pid_assoc)
+                ilink = get_investigator_link(pid_list, spent[0], fname)
                 #save matching results to the other output files
                 #for downstream extraction of json
                 samples = spent[-1].split(",")
@@ -102,7 +113,7 @@ def generate_display_tables(conversion = {}, host = "https://storage.googleapis.
                 #and including all html syntax.
                 link = get_taxonium_link(host,spent[0])
                 #additionally process the date strings
-                outline = [spent[0], spent[9], spent[1], fix_month(spent[2]), fix_month(spent[3]), spent[12], spent[13], spent[10], spent[11], spent[4], link, ilink]
+                outline = [spent[0], spent[9], spent[1], fix_month(spent[2]), fix_month(spent[3]), spent[12], spent[13], spent[10], spent[11], spent[4], link, ilink, pid_list]
                 print("\t".join(outline),file=outf)
 
     mout.close()
@@ -111,9 +122,11 @@ def generate_display_tables(conversion = {}, host = "https://storage.googleapis.
         print(header,file=outf)
         for gv,dl in sorted_defaults:
             spent = dl.split("\t")
-            ilink = get_investigator_link(spent[-1],pid_assoc)
+            #get California sample PAUIs and create link to BT Investigator
+            pid_list = get_sample_pauis(spent[-1],pid_assoc)
+            ilink = get_investigator_link(pid_list, spent[0],"default_clusters.tsv")
             link = get_taxonium_link(host,spent[0])
-            outline = [spent[0], spent[9], spent[1], fix_month(spent[2]), fix_month(spent[3]), spent[12], spent[13], spent[10], spent[11], spent[4], link, ilink]
+            outline = [spent[0], spent[9], spent[1], fix_month(spent[2]), fix_month(spent[3]), spent[12], spent[13], spent[10], spent[11], spent[4], link, ilink, pid_list]
             print("\t".join(outline), file = outf)
 lexicon = {"Alameda":"Alameda County","Alpine":"Alpine County","Amador":"Amador County","Butte":"Butte County",
     "Calaveras":"Calaveras County","Colusa":"Colusa County","Contra Costa":"Contra Costa County","Del Norte":"Del Norte County",

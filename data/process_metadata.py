@@ -49,9 +49,10 @@ def process_metadata(conversion, metadata):
                                 print("\t".join(fields), file = metadata)
                                 #add sample ID and county name to sample regions file
                                 if county in county_state: #handle cases where county name matches state name
-                                    print(fields[0] + "\t" + county + " County", file = region_assoc)
+                                    text = county.replace(" ", "_") + "_County"
                                 else:
-                                    print(fields[0] + "\t" + conversion[county], file = region_assoc)
+                                    text = conversion[county].replace(" ", "_")
+                                print(fields[0] + "\t" + text, file = region_assoc)
                                 #add PAUI to association file
                                 if fields[7].strip() != "":
                                     print(fields[0] + "\t" + fields[7], file = pid_assoc)
@@ -92,7 +93,8 @@ def process_metadata(conversion, metadata):
                                     newfields.append("USA") #country
                                     print("\t".join(newfields), file = metadata)
                                     #add sample ID and state name to sample regions file
-                                    print(fields[0] + "\t" + conversion[state.upper()], file = region_assoc)
+                                    text = conversion[state.upper()].replace(" ", "_")
+                                    print(fields[0] + "\t" + text, file = region_assoc)
                                 else:
                                     print(fields[0], file = badsamples) #does not have a valid date
                         else:

@@ -190,7 +190,8 @@ function resetView(e) {
 }
 
 function loadStateTable(e) {
-    let path = "data/display_tables/" + e.target.feature.properties.name + "_topclusters.tsv";
+    var fname = e.target.feature.properties.name.trim().replace(/\s+/g, '_')
+    let path = "data/display_tables/" + fname + "_topclusters.tsv";
     loadTargetTable(path);
 }
 
