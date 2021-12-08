@@ -10,7 +10,7 @@
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="manifest" href="/site.webmanifest">
 <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css"/>       
-<link rel="stylesheet" href="lib/leafletjs/leaflet.css">
+<link rel="stylesheet" href="css/leaflet.css">
 <link rel="stylesheet" href="css/custom.css">
 <style>
 body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
@@ -66,20 +66,20 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
             </p>
         </div>
         <div id="table-container"></div>
-        <script src="lib/leafletjs/leaflet.js"></script>
+        <script src="scripts/leaflet.js"></script>
         <script src="data/regions.js"></script>
-        <script src="src/main.js"></script>
+        <script src="scripts/main.js"></script>
         <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.2.1/js/bootstrap.bundle.min.js"></script>
-        <script src="src/jquery.csv.min.js"></script>
+        <script src="scripts/jquery.csv.min.js"></script>
         <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
         <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
-        <script src="src/csv_to_html_table.js"></script> 
+        <script src="scripts/csv_to_html_table.js"></script> 
         <script>
            loadTargetTable('data/display_tables/default_clusters.tsv');
         </script>
-        <a href = "data/hardcoded_clusters.tsv", download = "sarscov2_clusters.tsv">Download full output file.</a>
-        <a href = "data/cview.pb.gz", download = "cluster_taxonium.pb">Download the taxonium protobuf for viewing.</a>
+        <a href = "data/hardcoded_clusters.tsv.gz", download = "sarscov2_clusters.tsv.gz">Download full output file.</a>
+        <a href = "data/cview.pb.gz", download = "cluster_taxonium.pb.gz">Download the taxonium protobuf for viewing.</a>
         <p>Please post an issue at <a title="The github repository for this site." href="https://github.com/pathogen-genomics/introduction-website" target="_blank">the github</a> or email us at help-pathogengenomics@ucsc.edu if you have questions or feedback.</p>
     </body>
 </html>
