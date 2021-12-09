@@ -6,13 +6,38 @@
 # For more information, run:
 #   $ gcloud topic gcloudignore
 #
-data/clean.pb
+
+# data processing files
+data/*.py
+
+# input data files
+data/new_tree.pb
 data/public.plusGisaid.latest.metadata.tsv
 data/samplemeta.tsv
+data/NC_045512v2.fa
+data/us-states_ca-counties.geo.json
+data/ncbiGenes.gtf
+
+# temporary output data files
+data/metadata_merged.tsv
+data/pids.tsv
+data/sample_regions.tsv
 data/unlabeled_samples.txt
+data/clean.pb
+data/cluster_labels.tsv
 data/clusterswapped.tsv
-src/node_modules
+# use gzipped versions for download
+data/cview.pb
+data/hardcoded_clusters.tsv
+
+# misc
+data/temp/**
+src/**
+lib/**
+*.sh
 .gcloudignore
+**/.DS_Store
+
 # If you would like to upload your .git directory, .gitignore file or files
 # from your .gitignore file, remove the corresponding line
 # below:
