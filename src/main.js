@@ -189,12 +189,12 @@ function resetView(e) {
     geojson.eachLayer(function (layer) {
         geojson.resetStyle(layer);
     });
-    loadTargetTable('data/display_tables/default_clusters.tsv');
+    loadTargetTable('https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/default_clusters.tsv');
 }
 
 function loadStateTable(e) {
     var fname = e.target.feature.properties.name.trim().replace(/\s+/g, '_')
-    let path = "data/display_tables/" + fname + "_topclusters.tsv";
+    let path = "https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/" + fname + "_topclusters.tsv";
     loadTargetTable(path);
 }
 

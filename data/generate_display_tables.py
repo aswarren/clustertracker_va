@@ -168,4 +168,4 @@ lexicon = {"Alameda":"Alameda County","Alpine":"Alpine County","Amador":"Amador 
     "WA":"Washington","WV":"West Virginia","WI":"Wisconsin","WY":"Wyoming","PR":"Puerto Rico"}
 lexicon.update({v:v for v in lexicon.values()})
 if __name__ == "__main__":
-    generate_display_tables(lexicon, host = "https://storage.googleapis.com/ucsc-gi-cdph-bigtree/")
+    generate_display_tables(lexicon, host = "https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/")
