@@ -10,10 +10,11 @@ cp lib/leafletjs/leaflet.js scripts
 #CSS files
 cp lib/leafletjs/leaflet.css css
 
+#data files will be hosted on GCloud
 #zip and copy Taxonium protobuf
-gzip -k data/cview.pb
-gzip -k data/hardcoded_clusters.tsv
-gsutil cp data/cview.pb.gz gs://ucsc-gi-cdph-bigtree/
+#gzip -k data/cview.pb
+#gzip -k data/hardcoded_clusters.tsv
+#gsutil cp data/cview.pb.gz gs://ucsc-gi-cdph-bigtree/
 
-#copy files to Google App Engine and redeploy
-#gcloud app deploy
+echo "Files copied. To deploy to Google App Engine, type:"
+echo "gcloud app deploy"

@@ -1,4 +1,6 @@
 def get_taxonium_link(host,cluster):
+    if host == "https://storage.googleapis.com/ucsc-gi-cdph-bigtree/":
+        host += "display_tables/"
     link = "https://taxonium.org/?protoUrl=" + host + "cview.pb.gz"
     link += '&search=[{"id":0.123,"category":"cluster","value":"'
     link += cluster
@@ -168,4 +170,4 @@ lexicon = {"Alameda":"Alameda County","Alpine":"Alpine County","Amador":"Amador 
     "WA":"Washington","WV":"West Virginia","WI":"Wisconsin","WY":"Wyoming","PR":"Puerto Rico"}
 lexicon.update({v:v for v in lexicon.values()})
 if __name__ == "__main__":
-    generate_display_tables(lexicon, host = "https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/")
+    generate_display_tables(lexicon, host = "https://storage.googleapis.com/ucsc-gi-cdph-bigtree/")

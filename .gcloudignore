@@ -7,31 +7,10 @@
 #   $ gcloud topic gcloudignore
 #
 
-# data processing files
-data/*.py
-
-# input data files
-data/new_tree.pb
-data/public.plusGisaid.latest.metadata.tsv
-data/samplemeta.tsv
-data/NC_045512v2.fa
-data/us-states_ca-counties.geo.json
-data/ncbiGenes.gtf
-
-# temporary output data files
-data/metadata_merged.tsv
-data/pids.tsv
-data/sample_regions.tsv
-data/unlabeled_samples.txt
-data/clean.pb
-data/cluster_labels.tsv
-data/clusterswapped.tsv
-# use gzipped versions for download
-data/cview.pb
-data/hardcoded_clusters.tsv
+# data files will be hosted from GCloud
+data/**
 
 # misc
-data/temp/**
 src/**
 lib/**
 *.sh
