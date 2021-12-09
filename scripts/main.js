@@ -154,7 +154,6 @@ function loadTargetTable(target) {
                 return '<div title="Confidence metric for the origin; 1 is maximal, 0 is minimal.">' + data + "</div>"
               }
             ],[7, function (data,type,row,meta) {
-                data = data.replace(/_/g, " "); // replace underscore with space for origin name
                 return '<div title="The origin region with the greatest weight. May not be the true origin, especially if the corresponding confidence value is below 0.5.">' + data + "</div>"
               }
             ],[6, function (data,type,row,meta) {
@@ -173,11 +172,9 @@ function loadTargetTable(target) {
                 return '<div title="Number of samples in this cluster.">' + data + "</div>"
               }
             ],[1, function (data,type,row,meta) {
-                data = data.replace(/_/g, " "); // replace underscore with space for region name
                 return '<div title="Region of this cluster.">' + data + "</div>"
               }
             ],[0, function (data,type,row,meta) {
-                data = data.replace(/_/g, " "); // replace underscore with space for node name
                 return '<div title="The identifier of the internal node inferred to be the ancestral introduction. Can be used with the public protobuf and matUtils.">' + data + "</div>"
               }
             ]
@@ -189,12 +186,12 @@ function resetView(e) {
     geojson.eachLayer(function (layer) {
         geojson.resetStyle(layer);
     });
-    loadTargetTable('https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/default_clusters.tsv');
+    loadTargetTable('data/display_tables/default_clusters.tsv');
 }
 
 function loadStateTable(e) {
     var fname = e.target.feature.properties.name.trim().replace(/\s+/g, '_')
-    let path = "https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/" + fname + "_topclusters.tsv";
+    let path = "data/display_tables/" + fname + "_topclusters.tsv";
     loadTargetTable(path);
 }
 
