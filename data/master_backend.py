@@ -64,7 +64,7 @@ def primary_pipeline(args):
     print("Preparing taxonium view.")
     prepare_taxonium(args.sample_regions, mf)
     print("Generating viewable pb.")
-    subprocess.check_call("matUtils extract -i " + args.input + " -M clusterswapped.tsv -F cluster,region,link_id,name,gisaid_accession --write-taxodium cview.pb --title Cluster-Tracker -g " + args.annotation + " -f " + args.reference,shell=True)
+    subprocess.check_call("matUtils extract -i " + args.input + " -M clusterswapped.tsv -F nextclade_clade,cluster,region,link_id,name,gisaid_accession --write-taxodium cview.pb --title Cluster-Tracker -g " + args.annotation + " -f " + args.reference,shell=True)
     print("Process completed; check website for results.")
 
 if __name__ == "__main__":
