@@ -22,6 +22,7 @@ def parse_setup():
     parser = argparse.ArgumentParser()
     parser.add_argument("-i","--input",help="Path to the protobuf file to update the website to display.")
     parser.add_argument("-s","--sample_regions",help="Path to a two-column tsv containing sample names and associated regions.")
+    parser.add_argument("-d","--date-metadata",help="Path to a two-column tsv containing sample names and collection dates in YYYY-MM-DD format.")
     parser.add_argument("-j","--geojson",help="Path to a geojson to use.")
     parser.add_argument("-m","--metadata",help="Path to a metadata file matching the targeted protobuf to update the website to display.")
     parser.add_argument("-f","--reference",help="Path to a reference fasta.")
@@ -55,7 +56,7 @@ def primary_pipeline(args):
         conversion = {}
     # print(conversion)
     print("Calling introduce.")
-    subprocess.check_call("matUtils introduce -i " + args.input + " -s " + args.sample_regions + " -u hardcoded_clusters.tsv -T " + str(args.threads) + " -X " + str(args.lookahead), shell=True)
+    subprocess.check_call("matUtils introduce -i " + args.input + " -s " + args.sample_regions + " -M " + args.date_metadata + " -u hardcoded_clusters.tsv -T " + str(args.threads) + " -X " + str(args.lookahead), shell=True)
     print("Updating map display data.")
     update_js(args.geojson, conversion)
     print("Generating top cluster tables.")

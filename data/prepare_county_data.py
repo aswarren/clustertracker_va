@@ -38,5 +38,6 @@ subprocess.check_call("matUtils extract -i " + pbf + " -s sample_regions.tsv -o 
 args.input = "clean.pb"
 args.metadata = "metadata_merged.tsv"
 args.sample_regions = "sample_regions.tsv"
+args.date_metadata = "sample_dates.tsv"
 print("Starting main pipeline.")
 primary_pipeline(args)

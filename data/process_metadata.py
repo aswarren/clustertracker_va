@@ -24,6 +24,8 @@ def process_metadata(conversion, metadata):
     metadata = open("metadata_merged.tsv","w+") #output file for merged metadata
     badsamples = open("unlabeled_samples.txt","w+") # file for rejected sample names
     region_assoc = open("sample_regions.tsv","w+") # file to store associations between sample ID and region name
+    date_file = open("sample_dates.tsv","w+") # file to store associations between sample ID and sample dates
+    print("sample_id\tdate", file = date_file)
     pid_assoc = open("pids.tsv","w+") # file to store associations between sample ID and personal IDs (paui's)
     date_pattern = '[0-9]{4}-[0-9]{2}-[0-9]{2}'
     #write metadata header
@@ -53,6 +55,8 @@ def process_metadata(conversion, metadata):
                                 else:
                                     text = conversion[county].replace(" ", "_")
                                 print(fields[0] + "\t" + text, file = region_assoc)
+                                #add sample ID and date to sample dates file
+                                print(fields[0] + "\t" + fields[6], file = date_file)
                                 #add PAUI to association file
                                 if fields[7].strip() != "":
                                     print(fields[0] + "\t" + fields[7], file = pid_assoc)
@@ -95,6 +99,8 @@ def process_metadata(conversion, metadata):
                                     #add sample ID and state name to sample regions file
                                     text = conversion[state.upper()].replace(" ", "_")
                                     print(fields[0] + "\t" + text, file = region_assoc)
+                                    #add sample ID and date to sample dates file
+                                    print(fields[0] + "\t" + fields[2], file = date_file)
                                 else:
                                     print(fields[0], file = badsamples) #does not have a valid date
                         else:
@@ -110,6 +116,7 @@ def process_metadata(conversion, metadata):
     metadata.close()
     badsamples.close()
     region_assoc.close()
+    date_file.close()
     pid_assoc.close()
 
 lexicon = {"Alameda":"Alameda County","Alpine":"Alpine County","Amador":"Amador County","Butte":"Butte County",
