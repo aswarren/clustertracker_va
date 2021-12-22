@@ -1,2 +1,6 @@
+v0.2.1 (2021-12-22): 
+  -fixed issue with missing or incorrect cluster dates 
+  -added clade information to Taxonium protobuf
+  -use more stable jquery CDN
 v0.2.0 (2021-12-17): 
   -UI changes: removed links in data display table to CA Big Tree Investigator
