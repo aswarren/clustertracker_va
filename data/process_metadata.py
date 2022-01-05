@@ -55,8 +55,9 @@ def process_metadata(conversion, metadata):
                                 else:
                                     text = conversion[county].replace(" ", "_")
                                 print(fields[0] + "\t" + text, file = region_assoc)
-                                #add sample ID and date to sample dates file
-                                print(fields[0] + "\t" + fields[6], file = date_file)
+                                #if non-standard sample name, add sample ID and date to sample dates file
+                                if (fields[0].startswith("CDPH")):
+                                    print(fields[0] + "\t" + fields[6], file = date_file)
                                 #add PAUI to association file
                                 if fields[7].strip() != "":
                                     print(fields[0] + "\t" + fields[7], file = pid_assoc)
@@ -99,8 +100,6 @@ def process_metadata(conversion, metadata):
                                     #add sample ID and state name to sample regions file
                                     text = conversion[state.upper()].replace(" ", "_")
                                     print(fields[0] + "\t" + text, file = region_assoc)
-                                    #add sample ID and date to sample dates file
-                                    print(fields[0] + "\t" + fields[2], file = date_file)
                                 else:
                                     print(fields[0], file = badsamples) #does not have a valid date
                         else:

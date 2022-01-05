@@ -1,3 +1,6 @@
+v0.2.2 (2022-01-04): 
+  -refine input to matUtils introduce to optimize processing
+  -UI update to differentiate download links
 v0.2.1 (2021-12-22): 
   -fixed issue with missing or incorrect cluster dates 
   -added clade information to Taxonium protobuf
