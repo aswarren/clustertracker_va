@@ -1,3 +1,5 @@
+v0.2.3 (2022-01-18): 
+  -UI changes: add links in data display table to CA Big Tree Investigator
 v0.2.2 (2022-01-04): 
   -refine input to matUtils introduce to optimize processing
   -UI update to differentiate download links
