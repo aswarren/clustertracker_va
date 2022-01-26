@@ -3,3 +3,7 @@ dispatch:
     service: cluster-tracker
   - url: "www.clustertracker.big-tree.ucsc.edu/*"
     service: cluster-tracker
+  - url: "cluster-tracker.big-tree.ucsc.edu/*"
+    service: cluster-tracker
+  - url: "www.cluster-tracker.big-tree.ucsc.edu/*"
+    service: cluster-tracker  
