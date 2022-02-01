@@ -107,13 +107,3 @@ h2 {
 .definition {
   border-bottom: 1px dotted black;
 }
-
-.btn_selected {
-    background: #cccccc;
-}
-
-#dropcolor { 
-    position: absolute;
-    right: 0px; 
-    padding-top: 14px;
-}
