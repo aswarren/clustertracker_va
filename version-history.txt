@@ -1,3 +1,5 @@
+v0.2.4 (2022-02-01):
+  -adds option to show introductions by raw numbers
 v0.2.3 (2022-01-20): 
   -UI changes: add links in data display table to CA Big Tree Investigator
   -update text in intro paragraph
