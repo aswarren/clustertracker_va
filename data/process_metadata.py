@@ -37,9 +37,11 @@ def process_metadata(conversion, metadata):
             if fields[0] == "usherID":
                 # CA metadata header: usherID,name,pango_lineage,nextclade_clade,gisaid_accession,county,collection_date,paui,sequencing_lab
                 for entry in inf:
-                    fields = entry.strip().split("\t")
+                    fields = entry.split("\t")
+                    for i in range(len(fields)):
+                        fields[i] = fields[i].strip()
                     # check for valid California county names
-                    county = fields[5].strip()
+                    county = fields[5]
                     if county != "":
                         #check if county is in lexicon
                         if county.upper() in (c.upper() for c in conversion): # convert all names to uppercase to avoid differences in case
@@ -56,10 +58,10 @@ def process_metadata(conversion, metadata):
                                     text = conversion[county].replace(" ", "_")
                                 print(fields[0] + "\t" + text, file = region_assoc)
                                 #if non-standard sample name, add sample ID and date to sample dates file
-                                if (fields[0].startswith("CDPH")):
+                                if not (fields[0].startswith("USA/")):
                                     print(fields[0] + "\t" + fields[6], file = date_file)
                                 #add PAUI to association file
-                                if fields[7].strip() != "":
+                                if fields[7] != "":
                                     print(fields[0] + "\t" + fields[7], file = pid_assoc)
                             else:
                                 print(fields[0], file = badsamples) #does not have a valid date
