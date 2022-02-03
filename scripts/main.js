@@ -214,10 +214,13 @@ function loadTargetTable(target) {
         datatables_options: {"paging": true, "searching": true, "order": [[9,"desc"]]},
         custom_formatting: [
             [11, function (data,type,row,meta) {
-                if (data == "No identifiable samples") {
-                   return '<div title="No CDPH sample IDs were found in this cluster.">' + data + "</div>";
+                var items = data.split("\t");
+                var txt = items[0].trim();
+                if (txt.includes("No identifiable samples")) {
+                   return '<div title="No CDPH sample IDs were found in this cluster.">' + txt + "</div>";
                 } else {
-                   return '<a href="' + encodeURI(data) + '" title="Click to View in CA Big Tree Investigator" target="_blank">View Samples</a>';
+                    var n = (items[1].match(/,/g) || []).length + 1;
+                    return '<a href="' + encodeURI(txt) + '" title="Click to View in CA Big Tree Investigator" target="_blank">View ' + n + ' Samples</a>';
                 }
               }
             ],[10, function (data,type,row,meta) {

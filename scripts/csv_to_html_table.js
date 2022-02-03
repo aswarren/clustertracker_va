@@ -1,3 +1,23 @@
+function mergeFields(data) {
+    //merges last two fields in the data table
+    var i = data.length;
+    var j = data[0].length - 1;
+    var newdata = new Array(i).fill(0).map(() => new Array(j).fill(0));
+    for (j = 0; j < data[0].length - 1; j++) {
+        newdata[0][j] = data[0][j];
+    }
+    for (i = 1; i < data.length; i++) {
+        for (j = 0; j < data[i].length; j++) {
+            if (j == data[i].length - 1) {
+                newdata[i][j - 1] = newdata[i][j - 1] + "\t" + data[i][j];
+            } else {
+                newdata[i][j] = data[i][j];
+            }
+        }
+    }
+    return newdata;
+}
+
 var CsvToHtmlTable = CsvToHtmlTable || {};
 
 CsvToHtmlTable = {
@@ -23,10 +43,11 @@ CsvToHtmlTable = {
         $.when($.get(csv_path)).then(
             function (data) {
                 var csvData = $.csv.toArrays(data, csv_options);
+                var csvData = mergeFields(csvData); // merge last two fields
                 var $tableHead = $("<thead></thead>");
                 var csvHeaderRow = csvData[0];
                 var $tableHeadRow = $("<tr></tr>");
-                for (var headerIdx = 0; headerIdx < csvHeaderRow.length - 1; headerIdx++) {
+                for (var headerIdx = 0; headerIdx < csvHeaderRow.length; headerIdx++) {
                     $tableHeadRow.append($("<th></th>").text(csvHeaderRow[headerIdx]));
                 }
                 $tableHead.append($tableHeadRow);
@@ -36,7 +57,7 @@ CsvToHtmlTable = {
 
                 for (var rowIdx = 1; rowIdx < csvData.length; rowIdx++) {
                     var $tableBodyRow = $("<tr></tr>");
-                    for (var colIdx = 0; colIdx < csvData[rowIdx].length - 1; colIdx++) {
+                    for (var colIdx = 0; colIdx < csvData[rowIdx].length; colIdx++) {
                         var $tableBodyRowTd = $("<td></td>");
                         var cellTemplateFunc = customTemplates[colIdx];
                         if (cellTemplateFunc) {

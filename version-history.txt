@@ -1,5 +1,6 @@
 v0.3 (2022-02-02):
   -UI changes: adds option to show introductions by raw numbers
+  -UI changes: displays the number of CDPH samples for viewing in Investigator in the data table
   -Data processing: fixes metadata processng errors when splitting and stripping lines with missing metadata fields
   -Data processing: accomodates new CDC sequence file naming convention
 v0.2.3 (2022-01-20): 
