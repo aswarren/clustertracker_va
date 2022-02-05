@@ -10,6 +10,9 @@
 # data files will be hosted from GCloud
 data/**
 
+# data files and scripts for training site
+training/data/**
+
 # misc
 src/**
 *.sh
