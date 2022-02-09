@@ -206,6 +206,8 @@ function resetHighlight(e) {
 }
 
 function loadTargetTable(target) {
+    // prevents loading from browser cache
+    target = target + '?v=' + Date.now();
     CsvToHtmlTable.init({
         csv_path: target, 
         element: 'table-container', 
