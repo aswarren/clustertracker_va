@@ -74,7 +74,8 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
         </div>
         <div id="table-container"></div>
         <script src="lib/leafletjs/leaflet.js"></script>
-        <script src="https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/regions.js" id="script-region"></script>
+        <script src="data/display_tables/regions.js" id="script-region"></script>
+        <script src="data/display_tables/regions_us.js" id="script-region_us"></script>
         <script src="scripts/main.js" id="script-main"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script>!window.jQuery && document.write('<script src="sripts/jquery.min.js"><\/script>')</script>
@@ -84,17 +85,18 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
         <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
         <script src="scripts/csv_to_html_table.js" id="script-csv"></script> 
         <script>
-           loadTargetTable('https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/default_clusters.tsv');
+           loadTargetTable('data/display_tables/default_clusters.tsv');
         </script>
         <script type="text/javascript">
            // prevents loading from browser cache
            const ver = Date.now();
            document.getElementById('script-main').src = 'scripts/main.js?v=' + ver;
-           document.getElementById('script-region').src = 'https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/regions.js?v=' + ver;
+           document.getElementById('script-region').src = 'data/display_tables/regions.js?v=' + ver;
+           document.getElementById('script-region_us').src = 'data/display_tables/regions_us.js?v=' + ver;
            document.getElementById('script-csv').src = 'scripts/csv_to_html_table.js?v=' + ver;
         </script>
-        <a href = "https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/hardcoded_clusters.tsv.gz", download = "sarscov2_clusters.tsv.gz">Download full output file.</a><br>
-        <a href = "https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/cview.pb.gz", download = "cluster_taxonium.pb.gz">Download the taxonium protobuf for viewing.</a>
+        Download full output file from the <a href = "data/display_tables/hardcoded_clusters.tsv.gz", download = "sarscov2_clusters_CA_counties.tsv.gz">California-county based analysis</a> or the <a href = "data/display_tables/hardcoded_clusters_us.tsv.gz", download = "sarscov2_clusters_CA_state.tsv.gz">California-state based analysis</a>.<br>
+        Download the taxonium protobuf from the <a href = "data/display_tables/cview.pb.gz", download = "cluster_taxonium_CA_counties.pb.gz">California-county based analysis</a> or the <a href = "data/display_tables/cview_us.pb.gz", download = "cluster_taxonium_CA_state.pb.gz">California-state based analysis</a> for viewing.
         <p>Please post an issue at <a title="The github repository for this site." href="https://github.com/pathogen-genomics/introduction-website" target="_blank">the github</a> or email us at help-pathogengenomics@ucsc.edu if you have questions or feedback.</p>
     </body>
 </html>
