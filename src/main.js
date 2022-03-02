@@ -264,6 +264,8 @@ function loadTargetTable(target) {
             ]
         ]
       });
+    //checks data update status and triggers alert if needed
+    readStatus();
 }
 
 function resetView(e) {

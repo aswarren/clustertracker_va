@@ -22,6 +22,11 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
 .show {display:block;}
 </style>
     <body>
+        <div id="status_msg" class="warning hide" onclick="hideMsg()">
+            <div class="status_head">Data Update in Progress</div>
+            <div class="msg">Cluster information may be out of sync while update is in progress. This may take up to an hour.<br>
+            <button class="status_btn" onclick="hideMsg()">OK</button></div> 
+        </div>
         <h1>California Big Tree Cluster Tracker </h1>
         <script>
             function showList(op) {
