@@ -5,6 +5,7 @@ import json
 import math
 import datetime as dt
 from dateutil.relativedelta import relativedelta
+
 #cdf = pd.read_csv('hardcoded_clusters.tsv',sep='\t')
 def update_js(target, conversion = {}):
     svd = {"type":"FeatureCollection", "features":[]}
@@ -115,6 +116,7 @@ def update_js(target, conversion = {}):
             assert "intros" in propd["properties"]
             print(str(propd) + ",",file=outf)
         print("]};",file=outf)
+
 lexicon = {"Alameda":"Alameda County","Alpine":"Alpine County","Amador":"Amador County","Butte":"Butte County",
     "Calaveras":"Calaveras County","Colusa":"Colusa County","Contra Costa":"Contra Costa County","Del Norte":"Del Norte County",
     "El Dorado":"El Dorado County","Fresno":"Fresno County","Glenn":"Glenn County","Humboldt":"Humboldt County",
@@ -153,5 +155,6 @@ lexicon = {"Alameda":"Alameda County","Alpine":"Alpine County","Amador":"Amador 
     "ND":"North Dakota","OH":"Ohio","OK":"Oklahoma","OR":"Oregon","PA":"Pennsylvania","RI":"Rhode Island",
     "SC":"South Carolina","SD":"South Dakota","TN":"Tennessee","TX":"Texas","UT":"Utah","VT":"Vermont","VA":"Virginia",
     "WA":"Washington","WV":"West Virginia","WI":"Wisconsin","WY":"Wyoming","PR":"Puerto Rico"}
+
 if __name__ == "__main__":
     update_js("us-states_ca-counties.geo.json",lexicon)
