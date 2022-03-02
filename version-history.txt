@@ -1,5 +1,6 @@
 v0.3.1 (2022-03-02):
   -UI changges: adds an "Update in progress message" when data transfer is in progress.
+  -UI changes: turns the raw cluster count vs. log-fold enrichment drop-down into a toggle button.
   -uses cache busting to prevent caching of JS and data files
   -loads local copy of jquery if can't connect to CDN
 v0.3 (2022-02-02):
