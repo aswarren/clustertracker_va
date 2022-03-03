@@ -20,13 +20,10 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
 .dropdown-content {display: none; position: absolute; z-index: 2000; width: 100%; background-color:#f1f1f1; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2)} 
 .timel {display: block; width: 100%; text-align: center;}
 .show {display:block;}
+div.hide {display: none;}
 </style>
     <body>
-        <div id="status_msg" class="warning hide" onclick="hideMsg()">
-            <div class="status_head">Data Update in Progress</div>
-            <div class="msg">Cluster information may be out of sync while update is in progress. This may take up to an hour.<br>
-            <button class="status_btn" onclick="hideMsg()">OK</button></div> 
-        </div>
+        <div id="status_msg" class="warning hide" onclick="hideMsg()"></div>
         <h1>California Big Tree Cluster Tracker </h1>
         <script>
             function showList() {
