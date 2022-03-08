@@ -36,6 +36,7 @@ def process_metadata(conversion, metadata):
     #write metadata header
     print("strain\tname\tpangolin_lineage\tnextclade_clade\tgisaid_accession\tcounty\tdate\tlink_id\tsequencing_lab\tgenbank_accession\tcountry", file = metadata)
     print("strain\tname\tpangolin_lineage\tnextclade_clade\tgisaid_accession\tcounty\tdate\tlink_id\tsequencing_lab\tgenbank_accession\tcountry", file = metadata_us)
+    duplicates = set() #stores sample names of potential duplicates
     for f in mfiles:
         with open(f) as inf:
             fields = inf.readline().strip().split("\t")
@@ -49,6 +50,9 @@ def process_metadata(conversion, metadata):
                     county = fields[5]
                     #check for valid date
                     if re.search(date_pattern, fields[6]):
+                        #add sample name if needed to check for duplicates later on
+                        if fields[0].startswith("USA/CA"):
+                            duplicates.add(fields[0])
                         fields.append("")
                         fields.append("USA")
                         #add item to merged metadata file for CA state analysis
@@ -92,28 +96,32 @@ def process_metadata(conversion, metadata):
                         if state in conversion:
                             #check for valid date
                             if re.search(date_pattern, fields[2]):
-                                #add item to merged metadata file
-                                newfields = []
-                                newfields.append(fields[0]) #sample name
-                                newfields.append("") #CDPH name
-                                newfields.append(fields[8]) #pangolin_lineage
-                                newfields.append(fields[7]) #nextclade_clade = Nextstrain_clade
-                                newfields.append("") #gisaid_accession
-                                newfields.append("") #county name
-                                newfields.append(fields[2]) #date
-                                newfields.append("") #Link ID (PAUI)
-                                newfields.append("") #sequencing_lab
-                                newfields.append(fields[1]) #genbank_accession
-                                newfields.append("USA") #country
-                                print("\t".join(newfields), file = metadata_us)
-                                #add sample ID and state name to sample regions file
-                                text = conversion[state.upper()].replace(" ", "_")
-                                print(fields[0] + "\t" + text, file = region_assoc_us)
-                                #TO DO - assign California samples a county via naming scheme
-                                #filter out CA samples for CA county analysis
-                                if state != "CA":
-                                    print("\t".join(newfields), file = metadata)
-                                    print(fields[0] + "\t" + text, file = region_assoc)
+                                #first check for CA state duplicates
+                                if (state == "CA") and (fields[0] in duplicates):
+                                    print(fields[0], file = badsamples)
+                                else:
+                                    #add item to merged metadata file
+                                    newfields = []
+                                    newfields.append(fields[0]) #sample name
+                                    newfields.append("") #CDPH name
+                                    newfields.append(fields[8]) #pangolin_lineage
+                                    newfields.append(fields[7]) #nextclade_clade = Nextstrain_clade
+                                    newfields.append("") #gisaid_accession
+                                    newfields.append("") #county name
+                                    newfields.append(fields[2]) #date
+                                    newfields.append("") #Link ID (PAUI)
+                                    newfields.append("") #sequencing_lab
+                                    newfields.append(fields[1]) #genbank_accession
+                                    newfields.append("USA") #country
+                                    print("\t".join(newfields), file = metadata_us)
+                                    #add sample ID and state name to sample regions file
+                                    text = conversion[state.upper()].replace(" ", "_")
+                                    print(fields[0] + "\t" + text, file = region_assoc_us)
+                                    #TO DO - assign California samples a county via naming scheme
+                                    #filter out CA samples for CA county analysis
+                                    if state != "CA":
+                                        print("\t".join(newfields), file = metadata)
+                                        print(fields[0] + "\t" + text, file = region_assoc)
                             else:
                                 print(fields[0], file = badsamples) #does not have a valid date   
                         else:
