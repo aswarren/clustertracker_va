@@ -165,3 +165,34 @@ h2 {
 div.hide {
   display: none;
 }
+
+.leaflet-retina .leaflet-control-layers-toggle {
+    background-image: url(../images/transform.png);
+    background-size: 30px 35px;
+    /* width: 40px;
+    height: 45px; */
+}
+
+.leaflet-touch .leaflet-control-layers-toggle {
+    background-image: url(../images/transform.png);
+    background-size: 30px 35px;
+    /* width: 40px;
+    height: 45px; */
+}
+
+.leaflet-control-layers-toggle {
+    background-image: url(../images/transform.png);
+    background-size: 30px 35px;
+    width: auto;
+    background-position:center bottom;
+    padding-left: 2px;
+    padding-right: 40px;
+    padding-bottom: 3px;
+    text-decoration:none;
+    
+}
+
+.leaflet-control-layers-toggle:before { 
+    content:"County\2194State"; 
+    color:#000 ;
+    line-height: 13px;
