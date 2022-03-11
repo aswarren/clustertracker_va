@@ -471,7 +471,6 @@ function onEachFeature(feature, layer) {
 }
 
 map.on('baselayerchange', function(e) {
-  console.log(e);
   if (e.name == "CA County Introductions") {
     map_layer = 0;
   } else {

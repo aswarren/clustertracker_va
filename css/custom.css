@@ -119,21 +119,21 @@ h2 {
 }
 
 .leaflet-retina .leaflet-control-layers-toggle {
-    background-image: url(../images/transform2.png);
+    background-image: url(../images/transform.png);
     background-size: 30px 35px;
     /* width: 40px;
     height: 45px; */
 }
 
 .leaflet-touch .leaflet-control-layers-toggle {
-    background-image: url(../images/transform2.png);
+    background-image: url(../images/transform.png);
     background-size: 30px 35px;
     /* width: 40px;
     height: 45px; */
 }
 
 .leaflet-control-layers-toggle {
-    background-image: url(../images/transform2.png);
+    background-image: url(../images/transform.png);
     background-size: 30px 35px;
     width: auto;
     background-position:center bottom;
