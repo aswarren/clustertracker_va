@@ -343,6 +343,7 @@ function colorIntros() {
     // update legend
     legend.update(global_state);
 }
+
 function changeScale() {
     var btn = document.getElementById("colorbtn");
     if (color_scale == "log") {
@@ -354,6 +355,24 @@ function changeScale() {
         btn.innerText = "Show Raw Cluster Count";
         colorIntros();
     }
+}
+
+function swap_countystate() {
+    var btn = document.getElementById("btn_SC");
+    color_scale = "log";
+    global_state = "default";
+    if (btn.innerText == "Show CA State Introductions") {
+        btn.innerText = "Show CA County Introductions";
+        map.removeLayer(geojson[0]);
+        map.addLayer(geojson[1]);
+        map_layer = 1;
+    } else {
+        btn.innerText = "Show CA State Introductions";
+        map.removeLayer(geojson[1]);
+        map.addLayer(geojson[0]);
+        map_layer = 0;
+    }
+    resetView();
 }
 
 var legend = L.control({position: 'bottomleft'});
@@ -462,22 +481,5 @@ function onEachFeature(feature, layer) {
     });
 }
 
-map.on('baselayerchange', function(e) {
-  if (e.name == "CA County Introductions") {
-    map_layer = 0;
-  } else {
-    map_layer = 1;
-  }
-  resetView();
-});
-
 info.addTo(map);
 legend.addTo(map);
-
-//add layer control to map
-var mapOptions = {
-    "CA County Introductions": geojson[0],
-    "CA State Introductions": geojson[1]
-};
-var layerControl = L.control.layers(mapOptions, null, {position: 'topleft'});
-layerControl.addTo(map);

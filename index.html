@@ -42,6 +42,12 @@ div.hide {display: none;}
                 }
             }
         </script>
+        <div class="dropdown" id="drop_SC">
+            <button onclick="swap_countystate()" class="dropbtn" id="btn_SC">Show CA State Introductions</button>
+        </div>
+        <div class="dropdown" id="dropcolor">
+            <button onclick="changeScale()" class="dropbtn" id="colorbtn" disabled>Show Raw Cluster Count</button>
+        </div>
         <div class="dropdown" id="droploc">
             <button onclick="showList()" class="dropbtn">Choose Map Display Time Period</button>
             <div id="myDropdown" class="dropdown-content">
@@ -50,9 +56,6 @@ div.hide {display: none;}
                 <button id="btn_time_6" class="timel" onclick="changeMap(6)">Last 6 Months</p>
                 <button id="btn_time_3" class="timel" onclick="changeMap(3)">Last 3 Months</p>
             </div>
-        </div>
-        <div class="dropdown" id="dropcolor">
-            <button onclick="changeScale()" class="dropbtn" id="colorbtn" disabled>Show Raw Cluster Count</button>
         </div>
         <div id="display" title="This map displays the count of inferred unique families of the virus in each region by default. When a region is selected, it instead displays a scaled estimate of the count of viral introductions to the selected region from each other region.">
             <div id="mapid"></div>
