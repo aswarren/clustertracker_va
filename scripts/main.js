@@ -270,7 +270,7 @@ function resetView(e) {
     legend.update(global_state);
     let ext = "";
     if (map_layer == 1) {ext = "_us"}
-    loadTargetTable("data/display_tables/default_clusters" + ext + ".tsv");
+    loadTargetTable("https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/default_clusters" + ext + ".tsv");
 }
 
 function loadStateTable(e) {
@@ -278,7 +278,7 @@ function loadStateTable(e) {
     if (map_layer == 1) {ext = "_us"} 
     var fname = e.target.feature.properties.name.trim().replace(/\s+/g, '_')
     let path = fname + "_topclusters" + ext + ".tsv";
-    loadTargetTable("data/display_tables/" + path);
+    loadTargetTable("https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/" + path);
 }
 
 function changeMap(time) {

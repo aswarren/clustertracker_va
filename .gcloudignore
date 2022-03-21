@@ -8,7 +8,7 @@
 #
 
 # data files will be hosted from GCloud
-#data/**
+data/**
 
 # data files and scripts for training site
 training/data/**
