@@ -1,13 +1,43 @@
 # Calfornia Big Tree Cluster-Tracker
-Code to generate a webpage displaying SARS-CoV-2 clusters and introductions inferred via [matUtils introduce](https://usher-wiki.readthedocs.io/en/latest/matUtils.html#introduce). Data for counties in the state of California and and for U.S. states are displayed on a map and in a table, with links to view and explore the data in Taxonium and the [California Big Tree Investigator](https://github.com/pathogen-genomics/paui-mapper). This version is a customizaton for use with data produced from the Calfornia Big Tree; the original Cluster-Tracker project can be found [here](https://github.com/jmcbroome/introduction-website). 
+Code to generate a webpage displaying SARS-CoV-2 clusters and introductions inferred via [matUtils introduce](https://usher-wiki.readthedocs.io/en/latest/matUtils.html#introduce). SARS-CoV-2 introductions between California counties and U.S. states are displayed geographically on an interactive map and in a separate table below the map, with links to view and explore the data in Taxonium and the [California Big Tree Investigator](https://github.com/pathogen-genomics/paui-mapper). This version is a customizaton for use with data produced from the Calfornia Big Tree effort at UCSC for the California Department of Public Health; the original Cluster-Tracker project can be found [here](https://github.com/jmcbroome/introduction-website).
 
-A python script and a number of data files are required to preprocess the data (described below).
+**Approach:** This site uses python to perform backend setup and vanilla javascript for website rendering. We use the protobuf file format to store mutation-annotated phylogentic tree information, and tab-separated text files (TSV) for metadata and text-based output files. Python scripts are used to process a mix of samples from California State and public repositories, and to launch the [matUtils](https://usher-wiki.readthedocs.io/en/latest/matUtils.html) suite of tools for manipulating the protobuf files and calculating the introductions into each region. We use the [Terra](https://terra.bio/) platform as our primary data pipeline, so our python scripts are modularized to be be compatible with WDL, but can also be run on the user's desktop computer. A [GeoJSON](https://geojson.org/) file with introductions for each region is created for input into a [Leaflet-based map](https://leafletjs.com/). TSV files supply a table below the map with cluster details. 
+
+**Customization:** Information on how to create a customized version of Cluster Tracker can be found [below](#customizing-cluster-tracker). A python script and a number of data files would be required to preprocess your data if you wish to use data not in the [global public SARS-CoV-2 phylogenetic tree](https://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/).
+
+#### Contents
+
+* [Screenshot and Features](#screenshot-and-features)
+  * [Features](#features)
+* [Quickstart](#quickstart)
+  * [Input Data Files](#input-data-files)
+  * [Quickstart Instructions](#quickstart-instructions)
+* [Further Details: Data Processing and What the Python Scripts Do](#further-details-data-processing-and-what-the-python-scripts-do)
+* [Customizing Cluster Tracker](#customizing-cluster-tracker)
+
+## Screenshot and Features
+
+<img width="700" style="border: 1px solid gray;" alt="CA Big Tree Cluster Tracker-2022-03-23 screen shot" src="https://user-images.githubusercontent.com/67020823/159781769-c84bfc77-0fda-412d-b790-ba980b03c496.png">
+
+#### Features
+
+* Displays on a map the total number of introductions into a region, and introductions from one region into another.
+* Numbers of introductions can be displayed either in raw numbers or using log scaling.
+* Introductions on the map can be filtered to show just those from the past 3 months, past 6 months, past 12 months, or the whole pandemic.
+* A table below the map displays information for the top 100 clusters in the selected region and includes:
+  * the number of samples in the cluster, the range of dates for the cluster, clade and lineage information, the inferred origin of the cluster and a score indicating the confidence of the origin estimate, the cluster's growth score (an importance estimate based on cluster size and age)
+  * a link to view the cluster in [Taxonium](http://taxonium.org)
+  * a link to view the samples in the California Big Tree Investigator tool, where users can join PHI to the phylogentic tree information (for authorized users only)
+* All data in the table can be sorted in ascending or descending order.
+* A search box allows the user to filter the table contents.
+* COMING SOON: Users can toggle between two levels of analysis: California counties or California state. The county-level introductions display introductions to and from Calfornia counties as well as other U.S. states. The state-level introductions display introductions between all of California (as a single region) and other states.
+* The Taxonium protobuf file with phylogenetic tree information and a tab-separated file with information for all introductions can be downloaded for further analysis.
 
 ## Quickstart
 
-This site uses python to perform backend setup and vanilla javascript for website rendering. You will need to have the [UShER software suite](https://usher-wiki.readthedocs.io/en/latest/Installation.html) installed and available on your path. This site was built with UShER version 0.5.0; earlier versions of UShER may not function as anticipated. The python "dateutil" package is required. Some versions of python may be missing the dateutil standard package; it can be installed if needed via conda.
+**Software Requirements:** You will need to have the [UShER software suite](https://usher-wiki.readthedocs.io/en/latest/Installation.html) (version 0.5.0 or later) installed and available on your path. The python "dateutil" package is required. Some versions of python may be missing the dateutil standard package; it can be installed if needed via conda.
 
-### Input data files
+### Input Data Files
 
 | File | Description/Notes |
 | --- | --- |
@@ -83,7 +113,7 @@ This script takes the cleaned protobuf file generated above and uses [matUtils i
 #### Misc. data output files:
 - clusterswapped.tsv: modifies the metadata file to add cluster ID field, "region" field, and fills in blank values as needed
 
-## Customizing Cluster-Tracker: The Pipeline and More Explanation
+## Customizing Cluster Tracker
 
 To generate a website for your set of regions of interest, [you will first need to obtain a geojson representing your regions of interest.](https://geojson-maps.ash.ms). You will need to generate a sample-region two-column tsv, with sample identifiers in the first column and the ID of the region they are from in the second column. You will need what I'm calling a "lexicon" file to ensure compatibility between names- this is an unheaded csv containing in the first column the base name of each region to be used by the map, and comma separated after that, each other name for that region across your other files. An example is provided under data/state_lexicon.txt.
 
