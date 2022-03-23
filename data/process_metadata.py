@@ -30,19 +30,19 @@ def process_metadata(conversion, metadata):
     date_file_us = open("sample_dates_us.tsv","w+") # file to store associations between sample ID and sample dates, for US analysis
     print("sample_id\tdate", file = date_file)
     print("sample_id\tdate", file = date_file_us)
-    pid_assoc = open("pids.tsv","w+") # file to store associations between sample ID and personal IDs (paui's)
-    pid_assoc_us = open("pids_us.tsv","w+") # file to store associations between sample ID and personal IDs (paui's)
+    pid_assoc = open("pids.tsv","w+") # file to store associations between sample ID and specimen_id (formerly PAUI or link_id)
+    pid_assoc_us = open("pids_us.tsv","w+") # file to store associations between sample ID and specimen_id (formerly PAUI or link_id)
     date_pattern = '[0-9]{4}-[0-9]{2}-[0-9]{2}'
     #write metadata header
-    print("strain\tname\tpangolin_lineage\tnextclade_clade\tgisaid_accession\tcounty\tdate\tlink_id\tsequencing_lab\tgenbank_accession\tcountry", file = metadata)
-    print("strain\tname\tpangolin_lineage\tnextclade_clade\tgisaid_accession\tcounty\tdate\tlink_id\tsequencing_lab\tgenbank_accession\tcountry", file = metadata_us)
+    print("strain\tname\tpangolin_lineage\tnextclade_clade\tgisaid_accession\tcounty\tdate\tpaui\tsequencing_lab\tspecimen_id\tgenbank_accession\tcountry", file = metadata)
+    print("strain\tname\tpangolin_lineage\tnextclade_clade\tgisaid_accession\tcounty\tdate\tpaui\tsequencing_lab\tspecimen_id\tgenbank_accession\tcountry", file = metadata_us)
     duplicates = set() #stores sample names of potential duplicates
     for f in mfiles:
         with open(f) as inf:
             fields = inf.readline().strip().split("\t")
             # check which format the metadata is in based on header field names
             if fields[0] == "usherID":
-                # CA metadata header: usherID,name,pango_lineage,nextclade_clade,gisaid_accession,county,collection_date,paui,sequencing_lab
+                # CA metadata header: usherID,name,pango_lineage,nextclade_clade,gisaid_accession,county,collection_date,paui,sequencing_lab,specimen_id
                 for entry in inf:
                     fields = entry.split("\t")
                     for i in range(len(fields)):
@@ -62,9 +62,9 @@ def process_metadata(conversion, metadata):
                         #if non-standard sample name, add sample ID and date to sample dates file
                         if not (fields[0].startswith("USA/")):
                             print(fields[0] + "\t" + fields[6], file = date_file_us)
-                        #add PAUI to association file
-                        if fields[7] != "":
-                            print(fields[0] + "\t" + fields[7], file = pid_assoc_us)
+                        #add specimen_id to association file
+                        if fields[9] != "":
+                            print(fields[0] + "\t" + fields[9], file = pid_assoc_us)
                         # check for valid California county names for County specific data processing
                         if county != "":
                             #check if county is in lexicon
@@ -81,8 +81,8 @@ def process_metadata(conversion, metadata):
                                 if not (fields[0].startswith("USA/")):
                                     print(fields[0] + "\t" + fields[6], file = date_file)
                                 #add PAUI to association file
-                                if fields[7] != "":
-                                    print(fields[0] + "\t" + fields[7], file = pid_assoc)
+                                if fields[9] != "":
+                                    print(fields[0] + "\t" + fields[9], file = pid_assoc)
                     else:
                         print(fields[0], file = badsamples) #does not have a valid date        
             else:
@@ -111,6 +111,7 @@ def process_metadata(conversion, metadata):
                                     newfields.append(fields[2]) #date
                                     newfields.append("") #Link ID (PAUI)
                                     newfields.append("") #sequencing_lab
+                                    newfields.append("") #specimen_id
                                     newfields.append(fields[1]) #genbank_accession
                                     newfields.append("USA") #country
                                     print("\t".join(newfields), file = metadata_us)

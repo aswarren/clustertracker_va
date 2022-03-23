@@ -97,7 +97,7 @@ def generate_display_tables(conversion = {}, host = "https://storage.googleapis.
                 for t in totbuff[:100-len(default_lines)]:
                     default_lines.append(t[0])
                     default_growthvs.append(0-1/t[1])
-        header = "Cluster ID\tRegion\tSample Count\tEarliest Date\tLatest Date\tClade\tLineage\tInferred Origins\tInferred Origin Confidences\tGrowth Score\tClick to View in Taxonium\tClick to View in CA Big Tree Investigator\tLink IDs"
+        header = "Cluster ID\tRegion\tSample Count\tEarliest Date\tLatest Date\tClade\tLineage\tInferred Origins\tInferred Origin Confidences\tGrowth Score\tClick to View in Taxonium\tClick to View in CA Big Tree Investigator\tSpecimen IDs"
         mout = open(labels_file,"w+")
         print("sample\tcluster",file=mout)
         for reg, lines in filelines.items():

@@ -1,3 +1,7 @@
+v0.4.0 (2022-03-22):
+  -Data processing: adds new California state-wide introductions data
+  -UI changes: adds new button to show/hide California state region introductions and rearranges other buttons
+  -Data processing: handles new specimen_id field in metadata (replaces paui/link_id)
 v0.3.1 (2022-03-02):
   -UI changges: adds an "Update in progress message" when data transfer is in progress.
   -UI changes: turns the raw cluster count vs. log-fold enrichment drop-down into a toggle button.
