@@ -1,19 +1,50 @@
-#python "backend" code for prepping us-states.js data from a tsv for interactive website display
-#it only needs to be ran once per updated tree
-#import pandas as pd
+#  Python "backend" code for creating a Leaflet compatible geojson file.
+#  This script takes one or more geojson files and inserts cluster introduction
+#  data for each region into each geographic feature. This script is meant to
+#  to be called from "master_backend.py" but can be run separately from the
+#  command line.
+#
+# Arguments:
+#   -target: list of geojson file(s) containng the lat/long boundaries of the 
+#     regions of interest. Typically you will show all regions on a single map,
+#     but if you want to  show the same overall map with different boundaries (e.g.
+#     one map with US county boundaries and one file with US state boundaries) 
+#     this can be done with using two geojson files (e.g., one with county 
+#     boundaries and one with state boundaries.
+#   -conversion: dictionary created from lexicon file
+#   -extension: if using more than one geojson file this is list of file
+#     name extensions to differentiate each set of files. Specify only the
+#     file name extensions to use with the 2nd, 3rd, ..., set of files.
+# Outputs:
+#  -region.js
+#
+# Example command line usage:
+# python3 update_js.py -j us-states_ca-counties.geo.json us-states.geo.json
+#  -l state_and_county_lexicon.txt -e "_us"
+#-------------------------------------------------------------
+
 import json
 import math
 import datetime as dt
 from dateutil.relativedelta import relativedelta
-def update_js(target, conversion = {}, extension =""):
-    geo_files = target.split(",") #get name(s) of geojson files
-    ext = extension.split(",") #get file name extensions if processiing more than one file
+
+def update_js(target=[''], conversion = {}, extension=['']):
+    #for WDL: insert here read_lexicon function from utils.py
+
+    #target = ['~{us_states_w_ca_counties_geo}' , '~{us_states_geo}'] #for WDL
+    #conversion = read_lexicon('~{state_and_county_lex}') #for WDL
+    #extension = ["", "_us"] #for WDL
+
+    #input cluster file name(s)
+    cluster_file = ["hardcoded_clusters" + extension[i] + ".tsv" for i in range(len(target))] #comment out for WDL
+    #cluster_file = ['~{clusters_counties}', '~{clusters_state}'] #for WDL
+
     monthswap = {"Jan":"01","Feb":"02","Mar":"03","Apr":"04","May":"05","Jun":"06","Jul":"07","Aug":"08","Sep":"09","Oct":"10","Nov":"11","Dec":"12"}
     conversion.update({v:v for k,v in conversion.items()})
     conversion["indeterminate"] = "indeterminate"
     datepoints = ["all", dt.date.today()-relativedelta(months=12), dt.date.today()-relativedelta(months=6), dt.date.today()-relativedelta(months=3)]
     
-    for idx, gfile in enumerate(geo_files):
+    for idx, gfile in enumerate(target):
         #intialize variables
         svd = {"type":"FeatureCollection", "features":[]}
         #here, the data is stored in a series of dictionaries
@@ -24,14 +55,9 @@ def update_js(target, conversion = {}, extension =""):
         dinvc = {d:{} for d in datepoints}
         dsvc = {d:{} for d in datepoints}
         dotvc = {d:{} for d in datepoints}
-        dovc = {d:{} for d in datepoints}
-
-        #set filenames
-        if idx > (len(ext) - 1):
-            ext[idx] = ""
-        cluster_file = "hardcoded_clusters" + ext[idx] + ".tsv"
-        region_file = "regions" + ext[idx] + ".js" 
-        with open(cluster_file) as inf:
+        dovc = {d:{} for d in datepoints} 
+        
+        with open(cluster_file[idx]) as inf:
             for entry in inf:
                 spent = entry.strip().split("\t")
                 if spent[0] == "cluster_id":
@@ -115,54 +141,29 @@ def update_js(target, conversion = {}, extension =""):
                         #for example, even a single introduction between two distant places may be surprising
                         #but that doesn't mean it should get a lot of emphasis. So we cut off anything with less than 5 introductions total.
                         ftd["properties"]["intros"][prefix + did] = -0.5
+        region_file = "regions" + extension[idx] + ".js"
         with open(region_file,"w") as outf:
             print("//data updated via update_js.py",file=outf)
             if idx == 0:
                 print('var None = "None";',file=outf)
-            print('var introData' + ext[idx] + ' = {"type":"FeatureCollection","features":[',file=outf)
+            print('var introData' + extension[idx] + ' = {"type":"FeatureCollection","features":[',file=outf)
             for propd in svd['features']:
                 assert "intros" in propd["properties"]
                 print(str(propd) + ",",file=outf)
             print("]};",file=outf)
 
-lexicon = {"Alameda":"Alameda County","Alpine":"Alpine County","Amador":"Amador County","Butte":"Butte County",
-    "Calaveras":"Calaveras County","Colusa":"Colusa County","Contra Costa":"Contra Costa County","Del Norte":"Del Norte County",
-    "El Dorado":"El Dorado County","Fresno":"Fresno County","Glenn":"Glenn County","Humboldt":"Humboldt County",
-    "Imperial":"Imperial County","Inyo":"Inyo County","Kern":"Kern County","Kings":"Kings County","Lake":"Lake County",
-    "Lassen":"Lassen County","Los Angeles":"Los Angeles County","Madera":"Madera County","Marin":"Marin County",
-    "Mariposa":"Mariposa County","Mendocino":"Mendocino County","Merced":"Merced County","Modoc":"Modoc County",
-    "Mono":"Mono County","Monterey":"Monterey County","Napa":"Napa County","Nevada":"Nevada County","Orange":"Orange County",
-    "Placer":"Placer County","Plumas":"Plumas County","Riverside":"Riverside County","Sacramento":"Sacramento County",
-    "San Benito":"San Benito County","San Bernardino":"San Bernardino County","San Diego":"San Diego County",
-    "San Francisco":"San Francisco County","San Joaquin":"San Joaquin County","San Luis Obispo":"San Luis Obispo County",
-    "San Mateo":"San Mateo County","Santa Barbara":"Santa Barbara County","Santa Clara":"Santa Clara County",
-    "Santa Cruz":"Santa Cruz County","Shasta":"Shasta County","Sierra":"Sierra County","Siskiyou":"Siskiyou County",
-    "Solano":"Solano County","Sonoma":"Sonoma County","Stanislaus":"Stanislaus County","Sutter":"Sutter County",
-    "Tehama":"Tehama County","Trinity":"Trinity County","Tulare":"Tulare County","Tuolumne":"Tuolumne County",
-    "Ventura":"Ventura County","Yolo":"Yolo County","Yuba":"Yuba County",
-    "ALAMEDA":"Alameda County","ALPINE":"Alpine County","AMADOR":"Amador County","BUTTE":"Butte County",
-    "CALAVERAS":"Calaveras County","COLUSA":"Colusa County","CONTRA COSTA":"Contra Costa County","DEL NORTE":"Del Norte County",
-    "EL DORADO":"El Dorado County","FRESNO":"Fresno County","GLENN":"Glenn County","HUMBOLDT":"Humboldt County",
-    "IMPERIAL":"Imperial County","INYO":"Inyo County","KERN":"Kern County","KINGS":"Kings County","LAKE":"Lake County",
-    "LASSEN":"Lassen County","LOS ANGELES":"Los Angeles County","MADERA":"Madera County","MARIN":"Marin County",
-    "MARIPOSA":"Mariposa County","MENDOCINO":"Mendocino County","MERCED":"Merced County","MODOC":"Modoc County",
-    "MONO":"Mono County","MONTEREY":"Monterey County","NAPA":"Napa County","NEVADA":"Nevada County","ORANGE":"Orange County",
-    "PLACER":"Placer County","PLUMAS":"Plumas County","RIVERSIDE":"Riverside County","SACRAMENTO":"Sacramento County",
-    "SAN BENITO":"San Benito County","SAN BERNARDINO":"San Bernardino County","SAN DIEGO":"San Diego County",
-    "SAN FRANCISCO":"San Francisco County","SAN JOAQUIN":"San Joaquin County","SAN LUIS OBISPO":"San Luis Obispo County",
-    "SAN MATEO":"San Mateo County","SANTA BARBARA":"Santa Barbara County","SANTA CLARA":"Santa Clara County",
-    "SANTA CRUZ":"Santa Cruz County","SHASTA":"Shasta County","SIERRA":"Sierra County","SISKIYOU":"Siskiyou County",
-    "SOLANO":"Solano County","SONOMA":"Sonoma County","STANISLAUS":"Stanislaus County","SUTTER":"Sutter County",
-    "TEHAMA":"Tehama County","TRINITY":"Trinity County","TULARE":"Tulare County","TUOLUMNE":"Tuolumne County",
-    "VENTURA":"Ventura County","YOLO":"Yolo County","YUBA":"Yuba County",
-    "AL":"Alabama","AK":"Alaska","AR":"Arkansas","AZ":"Arizona","CA":"California","CO":"Colorado",
-    "CT":"Connecticut","DE":"Delaware","DC":"District of Columbia","FL":"Florida","GA":"Georgia","HI":"Hawaii",
-    "ID":"Idaho","IL":"Illinois","IN":"Indiana","IA":"Iowa","KS":"Kansas","KY":"Kentucky","LA":"Louisiana","ME":"Maine",
-    "MD":"Maryland","MA":"Massachusetts","MI":"Michigan","MN":"Minnesota","MS":"Mississippi","MO":"Missouri","MT":"Montana",
-    "NE":"Nebraska","NV":"Nevada","NH":"New Hampshire","NJ":"New Jersey","NM":"New Mexico","NY":"New York","NC":"North Carolina",
-    "ND":"North Dakota","OH":"Ohio","OK":"Oklahoma","OR":"Oregon","PA":"Pennsylvania","RI":"Rhode Island",
-    "SC":"South Carolina","SD":"South Dakota","TN":"Tennessee","TX":"Texas","UT":"Utah","VT":"Vermont","VA":"Virginia",
-    "WA":"Washington","WV":"West Virginia","WI":"Wisconsin","WY":"Wyoming","PR":"Puerto Rico"}
-extension = ",_us"
 if __name__ == "__main__":
-    update_js("us-states_ca-counties.geo.json,us-states.geo.json",lexicon, extension)
+    from master_backend import parse_setup
+    from utils import read_lexicon
+    args = parse_setup()
+    conversion = read_lexicon(args.lexicon)
+    if len(args.geojson) > 1:
+        extension = args.region_extension
+        extension.insert(0,'')
+    else:
+        extension = ['']
+    if type(args.geojson) == str:
+        jsons = list([args.geojson])
+    else:
+        jsons = args.geojson
+    update_js(jsons, conversion, extension)

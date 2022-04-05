@@ -1,6 +1,42 @@
+#  Python "backend" code to generate individual cluster files for each 
+#    region. These files contain the information that is displayed in
+#    the table below the map on the web page. 
+#  This script is meant to be called from "master_backend.py" but can be
+#    run separately from the command line.
+#
+# "generate_display_tables" is the main function.
+# Arguments:
+#   -conversion: dictionary created from lexicon file
+#   -host: Publicly accessible URL where you will be hosting the Taxonium
+#     protobuf.
+#   -extension: if using more than one geojson file this is list of file
+#     name extensions to differentiate each set of files. Specify only the
+#     file name extensions to use with the 2nd, 3rd, ..., set of files.
+# Outputs:
+#  - default_clusters.tsv
+#  -[region_name]_topclusters.tsv
+#  -cluster_labels.tsv
+#
+# Example command line usage:
+# python3 generate_display_tables.py -l state_and_county_lexicon.txt
+#  -H https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/ -e "_us"
+#-------------------------------------------------------------
+# CDPH WDL INPUTS:
+#  File state_and_county_lex # "state_and_county_lexicon.txt", lexicon with state and county abbreviations
+#  File clusters_counties # "hardcoded_clusters.tsv", cluster file from CA county introductions
+#  File clusters_state # "hardcoded_clusters_us.tsv", cluster file from CA state introductions
+#  File pids #"pids.tsv", file linking sample name and PAUI/Specimen ID from CA county samples
+#  File pids_us #"pids_us.tsv", file linking sample name and PAUI/Specimen ID from CA state samples
+# CDPH WDL OUTPUTS:
+#  File labels = "cluster_labels.tsv"
+#  File labels_us = "cluster_labels_us.tsv"
+#  Array[File] display_tables = glob("*lusters.tsv")
+#-------------------------------------------------------------
+
+import os #comment out for WDL
+
+# function to construct links to Taxonium
 def get_taxonium_link(host,cluster,ext):
-    if host == "https://storage.googleapis.com/ucsc-gi-cdph-bigtree/":
-        host += "display_tables/"
     link = "https://taxonium.org/?protoUrl=" + host + "cview" + ext + ".pb.gz"
     link += '&search=[{"id":0.123,"category":"cluster","value":"'
     link += cluster
@@ -9,6 +45,17 @@ def get_taxonium_link(host,cluster,ext):
     link += "&zoomToSearch=0&blinking=false"
     return link
 
+
+#function to evaluate whether to add custom CDPH data fields to 
+# output cluster files
+def is_custom_data(host):
+    if "ucsc-gi-cdph-bigtree" in host:
+        return True
+    else:
+        return False
+
+## Functions for custom CDPH data
+#adds a link to the CA Big Tree Investigator to the output cluster files
 def get_investigator_link(pid_list,cluster_id,fname):
     link = "No identifiable samples"
     if pid_list != "":
@@ -19,6 +66,7 @@ def get_investigator_link(pid_list,cluster_id,fname):
         link = link.replace(" ","%20")
     return link
 
+#adds unique sample ID's to the output cluster files
 def get_sample_pauis(items,pid_assoc):
     pid_list = ""
     pids = []
@@ -32,11 +80,36 @@ def get_sample_pauis(items,pid_assoc):
         pid_list = ",".join(pids)
     return pid_list
 
-def generate_display_tables(conversion = {}, host = "https://storage.googleapis.com/ucsc-gi-cdph-bigtree/", extensions = ""):
-    extension = extensions.split(",") #get file name extensions if processiing more than one file
-    for ext in extension:
-        pid_file = "pids" + ext + ".tsv"
-        cluster_file = "hardcoded_clusters" + ext + ".tsv"
+## main function
+def generate_display_tables(conversion = {}, host = '', extension = ['']):
+    #for WDL: insert here read_lexicon function from utils.py
+    
+    #conversion = read_lexicon('~{state_and_county_lex}') #for WDL
+    #host = 'https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/'
+    #extension = ['', '_us'] #for WDL
+
+    #set flag to identify whether to add custom fields to output cluster files
+    is_custom =  is_custom_data(host)
+
+    #input file names
+    cluster_file = ["hardcoded_clusters" + extension[i] + ".tsv" for i in range(len(extension))] #comment out for WDL
+    #cluster_file = ['~{clusters_counties}', '~{clusters_state}'] #for WDL
+    if is_custom:
+        pid_file = ["pids" + extension[i] + ".tsv" for i in range(len(extension))] #comment out for WDL
+        #pid_file = ['~{pids}','~{pids_us}'] #for WDL
+        subfolder = ""
+    else:
+        subfolder = "display_tables/"
+        #check if folder exists and create if needed
+        if not os.path.isdir(subfolder):
+            os.makedirs(subfolder)
+    
+    #file header
+    header = "Cluster ID\tRegion\tSample Count\tEarliest Date\tLatest Date\tClade\tLineage\tInferred Origins\tInferred Origin Confidences\tGrowth Score\tClick to View in Taxonium"
+    if is_custom:
+        header += "\tClick to View in CA Big Tree Investigator\tSpecimen IDs"
+
+    for i, ext in enumerate(extension):
         labels_file = "cluster_labels" + ext + ".tsv"
         defaultc_file = "default_clusters" + ext + ".tsv"
         filelines = {}
@@ -47,13 +120,16 @@ def generate_display_tables(conversion = {}, host = "https://storage.googleapis.
         default_growthvs = []
         default_lines = []
         totbuff = [] #track overall no valid date clusters to fill in at the end.
-        # get sample name/PAUI associations
-        pid_assoc = {} # links sample ID with personal id (PAUI)
-        with open(pid_file) as inf:
-            for entry in inf:
-                spent = entry.strip().split("\t")
-                pid_assoc[spent[0]] = spent[1]
-        with open(cluster_file) as inf:
+        
+        if is_custom:
+            # get sample name/PAUI associations
+            pid_assoc = {} # links sample ID with personal id (PAUI)
+            with open(pid_file[i]) as inf:
+                for entry in inf:
+                    spent = entry.strip().split("\t")
+                    pid_assoc[spent[0]] = spent[1]
+
+        with open(cluster_file[i]) as inf:
             cr = "None"
             buffer = []
             for entry in inf:
@@ -97,20 +173,16 @@ def generate_display_tables(conversion = {}, host = "https://storage.googleapis.
                 for t in totbuff[:100-len(default_lines)]:
                     default_lines.append(t[0])
                     default_growthvs.append(0-1/t[1])
-        header = "Cluster ID\tRegion\tSample Count\tEarliest Date\tLatest Date\tClade\tLineage\tInferred Origins\tInferred Origin Confidences\tGrowth Score\tClick to View in Taxonium\tClick to View in CA Big Tree Investigator\tSpecimen IDs"
         mout = open(labels_file,"w+")
         print("sample\tcluster",file=mout)
         for reg, lines in filelines.items():
             fname = conversion[reg].replace(" ", "_") + "_topclusters" + ext + ".tsv"
-            with open("display_tables/" + fname, "w+") as outf:
+            with open(subfolder + fname, "w+") as outf:
                 print(header,file=outf)
                 for l in lines:
                     #process the line 
                     #into something more parseable.
                     spent = l.split("\t")
-                    #get California sample PAUIs and create link to BT Investigator
-                    pid_list = get_sample_pauis(spent[-1],pid_assoc)
-                    ilink = get_investigator_link(pid_list, spent[0], fname)
                     #save matching results to the other output files
                     #for downstream extraction of json
                     samples = spent[-1].split(",")
@@ -121,62 +193,40 @@ def generate_display_tables(conversion = {}, host = "https://storage.googleapis.
                     #and including all html syntax.
                     link = get_taxonium_link(host,spent[0],ext)
                     #additionally process the date strings
-                    outline = [spent[0], spent[9], spent[1], fix_month(spent[2]), fix_month(spent[3]), spent[12], spent[13], spent[10], spent[11], spent[4], link, ilink, pid_list]
+                    outline = [spent[0], spent[9], spent[1], fix_month(spent[2]), fix_month(spent[3]), spent[12], spent[13], spent[10], spent[11], spent[4], link]
+                    if is_custom:
+                        #get California sample PAUIs and create link to BT Investigator
+                        pid_list = get_sample_pauis(spent[-1],pid_assoc)
+                        ilink = get_investigator_link(pid_list, spent[0], fname)
+                        outline.append(ilink)
+                        outline.append(pid_list)
                     print("\t".join(outline),file=outf)
 
         mout.close()
         sorted_defaults = sorted(list(zip(default_growthvs,default_lines)),key=lambda x:-x[0])
-        with open("display_tables/" + defaultc_file,"w+") as outf:
+        with open(subfolder + defaultc_file,"w+") as outf:
             print(header,file=outf)
             for gv,dl in sorted_defaults:
                 spent = dl.split("\t")
-                #get California sample PAUIs and create link to BT Investigator
-                pid_list = get_sample_pauis(spent[-1],pid_assoc)
-                ilink = get_investigator_link(pid_list, spent[0],defaultc_file)
                 link = get_taxonium_link(host,spent[0],ext)
-                outline = [spent[0], spent[9], spent[1], fix_month(spent[2]), fix_month(spent[3]), spent[12], spent[13], spent[10], spent[11], spent[4], link, ilink, pid_list]
+                outline = [spent[0], spent[9], spent[1], fix_month(spent[2]), fix_month(spent[3]), spent[12], spent[13], spent[10], spent[11], spent[4], link]
+                if is_custom:
+                    #get California sample PAUIs and create link to BT Investigator
+                    pid_list = get_sample_pauis(spent[-1],pid_assoc)
+                    ilink = get_investigator_link(pid_list, spent[0],defaultc_file)
+                    outline.append(ilink)
+                    outline.append(pid_list)
                 print("\t".join(outline), file = outf)
 
-lexicon = {"Alameda":"Alameda County","Alpine":"Alpine County","Amador":"Amador County","Butte":"Butte County",
-    "Calaveras":"Calaveras County","Colusa":"Colusa County","Contra Costa":"Contra Costa County","Del Norte":"Del Norte County",
-    "El Dorado":"El Dorado County","Fresno":"Fresno County","Glenn":"Glenn County","Humboldt":"Humboldt County",
-    "Imperial":"Imperial County","Inyo":"Inyo County","Kern":"Kern County","Kings":"Kings County","Lake":"Lake County",
-    "Lassen":"Lassen County","Los Angeles":"Los Angeles County","Madera":"Madera County","Marin":"Marin County",
-    "Mariposa":"Mariposa County","Mendocino":"Mendocino County","Merced":"Merced County","Modoc":"Modoc County",
-    "Mono":"Mono County","Monterey":"Monterey County","Napa":"Napa County","Nevada":"Nevada County","Orange":"Orange County",
-    "Placer":"Placer County","Plumas":"Plumas County","Riverside":"Riverside County","Sacramento":"Sacramento County",
-    "San Benito":"San Benito County","San Bernardino":"San Bernardino County","San Diego":"San Diego County",
-    "San Francisco":"San Francisco County","San Joaquin":"San Joaquin County","San Luis Obispo":"San Luis Obispo County",
-    "San Mateo":"San Mateo County","Santa Barbara":"Santa Barbara County","Santa Clara":"Santa Clara County",
-    "Santa Cruz":"Santa Cruz County","Shasta":"Shasta County","Sierra":"Sierra County","Siskiyou":"Siskiyou County",
-    "Solano":"Solano County","Sonoma":"Sonoma County","Stanislaus":"Stanislaus County","Sutter":"Sutter County",
-    "Tehama":"Tehama County","Trinity":"Trinity County","Tulare":"Tulare County","Tuolumne":"Tuolumne County",
-    "Ventura":"Ventura County","Yolo":"Yolo County","Yuba":"Yuba County",
-    "ALAMEDA":"Alameda County","ALPINE":"Alpine County","AMADOR":"Amador County","BUTTE":"Butte County",
-    "CALAVERAS":"Calaveras County","COLUSA":"Colusa County","CONTRA COSTA":"Contra Costa County","DEL NORTE":"Del Norte County",
-    "EL DORADO":"El Dorado County","FRESNO":"Fresno County","GLENN":"Glenn County","HUMBOLDT":"Humboldt County",
-    "IMPERIAL":"Imperial County","INYO":"Inyo County","KERN":"Kern County","KINGS":"Kings County","LAKE":"Lake County",
-    "LASSEN":"Lassen County","LOS ANGELES":"Los Angeles County","MADERA":"Madera County","MARIN":"Marin County",
-    "MARIPOSA":"Mariposa County","MENDOCINO":"Mendocino County","MERCED":"Merced County","MODOC":"Modoc County",
-    "MONO":"Mono County","MONTEREY":"Monterey County","NAPA":"Napa County","NEVADA":"Nevada County","ORANGE":"Orange County",
-    "PLACER":"Placer County","PLUMAS":"Plumas County","RIVERSIDE":"Riverside County","SACRAMENTO":"Sacramento County",
-    "SAN BENITO":"San Benito County","SAN BERNARDINO":"San Bernardino County","SAN DIEGO":"San Diego County",
-    "SAN FRANCISCO":"San Francisco County","SAN JOAQUIN":"San Joaquin County","SAN LUIS OBISPO":"San Luis Obispo County",
-    "SAN MATEO":"San Mateo County","SANTA BARBARA":"Santa Barbara County","SANTA CLARA":"Santa Clara County",
-    "SANTA CRUZ":"Santa Cruz County","SHASTA":"Shasta County","SIERRA":"Sierra County","SISKIYOU":"Siskiyou County",
-    "SOLANO":"Solano County","SONOMA":"Sonoma County","STANISLAUS":"Stanislaus County","SUTTER":"Sutter County",
-    "TEHAMA":"Tehama County","TRINITY":"Trinity County","TULARE":"Tulare County","TUOLUMNE":"Tuolumne County",
-    "VENTURA":"Ventura County","YOLO":"Yolo County","YUBA":"Yuba County",
-    "AL":"Alabama","AK":"Alaska","AR":"Arkansas","AZ":"Arizona","CA":"California","CO":"Colorado",
-    "CT":"Connecticut","DE":"Delaware","DC":"District of Columbia","FL":"Florida","GA":"Georgia","HI":"Hawaii",
-    "ID":"Idaho","IL":"Illinois","IN":"Indiana","IA":"Iowa","KS":"Kansas","KY":"Kentucky","LA":"Louisiana","ME":"Maine",
-    "MD":"Maryland","MA":"Massachusetts","MI":"Michigan","MN":"Minnesota","MS":"Mississippi","MO":"Missouri","MT":"Montana",
-    "NE":"Nebraska","NV":"Nevada","NH":"New Hampshire","NJ":"New Jersey","NM":"New Mexico","NY":"New York","NC":"North Carolina",
-    "ND":"North Dakota","OH":"Ohio","OK":"Oklahoma","OR":"Oregon","PA":"Pennsylvania","RI":"Rhode Island",
-    "SC":"South Carolina","SD":"South Dakota","TN":"Tennessee","TX":"Texas","UT":"Utah","VT":"Vermont","VA":"Virginia",
-    "WA":"Washington","WV":"West Virginia","WI":"Wisconsin","WY":"Wyoming","PR":"Puerto Rico"}
-lexicon.update({v:v for v in lexicon.values()})
-host = "https://storage.googleapis.com/ucsc-gi-cdph-bigtree/"
-extensions = ",_us"
 if __name__ == "__main__":
-    generate_display_tables(lexicon, host, extensions)
+    from master_backend import parse_setup
+    from utils import read_lexicon
+    args = parse_setup()
+    lexicon = read_lexicon(args.lexicon)
+    lexicon.update({v:v for v in lexicon.values()})
+    extension = args.region_extension
+    if extension is None:
+        extension = ['']
+    else:
+        extension.insert(0,'')
+    generate_display_tables(lexicon, args.host, extension)

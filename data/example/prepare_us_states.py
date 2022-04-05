@@ -1,7 +1,20 @@
-import subprocess
-from master_backend import primary_pipeline, read_lexicon, parse_setup
 #This script is a wrapper around the primary pipeline script
 #which does all necessary preprocessing to generate the setup for a united states analysis.
+#
+# Example command line usage:
+# python3 prepare_us_states.py -i public-latest.all.masked.pb -m public-latest.metadata.tsv
+# -H http://websitename -f NC_045512v2.fa -a ncbiGenes.gtf -l state_lexicon.txt
+#--------------------------------------------------------------
+
+import sys, subprocess
+#set path to directory
+sys.path.append('..')
+from master_backend import primary_pipeline, parse_setup
+from utils import read_lexicon
+
+#--------------------------------------------------------------
+#Step 1: Process metadata file
+print("Processing metadata file")
 args = parse_setup()
 conversion = read_lexicon(args.lexicon)
 pbf = args.input
@@ -18,8 +31,14 @@ with open("samplenames.txt") as inf:
                 else:
                     print(entry.strip(), file = badsamples)
 badsamples.close()
-print("Clearing out unparseable USA samples.")
+#--------------------------------------------------------------
+
+#Step 2: Use excluded samples to filter useable samples from protobuf file
+print("Clearing out unparseable samples.")
 subprocess.check_call("matUtils extract -i " + pbf + " -s unlabeled_samples.txt -p -o clean.pb", shell = True)
+#--------------------------------------------------------------
+
+#Step 3: Run the primary pipeline
 #update the arguments parsed
 args.input = "clean.pb"
 args.sample_regions = "sample_regions.tsv"

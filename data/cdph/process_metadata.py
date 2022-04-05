@@ -1,37 +1,70 @@
 # This script takes one or more metadata files and filters out samples that don't
 #   match geographic names specified in a lexicon of place names. Use the lexicon
 #   to store alternate spellings or capitalizatons of place names.
+#   This script also creates files necessary for two regional analysis (one at the
+#   CA county level and one at the US state level).
+#
 #   Arguments:
-#       conversion: array of alternate_name and preferred_name pairs, produced by read_lexicon in master_backend.py
-#       metadata: comma-delimited list of metadata file names (preceded by the path if necessary)
-#   Processing steps:
-#         -ensure required field names exist
-#         -remove non-US samples from public metadata
-#         -remove California samples from public metadata since county is unknown
-#         -For California metadata file, remove samples w/o a valid county name
-#         -Handle cases where county matches a state name (e.g., "Nevada")
-#         -remove samples without a valid date (YYYY-MM-DD)
-#         -merge public and California-specific metadata files, adding/renaming fields as necessary
-#         -create file to store sample name/region association
+#      -lexiconfile: name of file with lexicon of place names
+#      -metadatafiles: list of metadata files
+#   Output files:
+#      -metadata_merged.tsv: combined metadata file for both CDPH and public samples for the county analysis
+#      -metadata_merged_us.tsv: combined metadata file for both CDPH and public samples for the state analysis
+#      -sample_regions.tsv: list of sample names and corresponding regions for the county analysis
+#      -sample_regions_us.tsv: list of sample names and corresponding regions for the state analysis
+#      -sample_dates.tsv: list of sample names and corresponding dates for the county analysis
+#      -sample_dates_us.tsv: list of sample names and corresponding dates for the state analysis
+#      -pids.tsv: list of sample names and corresponding sample IDs/PAUIs for the county analysis
+#      -pids_us.tsv: list of sample names and corresponding sample IDs/PAUIs for the state analysis
+#   Processing overview:
+#      -removes samples without a valid date (YYYY-MM-DD)
+#      -removes samples w/o a valid county name from CDPH metadata (county analysis only)
+#      -handles cases where county name matches a state name (e.g., "Nevada")
+#      -removes California samples from public metadata (county analysis only)
+#      -removes non-US samples from public metadata
+#      -merges public and California-specific metadata files, adding/renaming fields as necessary
+#      -creates file(s) to store sample name and region association
+#      -creates file(s) to store sample name and date if date is not part of file name
+#      -creates file(s) to store sample name and PAUI/Specimen ID
+#
+# Example command line usage:
+#   python3 process_metadata.py -m samplemeta.tsv public.plusGisaid.latest.metadata.tsv -l state_and_county_lexicon.txt
+#-------------------------------------------------------------
 
-import re
+import sys, re
+#set path to directory
+sys.path.append('..')
+from utils import read_lexicon #comment out for WDL
 
-def process_metadata(conversion, metadata):
+
+def process_metadata(lexiconfile, metadatafiles, extension=["_us"]):
     #list of U.S. counties witht the same name as a state
     county_state = {"Washington","Delaware","Wyoming","Ohio","Nevada","Mississippi","Texas","Iowa","Oklahoma","Utah","Indiana","Colorado","Arkansas","Idaho","Oregon","Hawaii","New York"}
+    
+    #for WDL: insert here read_lexicon function from utils.py
 
-    mfiles = metadata.split(",") #get names of metadata files
+    conversion = read_lexicon(lexiconfile) #comment out for WDL, replace with file variable
+    
+    #get names of metadata files; CDPH metadata file should come first, public Gisaid metadata file should come second
+    mfiles = metadatafiles #comment out for WDL, replace with file variable
+
+    #assign file name extension for outputting files for both CA county and CA state analysis
+    if extension is None: #comment out this block for WDL, replace with: ext = "_us"
+        ext = "_us"
+    else:
+        ext = extension[0]
+
     metadata = open("metadata_merged.tsv","w+") #output file for merged metadata, for US + CA county analysis
-    metadata_us = open("metadata_merged_us.tsv","w+") #output file for merged metadata, for US analysis
+    metadata_us = open("metadata_merged" + ext + ".tsv","w+") #output file for merged metadata, for US analysis
     badsamples = open("unlabeled_samples.txt","w+") # file for rejected sample names
     region_assoc = open("sample_regions.tsv","w+") # file to store associations between sample ID and region name, for US + CA county analysis
-    region_assoc_us = open("sample_regions_us.tsv","w+") # file to store associations between sample ID and region name, for US analysis
+    region_assoc_us = open("sample_regions" + ext + ".tsv","w+") # file to store associations between sample ID and region name, for US analysis
     date_file = open("sample_dates.tsv","w+") # file to store associations between sample ID and sample dates, for US + CA county analysis
-    date_file_us = open("sample_dates_us.tsv","w+") # file to store associations between sample ID and sample dates, for US analysis
+    date_file_us = open("sample_dates" + ext + ".tsv","w+") # file to store associations between sample ID and sample dates, for US analysis
     print("sample_id\tdate", file = date_file)
     print("sample_id\tdate", file = date_file_us)
     pid_assoc = open("pids.tsv","w+") # file to store associations between sample ID and specimen_id (formerly PAUI or link_id)
-    pid_assoc_us = open("pids_us.tsv","w+") # file to store associations between sample ID and specimen_id (formerly PAUI or link_id)
+    pid_assoc_us = open("pids" + ext + ".tsv","w+") # file to store associations between sample ID and specimen_id (formerly PAUI or link_id)
     date_pattern = '[0-9]{4}-[0-9]{2}-[0-9]{2}'
     #write metadata header
     print("strain\tname\tpangolin_lineage\tnextclade_clade\tgisaid_accession\tcounty\tdate\tpaui\tsequencing_lab\tspecimen_id\tgenbank_accession\tcountry", file = metadata)
@@ -62,7 +95,7 @@ def process_metadata(conversion, metadata):
                         #if non-standard sample name, add sample ID and date to sample dates file
                         if not (fields[0].startswith("USA/")):
                             print(fields[0] + "\t" + fields[6], file = date_file_us)
-                        #add specimen_id to association file
+                        #add Specimen ID/PAUI to association file
                         if fields[9] != "":
                             print(fields[0] + "\t" + fields[9], file = pid_assoc_us)
                         # check for valid California county names for County specific data processing
@@ -80,7 +113,7 @@ def process_metadata(conversion, metadata):
                                 #if non-standard sample name, add sample ID and date to sample dates file
                                 if not (fields[0].startswith("USA/")):
                                     print(fields[0] + "\t" + fields[6], file = date_file)
-                                #add PAUI to association file
+                                #add Specimen ID/PAUI to association file
                                 if fields[9] != "":
                                     print(fields[0] + "\t" + fields[9], file = pid_assoc)
                     else:
@@ -141,43 +174,11 @@ def process_metadata(conversion, metadata):
     date_file_us.close()
     pid_assoc_us.close()
 
-lexicon = {"Alameda":"Alameda County","Alpine":"Alpine County","Amador":"Amador County","Butte":"Butte County",
-    "Calaveras":"Calaveras County","Colusa":"Colusa County","Contra Costa":"Contra Costa County","Del Norte":"Del Norte County",
-    "El Dorado":"El Dorado County","Fresno":"Fresno County","Glenn":"Glenn County","Humboldt":"Humboldt County",
-    "Imperial":"Imperial County","Inyo":"Inyo County","Kern":"Kern County","Kings":"Kings County","Lake":"Lake County",
-    "Lassen":"Lassen County","Los Angeles":"Los Angeles County","Madera":"Madera County","Marin":"Marin County",
-    "Mariposa":"Mariposa County","Mendocino":"Mendocino County","Merced":"Merced County","Modoc":"Modoc County",
-    "Mono":"Mono County","Monterey":"Monterey County","Napa":"Napa County","Nevada":"Nevada County","Orange":"Orange County",
-    "Placer":"Placer County","Plumas":"Plumas County","Riverside":"Riverside County","Sacramento":"Sacramento County",
-    "San Benito":"San Benito County","San Bernardino":"San Bernardino County","San Diego":"San Diego County",
-    "San Francisco":"San Francisco County","San Joaquin":"San Joaquin County","San Luis Obispo":"San Luis Obispo County",
-    "San Mateo":"San Mateo County","Santa Barbara":"Santa Barbara County","Santa Clara":"Santa Clara County",
-    "Santa Cruz":"Santa Cruz County","Shasta":"Shasta County","Sierra":"Sierra County","Siskiyou":"Siskiyou County",
-    "Solano":"Solano County","Sonoma":"Sonoma County","Stanislaus":"Stanislaus County","Sutter":"Sutter County",
-    "Tehama":"Tehama County","Trinity":"Trinity County","Tulare":"Tulare County","Tuolumne":"Tuolumne County",
-    "Ventura":"Ventura County","Yolo":"Yolo County","Yuba":"Yuba County",
-    "ALAMEDA":"Alameda County","ALPINE":"Alpine County","AMADOR":"Amador County","BUTTE":"Butte County",
-    "CALAVERAS":"Calaveras County","COLUSA":"Colusa County","CONTRA COSTA":"Contra Costa County","DEL NORTE":"Del Norte County",
-    "EL DORADO":"El Dorado County","FRESNO":"Fresno County","GLENN":"Glenn County","HUMBOLDT":"Humboldt County",
-    "IMPERIAL":"Imperial County","INYO":"Inyo County","KERN":"Kern County","KINGS":"Kings County","LAKE":"Lake County",
-    "LASSEN":"Lassen County","LOS ANGELES":"Los Angeles County","MADERA":"Madera County","MARIN":"Marin County",
-    "MARIPOSA":"Mariposa County","MENDOCINO":"Mendocino County","MERCED":"Merced County","MODOC":"Modoc County",
-    "MONO":"Mono County","MONTEREY":"Monterey County","NAPA":"Napa County","NEVADA":"Nevada County","ORANGE":"Orange County",
-    "PLACER":"Placer County","PLUMAS":"Plumas County","RIVERSIDE":"Riverside County","SACRAMENTO":"Sacramento County",
-    "SAN BENITO":"San Benito County","SAN BERNARDINO":"San Bernardino County","SAN DIEGO":"San Diego County",
-    "SAN FRANCISCO":"San Francisco County","SAN JOAQUIN":"San Joaquin County","SAN LUIS OBISPO":"San Luis Obispo County",
-    "SAN MATEO":"San Mateo County","SANTA BARBARA":"Santa Barbara County","SANTA CLARA":"Santa Clara County",
-    "SANTA CRUZ":"Santa Cruz County","SHASTA":"Shasta County","SIERRA":"Sierra County","SISKIYOU":"Siskiyou County",
-    "SOLANO":"Solano County","SONOMA":"Sonoma County","STANISLAUS":"Stanislaus County","SUTTER":"Sutter County",
-    "TEHAMA":"Tehama County","TRINITY":"Trinity County","TULARE":"Tulare County","TUOLUMNE":"Tuolumne County",
-    "VENTURA":"Ventura County","YOLO":"Yolo County","YUBA":"Yuba County",
-    "AL":"Alabama","AK":"Alaska","AR":"Arkansas","AZ":"Arizona","CA":"California","CO":"Colorado",
-    "CT":"Connecticut","DE":"Delaware","DC":"District of Columbia","FL":"Florida","GA":"Georgia","HI":"Hawaii",
-    "ID":"Idaho","IL":"Illinois","IN":"Indiana","IA":"Iowa","KS":"Kansas","KY":"Kentucky","LA":"Louisiana","ME":"Maine",
-    "MD":"Maryland","MA":"Massachusetts","MI":"Michigan","MN":"Minnesota","MS":"Mississippi","MO":"Missouri","MT":"Montana",
-    "NE":"Nebraska","NV":"Nevada","NH":"New Hampshire","NJ":"New Jersey","NM":"New Mexico","NY":"New York","NC":"North Carolina",
-    "ND":"North Dakota","OH":"Ohio","OK":"Oklahoma","OR":"Oregon","PA":"Pennsylvania","RI":"Rhode Island",
-    "SC":"South Carolina","SD":"South Dakota","TN":"Tennessee","TX":"Texas","UT":"Utah","VT":"Vermont","VA":"Virginia",
-    "WA":"Washington","WV":"West Virginia","WI":"Wisconsin","WY":"Wyoming","PR":"Puerto Rico"}
 if __name__ == "__main__":
-    process_metadata(lexicon, metadata = "samplemeta.tsv,public.plusGisaid.latest.metadata.tsv")
+    from master_backend import parse_setup
+    args = parse_setup()
+    if args.region_extension is None:
+        extension = ["_us"]
+    else:
+        extension = args.region_extension
+    process_metadata(args.lexicon, args.metadata, extension)
