@@ -11,8 +11,6 @@
 data/**
 
 # misc
-src/**
-*.sh
 .gcloudignore
 **/.DS_Store
 
