@@ -131,7 +131,7 @@ def update_js(target=[''], conversion = {}, extension=['']):
                         continue
                     did = sids[conversion.get(destination,destination)]
                     ftd["properties"]["intros"][prefix + "raw" + did] = count
-                    if count > 0: #debug: if count > 5:
+                    if count > 5: #debug: if count > 0:
                         sumin = dsumin[sd]
                         invc = dinvc[sd]
                         otvc = dotvc[sd]

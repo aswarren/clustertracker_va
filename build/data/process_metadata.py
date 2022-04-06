@@ -32,8 +32,9 @@
 #-------------------------------------------------------------
 
 import sys, re
-#set path to directory
-sys.path.append('..')
+import os #comment out for WDL
+#set path to directory 
+sys.path.insert(1, os.path.join(os.path.abspath(__file__ + "/../../../"), "src/python/")) #comment out for WDL
 from utils import read_lexicon #comment out for WDL
 
 

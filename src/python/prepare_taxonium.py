@@ -14,9 +14,6 @@
 # python3 prepare_taxonium.py -s sample_regions.tsv -m metadata_merged.tsv -e "_us"
 #-------------------------------------------------------------
 
-#set path to directory
-import sys #comment out for WDL
-sys.path.append('..') #comment out for WDL
 from utils import insert_extension #comment out for WDL
 
 def prepare_taxonium(sample_regions_file, mfile, extension=['']):
