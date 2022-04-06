@@ -98,7 +98,7 @@ python3 -m http.server
 * To generate a website for your regions of interest, you will first need to obtain a [geojson]((https://geojson-maps.ash.ms)) formatted file representing your regions of interest. Region names should be specified with the "name" property. Each Feature should have an "id" property that can be used to identify the feature numerically. An example file can be found at [example/data/us-states.geo.json](https://github.com/pathogen-genomics/introduction-website/blob/cdph/example/data/us-states.geo.json) in the example/data folder.
 * You will need to generate a sample-region two-column tsv, with sample identifiers in the first column and the name of the region they are from in the second column. Do not include a header row. Example:
 ```
-SA/CA-CZB-9556/2020|MW483159.1|2020-04-13	California
+USA/CA-CZB-9556/2020|MW483159.1|2020-04-13	California
 USA/DC-DFS-PHL-0022/2020|MZ488067.1|2020-03-20	District of Columbia
 USA/WV-QDX-1284/2020|MW065351.1|2020-03-17	West Virginia
 ...
@@ -110,15 +110,25 @@ USA/WV-QDX-1284/2020|MW065351.1|2020-03-17	West Virginia
 **General Steps**
 
 1. The simplest way to start would be to clone this repository and edit the code in the example folder. Follow the instructions in the Quick Start section if you would like to start development from this simple example.
-2. Gather the files mentioned in the Input File Requirements section above. If you need to preprocess your data, you can use [example/data/prepare_us_states.py](https://github.com/pathogen-genomics/introduction-website/blob/cdph/example/data/prepare_us_states.py) as a model. 
+
+2. Gather the files mentioned in the Input File Requirements section above. If you need to preprocess your data, you can use [example/data/prepare_us_states.py](https://github.com/pathogen-genomics/introduction-website/blob/cdph/example/data/prepare_us_states.py) as a model. If you include the parse_setup method in your pre-processing script, you can use the same arguments you would with the main master_backend.py script. If you have several different sources of samples, with a different metadata format for each source, the -m argument can handle multiple metadata files (e.g., "-m metadata1.tsv metadata2.tsv").
+
 3. Once you've obtained and/or created the required files, navigate to your data directory (e.g., example/data) and run:
 
 ```
-python3 path/to/cloned/repo/src/python/master_backend.py -i path/to/your.pb -m path/to/matching/metadata.tsv -f path/to/NC_045512v2.fa -a path/to/ncbiGenes.gtf -j path/to/your/geo.json -s path/to/your/sample_regions.tsv -l path/to/your/lexicon.txt -H web/accessible/link/to/index/directory
+python3 master_backend.py -i path/to/your.pb -m path/to/matching/metadata.tsv -f path/to/NC_045512v2.fa -a path/to/ncbiGenes.gtf -j path/to/your/geo.json -s path/to/your/sample_regions.tsv -l path/to/your/lexicon.txt -H web/accessible/link/to/index/directory
 gzip cview.pb
 ```
+(You may need to adjust the path to the src/python/master_backend.py file depending on where your working data directory is. If you are working from the example/data folder, you would specify "../../src/python/master_backend.py".)
 
-You can optionally pass -G or -X parameters, which will be applied when introduce is called. 
+You can optionally pass the following parameters to master_backend.py:
+* -d: Path to a two-column tsv containing sample names and collection dates in YYYY-MM-DD format. matUtils can automatically determine the sample date if it as appended to the sample name with the pipe (|) character (e.g., "USA/CA-CZB-9556/2020|MW483159.1|2020-04-13"). If your sample names don't follow this naming convention, you can use the -d option to specify sample dates.
+* -x: Comma-separated list of additional metadata fields to include in Taxonium protobuf. Default is 'cluster,region'. Use the name of the field in the metadata file. Do not separate items with spaces.
+* -t: sets the number of threads to use when calling matUtils introduce; the default is 4.
+* -X: Number to pass to parameter -X of matUtils introduce. Increase to merge nested clusters; the default is 2.
+* -e: In our implementation for CDPH we use two sets of geojson files to handle two levels of geographic analysis, one at the county level and one at the state level. To differentiate the two sets of files we implemnted the -e option to append a filename "extension" to the second set of files, e.g., "default_clusters.tsv" for the county level analysis and "default_clusters**_us**.tsv" for the state level analysis. In this case you would use the -e paramater with "_us" as the parameter value. The default is to use no filename extension.
+
+Note that the geojson parameter, -j, can take multiple arguments if you need to create a multi-geographic-level analysis, as we did for CDPH. If you use more than one geojson file, be sure to specify file name extensions using the -e parameter noted above.
 
 Outputs:
 * The primary data outputs contaning the calculated introductions are hardcoded_clusters.tsv (tab separated file with detailed cluster and introduction information) and cview.pb (protobuf for viewing introductions with Taxonium).
@@ -138,7 +148,6 @@ Outputs:
 ```
 python3 -m http.server
 ```
-
 
 **Customizations to the Cluster Table Below the Map:** Basic customizations to the table can be achieved by modifying the parameters in the loadTargetTable function of scripts/main.js. Documentation can be found [here](https://github.com/derekeder/csv-to-html-table). 
 
