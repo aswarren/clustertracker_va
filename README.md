@@ -33,7 +33,7 @@ Code to generate a webpage displaying SARS-CoV-2 clusters and introductions infe
   * a link to view the samples in the California Big Tree Investigator tool, where users can join PHI to the phylogentic tree information (for authorized users only)
 * All data in the table can be sorted in ascending or descending order.
 * A search box allows the user to filter the table contents.
-* COMING SOON: Users can toggle between two levels of analysis: California counties or California state. The county-level introductions display introductions to and from Calfornia counties as well as other U.S. states. The state-level introductions display introductions between all of California (as a single region) and other states.
+* Users can toggle between two levels of analysis: California counties or California state. The county-level introductions display introductions to and from Calfornia counties as well as other U.S. states. The state-level introductions display introductions between all of California (as a single region) and other states.
 * The Taxonium protobuf file with phylogenetic tree information and a tab-separated file with information for all introductions can be downloaded for further analysis.
 
 ## Quickstart
@@ -134,9 +134,20 @@ This script takes the cleaned protobuf file generated above and uses [matUtils i
 
 ## Customizing Cluster Tracker
 
-To generate a website for your set of regions of interest, [you will first need to obtain a geojson representing your regions of interest.](https://geojson-maps.ash.ms). You will need to generate a sample-region two-column tsv, with sample identifiers in the first column and the ID of the region they are from in the second column. You will need what I'm calling a "lexicon" file to ensure compatibility between names- this is an unheaded csv containing in the first column the base name of each region to be used by the map, and comma separated after that, each other name for that region across your other files. An example is provided under data/state_lexicon.txt.
+**Software Requirements:** You will need to have the [UShER software suite](https://usher-wiki.readthedocs.io/en/latest/Installation.html) (version 0.5.0 or later) installed and available on your path. You should have python 3 installed on your computer. Verify that the python "dateutil" package is included as some versions of python may be missing the dateutil standard package; it can be installed if needed via conda.
 
-Once you've obtained these files, you can navigate to the data directory and run
+**Input File Requirements:**
+
+* Mutation annotated protobuf file and corresponding metadata file. A gene annotation GTF file and FASTA reference sequence file are also required.
+* To generate a website for your set of regions of interest, [you will first need to obtain a geojson representing your regions of interest.](https://geojson-maps.ash.ms). The region name should be specified with the "name" property. Each Feature should have an "id" property that can be used to identify the feature numerically. An example is provided under [example/data/us-states.geo.json](https://github.com/pathogen-genomics/introduction-website/blob/cdph/example/data/us-states.geo.json) file in the example/data folder.
+* You will need to generate a sample-region two-column tsv, with sample identifiers in the first column and the ID of the region they are from in the second column.
+* You will need what we're calling a "lexicon" file to ensure compatibility between region names- this is an unheaded csv containing in the first column the base name of each region to be used by the map, and comma separated after that, each other name for that region across your other files. An example is provided under [example/data/state_lexicon.txt](https://github.com/pathogen-genomics/introduction-website/blob/cdph/example/data/state_lexicon.txt).
+
+**Aditional Considerations:** Our web site takes advantage of the ability of the [Taxonium](https://taxonium.org/) phylogenetic tree visualization tool to display data hosted from any publicly available web location. Currently, to view clusters in Taxonium using the link on the website table requires you to put the final output protobuf file (cview.pb) in a publicly available web location in order to function correctly. You can work around this by uploading the cview.pb / cluster_taxonium.pb that is output by the pipeline directly to Taxonium, then search for your cluster of interest from the website table using the search box on the resulting display. 
+
+1. The simplest way to start would be to clone this repository and edit the code in the example folder. Follow the instructions in the Quick Start section if you would like to start development from this simple example.
+2. Gather the files mentioned in the Input File Requirements section above. If you need to preprocess your data, you can use the example/data/prepare_us_states.py as a model. 
+3. Once you've obtained and/or created the required files, you can either (a) copy the src/python files to your working directory, or navigate to the src/python directory and run:
 
 ```
 python3 master_backend.py -i path/to/your.pb -m path/to/matching/metadata.tsv -f path/to/NC_045512v2.fa -a path/to/ncbiGenes.gtf -j path/to/your/geo.json -s path/to/your/sample_regions.tsv -l path/to/your/lexicon.txt -H web/accessible/link/to/index/directory
@@ -150,4 +161,15 @@ Then navigate to the outermost index directory and run
 python3 -m http.server
 ```
 
-It is not required to make the website on a web-accessible directory, but the taxonium view (clicking view cluster on the site) will not function if it's not. You can work around this by uploading the cview.pb / cluster_taxonium.pb that is output by the pipeline directly to [taxonium](https://cov2tree.org/), then search for your cluster of interest from the website table using the search box on the resulting display. 
+**Customizations to the Cluster Table Below the Map:** Basic customizations to the table can be achieved by modifying the parameters in the loadTargetTable function of scripts/main.js. Documentation can be found [here](https://github.com/derekeder/csv-to-html-table). 
+
+Data for the table comes from the output files from generate_display_tables.py (default_clusters.tsv and region_name_topclusters.tsv). Our version for CDPH includes additional fields not automatically generated from matUtils introduce. To do likewise, you may wish to modify both the generate_display_tables.py python script to insert data (we have done this by setting the is_custom_data flag in python script), and add additional custom_formatting elements in the scripts/main.js loadTargetTable function. If needed, you can modify the scripts/ssv_to_html_table.js library to manipulate how the data files are read. (Our modifications to these JS files can be seen in dist/scripts.)
+
+**Customizing the Map--Basics:** We use [Leaflet.js](https://leafletjs.com/) for our mapping app. The scripts/main.js file is where you will find all the Leaflet map functions. Basic modifications:
+* The map center and extent is done with the Leaflet [setView](https://github.com/pathogen-genomics/introduction-website/blob/756310ec0d81e575aa5348a9949d499bcdc733a4/src/js/main.js#L1) method in main.js.
+* The color scale is set using the [map_colors parameter](https://github.com/pathogen-genomics/introduction-website/blob/ec47a523eafcefa031e5d1f47cfff8ca87e8e590/src/js/main.js#L6) variable the [legend_log](https://github.com/pathogen-genomics/introduction-website/blob/ec47a523eafcefa031e5d1f47cfff8ca87e8e590/src/js/main.js#L385-L395) variable in main.js.
+* Color scale cut points can be modified in the [getColor* methods](https://github.com/pathogen-genomics/introduction-website/blob/ec47a523eafcefa031e5d1f47cfff8ca87e8e590/src/js/main.js#L28-L70) and in the [getBinVals and getLegendBins methods](https://github.com/pathogen-genomics/introduction-website/blob/ec47a523eafcefa031e5d1f47cfff8ca87e8e590/src/js/main.js#L328-L379) in main.js
+
+**Customizing the Map--Advanced:** Additional map customizations can be found in our customization for CDPH, located in the dist folder. Of interest, we developed a toggle that can switch between a county-based view of introducions and a larger state-based view of introductions. This can be achieved by using Leaflet's
+
+**Additional Considerations:** Modern browsers tend to cache files to make loading the website quicker. If your data files will be updated with regularity you may want to consider setting up your server so that it prevents cacheing.
