@@ -1,23 +1,3 @@
-function mergeFields(data) {
-    //merges last two fields in the data table
-    var i = data.length;
-    var j = data[0].length - 1;
-    var newdata = new Array(i).fill(0).map(() => new Array(j).fill(0));
-    for (j = 0; j < data[0].length - 1; j++) {
-        newdata[0][j] = data[0][j];
-    }
-    for (i = 1; i < data.length; i++) {
-        for (j = 0; j < data[i].length; j++) {
-            if (j == data[i].length - 1) {
-                newdata[i][j - 1] = newdata[i][j - 1] + "\t" + data[i][j];
-            } else {
-                newdata[i][j] = data[i][j];
-            }
-        }
-    }
-    return newdata;
-}
-
 var CsvToHtmlTable = CsvToHtmlTable || {};
 
 CsvToHtmlTable = {
@@ -43,7 +23,6 @@ CsvToHtmlTable = {
         $.when($.get(csv_path)).then(
             function (data) {
                 var csvData = $.csv.toArrays(data, csv_options);
-                var csvData = mergeFields(csvData); // merge last two fields
                 var $tableHead = $("<thead></thead>");
                 var csvHeaderRow = csvData[0];
                 var $tableHeadRow = $("<tr></tr>");

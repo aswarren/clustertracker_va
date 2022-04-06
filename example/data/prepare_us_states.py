@@ -6,9 +6,10 @@
 # -H http://websitename -f NC_045512v2.fa -a ncbiGenes.gtf -l state_lexicon.txt
 #--------------------------------------------------------------
 
-import sys, subprocess
+import sys, os, subprocess
 #set path to directory
-sys.path.append('..')
+sys.path.insert(1, os.path.join(os.path.abspath(__file__ + "/../../../"), "src/python/"))
+print(sys.path) #debug
 from master_backend import primary_pipeline, parse_setup
 from utils import read_lexicon
 
