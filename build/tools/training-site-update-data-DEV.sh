@@ -3,6 +3,9 @@
 #This script copies the latest data files and prepares them
 #for the DEVELOPMENT "training" web site.
 
+#copy status message file to training site
+gsutil cp "status.json" "gs://ucsc-gi-cdph-bigtree/display_tables/training_dev"
+
 #copy display_tables.tsv files to local directory for editing
 mkdir display_tables-tmp
 gsutil -m cp "gs://ucsc-gi-cdph-bigtree/display_tables/*.tsv" display_tables-tmp/
@@ -26,6 +29,6 @@ gsutil -m cp *.tsv "gs://ucsc-gi-cdph-bigtree/display_tables/training_dev/"
 
 #copy remaining files from main Gcloud directory to "trainng_dev" directory
 gsutil -m cp "gs://ucsc-gi-cdph-bigtree/display_tables/*.gz" "gs://ucsc-gi-cdph-bigtree/display_tables/training_dev/"
-gsutil cp "gs://ucsc-gi-cdph-bigtree/display_tables/regions.js" "gs://ucsc-gi-cdph-bigtree/display_tables/training_dev/"
+gsutil cp "gs://ucsc-gi-cdph-bigtree/display_tables/regions*.js" "gs://ucsc-gi-cdph-bigtree/display_tables/training_dev/"
 
 echo "Process complete. You can now delete the 'display_tables-tmp' folder"

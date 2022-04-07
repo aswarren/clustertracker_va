@@ -1,5 +1,8 @@
 #!/bin/sh
 
+#copy status message file to training site
+gsutil cp "status.json" "gs://ucsc-gi-cdph-bigtree/display_tables/training"
+
 #copy display_tables.tsv files to local directory for editing
 gsutil -m cp "gs://ucsc-gi-cdph-bigtree/display_tables/*.tsv" display_tables/
 
@@ -22,5 +25,5 @@ gsutil -m cp *.tsv "gs://ucsc-gi-cdph-bigtree/display_tables/training/"
 
 #copy remaining files from main Gcloud directory to "trainng" directory
 gsutil -m cp "gs://ucsc-gi-cdph-bigtree/display_tables/*.gz" "gs://ucsc-gi-cdph-bigtree/display_tables/training"
-gsutil cp "gs://ucsc-gi-cdph-bigtree/display_tables/regions.js" "gs://ucsc-gi-cdph-bigtree/display_tables/training"
+gsutil cp "gs://ucsc-gi-cdph-bigtree/display_tables/regions*.js" "gs://ucsc-gi-cdph-bigtree/display_tables/training"
 
