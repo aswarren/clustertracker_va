@@ -1,3 +1,5 @@
+v0.4.1:
+   -updates UI to download uncompressed version of hardcoded_clusters.tsv
 v0.4.0 (2022-03-22):
   -Data processing: adds new California state-wide introductions data
   -UI changes: adds new button to show/hide California state region introductions and rearranges other buttons
