@@ -68,15 +68,15 @@ def process_metadata(lexiconfile, metadatafiles, extension=["_us"]):
     pid_assoc_us = open("pids" + ext + ".tsv","w+") # file to store associations between sample ID and specimen_id (formerly PAUI or link_id)
     date_pattern = '[0-9]{4}-[0-9]{2}-[0-9]{2}'
     #write metadata header
-    print("strain\tname\tpangolin_lineage\tnextclade_clade\tgisaid_accession\tcounty\tdate\tpaui\tsequencing_lab\tspecimen_id\tgenbank_accession\tcountry", file = metadata)
-    print("strain\tname\tpangolin_lineage\tnextclade_clade\tgisaid_accession\tcounty\tdate\tpaui\tsequencing_lab\tspecimen_id\tgenbank_accession\tcountry", file = metadata_us)
+    print("strain\tname\tpangolin_lineage\tnextclade_clade\tgisaid_accession\tcounty\tdate\tpaui\tsequencing_lab\tspecimen_id\tspecimen_accession_number\tgenbank_accession\tcountry", file = metadata)
+    print("strain\tname\tpangolin_lineage\tnextclade_clade\tgisaid_accession\tcounty\tdate\tpaui\tsequencing_lab\tspecimen_id\tspecimen_accession_number\tgenbank_accession\tcountry", file = metadata_us)
     duplicates = set() #stores sample names of potential duplicates
     for f in mfiles:
         with open(f) as inf:
             fields = inf.readline().strip().split("\t")
             # check which format the metadata is in based on header field names
             if fields[0] == "usherID":
-                # CA metadata header: usherID,name,pango_lineage,nextclade_clade,gisaid_accession,county,collection_date,paui,sequencing_lab,specimen_id
+                # CA metadata header: usherID,name,pango_lineage,nextclade_clade,gisaid_accession,county,collection_date,paui,sequencing_lab,specimen_id,specimen_accession_number
                 for entry in inf:
                     fields = entry.split("\t")
                     for i in range(len(fields)):
@@ -146,6 +146,7 @@ def process_metadata(lexiconfile, metadatafiles, extension=["_us"]):
                                     newfields.append("") #Link ID (PAUI)
                                     newfields.append("") #sequencing_lab
                                     newfields.append("") #specimen_id
+                                    newfields.append("") #specimen_accession_number
                                     newfields.append(fields[1]) #genbank_accession
                                     newfields.append("USA") #country
                                     print("\t".join(newfields), file = metadata_us)
