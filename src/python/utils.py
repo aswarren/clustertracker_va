@@ -28,8 +28,6 @@ def insert_extension(fname, extension):
     else:
         f = fname
     parts = f.rpartition('.')
-    if parts[1] == "":
-        newname = parts[2] + extension
-    else:
-        newname = parts[0] + extension + parts[1] + parts[2]
+    parts[0] = parts[0] + extension
+    newname = ".".join.parts
     return newname
