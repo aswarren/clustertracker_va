@@ -1,8 +1,10 @@
 # Changelog
 
-## v0.4.2 (2022-07-12):
+## v0.4.3 (2022-07-12):
    - move/reformat version history to changelog
    - upgraded datatables.net from 1.10.25 to 1.11.3 to resolve security vulnerabilities
+## v0.4.2 (2022-06-22):
+   - Data processing: incorporates new specimen_accession_number field for CDPH metadata
 ## v0.4.1 (2022-04-07):
    - updates UI to download uncompressed version of hardcoded_clusters.tsv
 ## v0.4.0 (2022-03-22):
