@@ -1,4 +1,5 @@
 v0.4.1:
+   -upgraded datatables.net from 1.10.25 to 1.11.3 to resolve security vulnerabilities.
    -updates UI to download uncompressed version of hardcoded_clusters.tsv
 v0.4.0 (2022-03-22):
   -Data processing: adds new California state-wide introductions data
