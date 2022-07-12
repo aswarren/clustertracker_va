@@ -1,8 +1,9 @@
 # Changelog
 
-## v0.4.1:
+## v0.4.2 (2022-07-12):
    - move/reformat version history to changelog
-   - upgraded datatables.net from 1.10.25 to 1.11.3 to resolve security vulnerabilities.
+   - upgraded datatables.net from 1.10.25 to 1.11.3 to resolve security vulnerabilities
+## v0.4.1 (2022-04-07):
    - updates UI to download uncompressed version of hardcoded_clusters.tsv
 ## v0.4.0 (2022-03-22):
   - Data processing: adds new California state-wide introductions data
