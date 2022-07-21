@@ -3,7 +3,8 @@
 #
 # Example command line usage:
 # python3 prepare_us_states.py -i public-latest.all.masked.pb -m public-latest.metadata.tsv
-# -H http://websitename -f NC_045512v2.fa -a ncbiGenes.gtf -l state_lexicon.txt
+# -H http://websitename -a hu1.gb -l state_lexicon.txt 
+# -x “genbank_accession,country,date,name,pangolin_lineage”
 #--------------------------------------------------------------
 
 import sys, os, subprocess

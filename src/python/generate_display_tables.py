@@ -37,12 +37,12 @@ import os #comment out for WDL
 
 # function to construct links to Taxonium
 def get_taxonium_link(host,cluster,ext):
-    link = "https://taxonium.org/?protoUrl=" + host + "cview" + ext + ".pb.gz"
-    link += '&search=[{"id":0.123,"category":"cluster","value":"'
+    link = 'https://taxonium.org/?protoUrl=' + host + 'cview' + ext + '.jsonl.gz'
+    link += '&color={"field":"meta_region"}'
+    link += '&srch=[{"key":"aa1","type":"meta_cluster","method":"text_match","text":"'
     link += cluster
-    link += '","enabled":true,"aa_final":"any","min_tips":1,"aa_gene":"S","search_for_ids":""}]'
-    link += '&colourBy={"variable":"region","gene":"S","colourLines":false,"residue":"681"}'
-    link += "&zoomToSearch=0&blinking=false"
+    link += '","gene":"S","position":484,"new_residue":"any","min_tips":0,"controls":true}]'
+    link += '&zoomToSearch=0'
     return link
 
 

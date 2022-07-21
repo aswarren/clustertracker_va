@@ -1,7 +1,7 @@
 # Calfornia Big Tree Cluster-Tracker
 Code to generate a webpage displaying SARS-CoV-2 clusters and introductions inferred via [matUtils introduce](https://usher-wiki.readthedocs.io/en/latest/matUtils.html#introduce). SARS-CoV-2 introductions between California counties and U.S. states are displayed geographically on an interactive map and in a separate table below the map, with links to view and explore the data in [Taxonium](http://taxonium.org) and the [California Big Tree Investigator](https://github.com/pathogen-genomics/paui-mapper). This version is a customizaton for use with data produced from the Calfornia Big Tree effort at UCSC for the California Department of Public Health; the original Cluster-Tracker project can be found [here](https://github.com/jmcbroome/introduction-website).
 
-**Approach:** This site uses python to perform backend setup and vanilla javascript for website rendering. We use the protobuf file format to store mutation-annotated phylogentic tree information, and tab-separated text files (TSV) for metadata and text-based output files. Python scripts are used to process a mix of samples from California State and public repositories, and to launch the [matUtils](https://usher-wiki.readthedocs.io/en/latest/matUtils.html) suite of tools for manipulating the protobuf files and calculating the introductions into each region. We use the [Terra](https://terra.bio/) platform as our primary data pipeline, so our python scripts are modularized to be be compatible with WDL, but can also be run on the user's desktop computer. A [GeoJSON](https://geojson.org/) file with introductions for each region is created for input into a [Leaflet-based map](https://leafletjs.com/). TSV files supply a table below the map with cluster details. 
+**Approach:** This site uses python to perform backend setup and vanilla javascript for website rendering. We use the protobuf file format to store mutation-annotated phylogentic tree information, and tab-separated text files (TSV) for metadata and text-based output files. Python scripts are used to process a mix of samples from California State and public repositories, and to launch the [matUtils](https://usher-wiki.readthedocs.io/en/latest/matUtils.html) suite of tools for manipulating the protobuf files and calculating the introductions into each region. [TaxoniumTools](https://docs.taxonium.org/en/latest/taxoniumtools.html) is used to convert protobuf files to JSONL for use in the Taxonium viewer. We use the [Terra](https://terra.bio/) platform as our primary data pipeline, so our python scripts are modularized to be be compatible with WDL, but can also be run on the user's desktop computer. A [GeoJSON](https://geojson.org/) file with introductions for each region is created for input into a [Leaflet-based map](https://leafletjs.com/). TSV files supply a table below the map with cluster details. 
 
 **Customization:** Information on how to create a customized version of Cluster Tracker can be found [below](#customizing-cluster-tracker). A python script and a number of data files would be required to preprocess your data if you wish to use data not in the [global public SARS-CoV-2 phylogenetic tree](https://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/).
 
@@ -41,13 +41,13 @@ Code to generate a webpage displaying SARS-CoV-2 clusters and introductions infe
 * All data in the table can be sorted in ascending or descending order.
 * A search box allows the user to filter the table contents.
 * Users can toggle between two levels of analysis: California counties or California state. The county-level introductions display introductions to and from Calfornia counties as well as other U.S. states. The state-level introductions display introductions between all of California (as a single region) and other states.
-* The Taxonium protobuf file with phylogenetic tree information and a tab-separated file with information for all introductions can be downloaded for further analysis.
+* The Taxonium JSONL file with phylogenetic tree information and a tab-separated file with information for all introductions can be downloaded for further analysis.
 
 ## Quickstart
 
 Use this Quickstart guide to create a basic U.S.-based implementation of Cluster Tracker using public SARS-CoV-2 data.
 
-**Software Requirements:** You will need to have the [UShER software suite](https://usher-wiki.readthedocs.io/en/latest/Installation.html) (version 0.5.0 or later) installed and available on your path. You should have python 3 installed on your computer. Verify that the python "dateutil" package is included as some versions of python may be missing the dateutil standard package; it can be installed if needed via conda.
+**Software Requirements:** You will need to have the [UShER software suite](https://usher-wiki.readthedocs.io/en/latest/Installation.html) (version 0.5.0 or later) and [TaxoniumTools](https://docs.taxonium.org/en/latest/taxoniumtools.html) installed and available on your path. You should have python 3 installed on your computer. Verify that the python "dateutil" package is included as some versions of python may be missing the dateutil standard package; it can be installed if needed via conda.
 
 **Input Data Files**
 
@@ -57,8 +57,7 @@ Use the following set of input files to create a basic implementation of Cluster
 | --- | --- |
 | MAT protobuf file | Should be compatible with [UShER](https://usher-wiki.readthedocs.io/en/latest/matUtils.html#the-mutation-annotated-tree-mat-protocol-buffer-pb). Download ["public-latest.all.masked.pb"](https://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/) to use with the processing scripts in the example directory. |
 | Metadata file | Metadata file in TSV format. Download ["public-latest.metadata.tsv.gz"](https://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/) to use with the processing scripts in the example directory. |
-| ncbiGenes.gtf | Gene annotation GTF file; can be downloaded [here](https://usher-wiki.readthedocs.io/en/latest/_downloads/2052d9a7147253e32a3420939550ac63/ncbiGenes.gtf) |
-| NC_045512v2.fa | FASTA reference sequence file; can be downloaded [here](https://raw.githubusercontent.com/yatisht/usher/5e83b71829dbe54a37af845fd23d473a8f67b839/test/NC_045512v2.fa). Used to produce a Taxonium view. |
+| hu1.gb | Gene annotation file; can be downloaded [here](https://raw.githubusercontent.com/theosanderson/taxonium/master/taxoniumtools/test_data/hu1.gb) Used to produce a Taxonium view. |
 
 ### Quickstart Instructions
 1. Clone this repository into your workspace of choice. (Note that "cdph" is the default branch for this repository; "main" is reserved for J. McBroome's original Cluster Tracker.)
@@ -67,8 +66,7 @@ Use the following set of input files to create a basic implementation of Cluster
 
 ```
 cd example/data
-python3 prepare_county_data.py -i path/to/CA/Big/Tree/protobuf.pb -m path/to/metadata-file.tsv -H web/accessible/link/to/index/directory -f path/to/NC_045512v2.fa -a path/to/ncbiGenes.gtf -j us-states.geo.json -l state_lexicon.txt
-gzip cview.pb
+python3 prepare_county_data.py -i path/to/CA/Big/Tree/protobuf.pb -m path/to/metadata-file.tsv -H web/accessible/link/to/index/directory -a path/to/hu1.gb -j us-states.geo.json -l state_lexicon.txt -x “genbank_accession,country,date,name,pangolin_lineage”
 ```
 
 4. You can then view your results with a Python server initiated in the example directory.
@@ -90,11 +88,11 @@ python3 -m http.server
 
 ## Customizing Cluster Tracker
 
-**Software Requirements:** You will need to have the [UShER software suite](https://usher-wiki.readthedocs.io/en/latest/Installation.html) (version 0.5.0 or later) installed and available on your path. You should have python 3 installed on your computer. Verify that the python "dateutil" package is included as some versions of python may be missing the dateutil standard package; it can be installed if needed via conda.
+**Software Requirements:** You will need to have the [UShER software suite](https://usher-wiki.readthedocs.io/en/latest/Installation.html) (version 0.5.0 or later) and [TaxoniumTools](https://docs.taxonium.org/en/latest/taxoniumtools.html) installed and available on your path. You should have python 3 installed on your computer. Verify that the python "dateutil" package is included as some versions of python may be missing the dateutil standard package; it can be installed if needed via conda.
 
 **Input File Requirements:**
 
-* Mutation annotated protobuf file and corresponding metadata file. A gene annotation GTF file and FASTA reference sequence file are also required.
+* Mutation annotated protobuf file and corresponding metadata file. A gene annotation file is also required.
 * To generate a website for your regions of interest, you will first need to obtain a [geojson]((https://geojson-maps.ash.ms)) formatted file representing your regions of interest. Region names should be specified with the "name" property. Each Feature should have an "id" property that can be used to identify the feature numerically. An example file can be found at [example/data/us-states.geo.json](https://github.com/pathogen-genomics/introduction-website/blob/cdph/example/data/us-states.geo.json) in the example/data folder.
 * You will need to generate a sample-region two-column tsv, with sample identifiers in the first column and the name of the region they are from in the second column. Do not include a header row. Example:
 ```
@@ -105,7 +103,7 @@ USA/WV-QDX-1284/2020|MW065351.1|2020-03-17	West Virginia
 ```
 * You will need what we're calling a "lexicon" file to ensure compatibility between region names- this is an unheaded csv containing in the first column the base name of each region to be used by the map, and comma separated after that, each other name for that region across your other files. An example is provided under [example/data/state_lexicon.txt](https://github.com/pathogen-genomics/introduction-website/blob/cdph/example/data/state_lexicon.txt).
 
-**Additional Considerations:** Our web site takes advantage of the ability of the [Taxonium](https://taxonium.org/) phylogenetic tree visualization tool to display data hosted from any publicly available web location. Currently, to view clusters in Taxonium using the link on the website table requires you to put the final output protobuf file (cview.pb) in a publicly available web location. You can work around this by uploading the cview.pb / cluster_taxonium.pb that is output by the pipeline directly to Taxonium, then search for your cluster of interest from the website table using the search box on the resulting display. 
+**Additional Considerations:** Our web site takes advantage of the ability of the [Taxonium](https://taxonium.org/) phylogenetic tree visualization tool to display data hosted from any publicly available web location. Currently, to view clusters in Taxonium using the link on the website table requires you to put the final output file (cview.jsonl.gz) in a publicly available web location. You can work around this by uploading the cview.jsonl.gz file that is output by the pipeline directly to Taxonium, then search for your cluster of interest from the website table using the search box on the resulting display. 
 
 **General Steps**
 
@@ -116,8 +114,7 @@ USA/WV-QDX-1284/2020|MW065351.1|2020-03-17	West Virginia
 3. Once you've obtained and/or created the required files, navigate to your data directory (e.g., example/data) and run:
 
 ```
-python3 master_backend.py -i path/to/your.pb -m path/to/matching/metadata.tsv -f path/to/NC_045512v2.fa -a path/to/ncbiGenes.gtf -j path/to/your/geo.json -s path/to/your/sample_regions.tsv -l path/to/your/lexicon.txt -H web/accessible/link/to/index/directory
-gzip cview.pb
+python3 master_backend.py -i path/to/your.pb -m path/to/matching/metadata.tsv -a path/to/hu1.gb -j path/to/your/geo.json -s path/to/your/sample_regions.tsv -l path/to/your/lexicon.txt -H web/accessible/link/to/index/directory
 ```
 (You may need to adjust the path to the src/python/master_backend.py file depending on where your working data directory is. If you are working from the example/data folder, you would specify "../../src/python/master_backend.py".)
 
@@ -131,13 +128,13 @@ You can optionally pass the following parameters to master_backend.py:
 Note that the geojson parameter, -j, can take multiple arguments if you need to create a multi-geographic-level analysis, as we did for CDPH. If you use more than one geojson file, be sure to specify file name extensions using the -e parameter noted above.
 
 Outputs:
-* The primary data outputs contaning the calculated introductions are hardcoded_clusters.tsv (tab separated file with detailed cluster and introduction information) and cview.pb (protobuf for viewing introductions with Taxonium).
+* The primary data outputs contaning the calculated introductions are hardcoded_clusters.tsv (tab separated file with detailed cluster and introduction information) and cview.jsonl.gz (file for viewing introductions with Taxonium).
 * The following set of files are used in the web site:
   * regions.js: This file supplies the geojson data to the Leaflet map (via the introData variable).
   * display_tables/ folder: The files in this folder supply the data in the table below the map. They are converted to HTML tables via the csv_to_html_table.js script. Due to the large number of clusters the COVID-19 pandemic has produced, we limit the display of detailed cluster information in the table to the top 100 clusters, sorted by growth score. (The growth score is the number of samples in the cluster divided by the cluster's observed time frame; see the [matUtils introduce documentation](https://usher-wiki.readthedocs.io/en/latest/matUtils.html#introduce) for details.) 
 * A couple of intermediate data files are also produced: clusterswapped.tsv (metadata file used to add metadata fields to the Taxonium protobuf) and cluster_labels.tsv (associates sample names with the cluster ID for downstream manipulation).
 
-4. If you are not working from the example/data directory, you will need to copy regions.js, the display_tables folder, cview.pb.gz, and hardcoded_clusters.tsv into the directory where your web site files are located. We suggest grouping these files in a data folder. Our example web site has the following structure:
+4. If you are not working from the example/data directory, you will need to copy regions.js, the display_tables folder, cview.jsonl.gz, and hardcoded_clusters.tsv into the directory where your web site files are located. We suggest grouping these files in a data folder. Our example web site has the following structure:
 * index.html: the HTML code for the app
 * css: contains the style sheet for the site
 * data: contains the above mentioned data files, with the topclusters.tsv files grouped into the display_tables folder

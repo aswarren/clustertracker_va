@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.5.0 (2022-07-21):
+   - Updates to use new Taxonium v.2 viewer
+   - Data processing: updates utils.py to better handle complex file names
 ## v0.4.3 (2022-07-12):
    - move/reformat version history to changelog
    - upgraded datatables.net from 1.10.25 to 1.11.3 to resolve security vulnerabilities

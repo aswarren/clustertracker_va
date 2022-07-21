@@ -14,8 +14,7 @@ def parse_setup():
     parser.add_argument("-e","--region_extension", nargs='*', help="Appends a file name extension (e.g., '_xxxx') to output files in a multi-region-level analysis (i.e., when using two or more geojson files). Specify a file extension for only the 2nd, 3rd, ..., geojson files. Not needed if using only one geojson file.")
     parser.add_argument("-m","--metadata", nargs='*', help="Path to a metadata file matching the targeted protobuf to update the website to display.", default=[''])
     parser.add_argument("-x","--taxonium_fields",help="Comma-separated list of additional metadata fields to include in Taxonium protobuf. Default is 'cluster,region'. Use name of field in metadata file. Do not separate items with spaces.")
-    parser.add_argument("-f","--reference",help="Path to a reference fasta.")
-    parser.add_argument("-a","--annotation",help="Path to a gtf annotation matching the reference.")
+    parser.add_argument("-a","--annotation",help="Path to a gene annotation file compatible with TaxoniumTools.")
     parser.add_argument("-t","--threads",type=int,help="Number of threads to use.", default = 4)
     parser.add_argument("-l","--lexicon",help="Optionally, link to a text file containing all names for the same region, one region per row, tab separated.", default = "")
     parser.add_argument("-X","--lookahead",type=int,help="Number to pass to parameter -X of introduce. Increase to merge nested clusters. Default 2", default = 2)
@@ -72,7 +71,7 @@ def primary_pipeline(args):
             dfile = args.date_metadata
             ufile = "hardcoded_clusters.tsv"
             cfile = "clusterswapped.tsv"
-            ofile = "cview.pb"
+            ofile = "cview.jsonl.gz"
         else:
             print("Starting the next analysis.")
             ifile = insert_extension(args.input, ext[0])
@@ -81,7 +80,7 @@ def primary_pipeline(args):
             ufile = insert_extension("hardcoded_clusters.tsv",ext[0])
             mfile = list([insert_extension(mfile[0], ext[0])])
             cfile = insert_extension("clusterswapped.tsv",ext[0])
-            ofile = insert_extension("cview.pb",ext[0])
+            ofile = insert_extension("cview.jsonl.gz",ext[0])
         jfile = list([jsons[i]])
 
         print("Calling introduce.")
@@ -99,8 +98,8 @@ def primary_pipeline(args):
         print("Preparing taxonium view.")
         prepare_taxonium(sfile, mfile, ext)
 
-        print("Generating viewable pb.")
-        subprocess.check_call("matUtils extract -i " + ifile + " -M "+ cfile + " -F "+ tax_fields + " --write-taxodium " + ofile + " --title Cluster-Tracker -g " + args.annotation + " -f " + args.reference,shell=True)
+        print("Generating JSONL file for Taxonium view.")
+        subprocess.check_call("usher_to_taxonium -i " + ifile + " -m "+ cfile + " -c "+ tax_fields + " -o " + ofile + " -g " + args.annotation,shell=True)
     
     print("Process completed; check website for results.")
     

@@ -26,10 +26,9 @@
 #
 # Example command line usage:
 # python3 prepare_data.py -i new_tree.pb -m samplemeta.tsv public.plusGisaid.latest.metadata.tsv 
-#  -f NC_045512v2.fa -a ncbiGenes.gtf -j us-states_ca-counties.geo.json us-states.geo.json 
-#  -e "_us" -l state_and_county_lexicon.txt -x "nextclade_clade,specimen_id,name,gisaid_accession"
-#
-# python3 prepare_data.py -i new_tree.pb -m samplemeta.tsv public.plusGisaid.latest.metadata.tsv -j us-states_ca-counties.geo.json us-states.geo.json -e "_us" -l state_and_county_lexicon.txt -x "nextclade_clade,specimen_id,name,gisaid_accession" -f NC_045512v2.fa -a ncbiGenes.gtf -H https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/
+#  -a hu1.gb -j us-states_ca-counties.geo.json us-states.geo.json 
+#  -e "_us" -l state_and_county_lexicon.txt -H https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/
+#  -x "genbank_accession,gisaid_accession,country,county,date,name,pangolin_lineage,nextclade_clade,specimen_id,specimen_accession_number,sequencing_lab"
 #
 #------------------------------------------------------------------------------------------
 
