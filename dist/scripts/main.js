@@ -1,4 +1,4 @@
-var map = L.map('mapid', {'tap':false}).setView([36.77, -119.418], 5);
+var map = L.map('mapid', {'tap': false}).setView([36.77, -119.418], 5);
 var global_state = "default";
 var global_time = "";
 var global_state_id = "00";
@@ -16,6 +16,7 @@ for (j = 0; j < 2; j++) {
         }
     }
 }
+
 
 function maxClusterCt(region_id,timel,map_layer) {
     var maxn = 0;
@@ -194,68 +195,13 @@ function resetHighlight(e) {
     info.update();
 }
 
-function loadTargetTable(target) {
-    // prevents loading from browser cache
-    target = target + '?v=' + Date.now();
-    CsvToHtmlTable.init({
-        csv_path: target, 
-        element: 'table-container', 
-        allow_download: false,
-        csv_options: {separator: '\t', delimiter: '\t'},
-        datatables_options: {"paging": true, "searching": true, "order": [[9,"desc"]]},
-        custom_formatting: [
-            [11, function (data,type,row,meta) {
-                var items = data.split("\t");
-                var txt = items[0].trim();
-                if (txt.includes("No identifiable samples")) {
-                   return '<div title="No CDPH sample IDs were found in this cluster.">' + txt + "</div>";
-                } else {
-                    var n = (items[1].match(/,/g) || []).length + 1;
-                    return '<a href="' + encodeURI(txt) + '" title="Click to View in CA Big Tree Investigator" target="_blank">View ' + n + ' Samples</a>';
-                }
-              }
-            ],[10, function (data,type,row,meta) {
-                return '<a href="' + encodeURI(data) + '" title="Click to View in Taxonium" target="_blank">View Cluster</a>';
-              }
-            ],[9, function (data,type,row,meta) {
-                return '<div title="Importance estimate based on cluster size and age. Not directly comparable between regions with varying sequencing levels.">' + data + "</div>"
-              }
-            ],[8, function (data,type,row,meta) {
-                return '<div title="Confidence metric for the origin; 1 is maximal, 0 is minimal.">' + data + "</div>"
-              }
-            ],[7, function (data,type,row,meta) {
-                data = data.replace(/_/g, " "); // replace underscore with space for origin name
-                return '<div title="The origin region with the greatest weight. May not be the true origin, especially if the corresponding confidence value is below 0.5.">' + data + "</div>"
-              }
-            ],[6, function (data,type,row,meta) {
-                return '<div title="Pangolin lineage of the ancestral introduction.">' + data + "</div>"
-              }
-            ],[5, function (data,type,row,meta) {
-                return '<div title="Nextstrain clade of the ancestral introduction.">' + data + "</div>"
-              }
-            ],[4, function (data,type,row,meta) {
-                return '<div title="Date of the latest sample from this cluster.">' + data + "</div>"
-              }
-            ],[3, function (data,type,row,meta) {
-                return '<div title="Date of the earliest sample from this cluster.">' + data + "</div>"
-              }
-            ],[2, function (data,type,row,meta) {
-                return '<div title="Number of samples in this cluster.">' + data + "</div>"
-              }
-            ],[1, function (data,type,row,meta) {
-                data = data.replace(/_/g, " "); // replace underscore with space for region name
-                return '<div title="Region of this cluster.">' + data + "</div>"
-              }
-            ],[0, function (data,type,row,meta) {
-                data = data.replace(/_/g, " "); // replace underscore with space for node name
-                return '<div title="The identifier of the internal node inferred to be the ancestral introduction. Can be used with the public protobuf and matUtils.">' + data + "</div>"
-              }
-            ]
-        ]
-      });
-    //checks data update status and triggers alert if needed
-    readStatus();
-}
+// function loadTargetTable(host) {
+//     // prevents loading from browser cache
+//     host = host + '?v=' + Date.now();
+
+//     //checks data update status and triggers alert if needed
+//     readStatus();
+// }
 
 function resetView(e) {
     geojson[map_layer].eachLayer(function (layer) {
@@ -270,15 +216,16 @@ function resetView(e) {
     legend.update(global_state);
     let ext = "";
     if (map_layer == 1) {ext = "_us"}
-    loadTargetTable("https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/default_clusters" + ext + ".tsv");
+    showRegion(global_state);
+    //loadTargetTable("https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/default_clusters" + ext + ".tsv");
 }
 
 function loadStateTable(e) {
     let ext = "";
     if (map_layer == 1) {ext = "_us"} 
     var fname = e.target.feature.properties.name.trim().replace(/\s+/g, '_')
-    let path = fname + "_topclusters" + ext + ".tsv";
-    loadTargetTable("https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/" + path);
+    //let path = fname + "_topclusters" + ext + ".tsv";
+    //loadTargetTable("https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/" + path);
 }
 
 function changeMap(time) {
@@ -319,6 +266,7 @@ function changeView(e) {
         colorIntros();
         document.getElementById("colorbtn").disabled = false;
         legend.update(global_state);
+        showRegion(global_state);
     }
 }
 
