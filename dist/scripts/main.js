@@ -2,7 +2,6 @@ var map = L.map('mapid', {'tap': false}).setView([36.77, -119.418], 5);
 var global_state = "default";
 var global_time = "";
 var global_state_id = "00";
-// var host = "raw.githubusercontent.com/jmcbroome/introduction-website/main/"
 var map_colors = ['#800026','#BD0026','#E31A1C','#FC4E2A','#FD8D3C','#FEB24C','#FED976','#FFEDA0'];
 var color_scale = "log";
 var map_layer = 0; //0=county data, 1=state data
@@ -195,14 +194,6 @@ function resetHighlight(e) {
     info.update();
 }
 
-// function loadTargetTable(host) {
-//     // prevents loading from browser cache
-//     host = host + '?v=' + Date.now();
-
-//     //checks data update status and triggers alert if needed
-//     readStatus();
-// }
-
 function resetView(e) {
     geojson[map_layer].eachLayer(function (layer) {
         geojson[map_layer].resetStyle(layer);
@@ -214,18 +205,7 @@ function resetView(e) {
     btn.innerText = "Show Raw Cluster Count";
     color_scale = "log";
     legend.update(global_state);
-    let ext = "";
-    if (map_layer == 1) {ext = "_us"}
     showRegion(global_state);
-    //loadTargetTable("https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/default_clusters" + ext + ".tsv");
-}
-
-function loadStateTable(e) {
-    let ext = "";
-    if (map_layer == 1) {ext = "_us"} 
-    var fname = e.target.feature.properties.name.trim().replace(/\s+/g, '_')
-    //let path = fname + "_topclusters" + ext + ".tsv";
-    //loadTargetTable("https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/" + path);
 }
 
 function changeMap(time) {
@@ -259,7 +239,6 @@ function changeView(e) {
     if (e.target.options.fillColor == "#1a0080") {
         resetView(e);
     } else {
-        loadStateTable(e);
         global_state = e.target.feature.properties.name;
         global_state_id = e.target.feature.id;
         clicklayer.setStyle({fillColor: "#1a0080"});
@@ -321,6 +300,17 @@ function swap_countystate() {
         map_layer = 0;
     }
     resetView();
+    // load new dataset into grid
+    let df = cDataFile;
+    let ds = cSampleFile;
+    if (map_layer == 1) {
+        const ext = "_us";
+        let pos = cDataFile.length - 8;
+        df = cDataFile.substring(0, pos) + ext + cDataFile.substring(pos);
+        pos = cSampleFile.length - 8;
+        ds = cSampleFile.substring(0, pos) + ext + cSampleFile.substring(pos);
+    }
+    initCTGrid(host, df, ds);
 }
 
 var legend = L.control({position: 'bottomleft'});

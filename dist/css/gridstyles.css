@@ -16,6 +16,7 @@ div.ui-dialog {line-height: normal;}
   float: right;
   text-align: right;
 }
+#txtSearch {border: 1px solid gray;}
 
 #pager {margin-bottom: 6px;}
 
