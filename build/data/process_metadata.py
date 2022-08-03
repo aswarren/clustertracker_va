@@ -103,7 +103,7 @@ def process_metadata(lexiconfile, metadatafiles, extension=["_us"], isWDL = Fals
                             #add item to merged metadata file for CA county analysis
                             print("\t".join(fields), file = metadata)
                     #add sample names to list to check for duplicates; add date to date file
-                    if fields[0].startswith("USA/CA"):
+                    if fields[0].startswith("USA/"):
                         #add sample name if needed to check for duplicates later on
                         duplicates.add(fields[0])
                         #check for valid date in file name, use date field if invalid
