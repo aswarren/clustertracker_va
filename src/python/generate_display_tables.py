@@ -28,7 +28,6 @@
 #-------------------------------------------------------------
 
 import json, gzip
-import os #comment out for WDL
 
 def generate_display_tables(extension = [''], isWDL = False):
     #== for WDL ===
@@ -79,7 +78,7 @@ def generate_display_tables(extension = [''], isWDL = False):
     
     # get sample name/PAUI associations
     if is_custom:
-        pid_assoc = {} # links sample ID with personal id (PAUI)
+        pid_assoc = {} # links sample ID with unique CDPH ID (e.g, PAUI, specimen_id)
         with open(pid_file) as inf:
             for entry in inf:
                 spent = entry.strip().split("\t")

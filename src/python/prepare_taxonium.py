@@ -7,8 +7,10 @@
 #   -extension: if using more than one geojson file this is list of file
 #     name extensions to differentiate each set of files. Specify only the
 #     file name extensions to use with the 2nd, 3rd, ..., set of files.
+#   -isWDL: defalut is False. Set to true only if the script will be run 
+#     as a WDL task in Terra.
 # Outputs:
-#  -region.js
+#  -clusterswapped.tsv
 #
 # Example command line usage:
 # python3 prepare_taxonium.py -s sample_regions.tsv -m metadata_merged.tsv -e "_us"
@@ -16,23 +18,27 @@
 
 from utils import insert_extension #comment out for WDL
 
-def prepare_taxonium(sample_regions_file, mfile, extension=['']):
-    #input file name(s)
-    #sample_regions = ['~{regions}', '~{regions_us}'] #for WDL
-    #mf = ['~{merged}', '~{merged_us}'] #for WDL
-    #cluster_file = ['~{clusters_counties}', '~{clusters_state}'] #for WDL
-    if len(extension) > 1: #comment out for WDL
-        sample_regions, mf, cluster_file = ([] for i in range(3)) #comment out for WDL
-        for e in extension: #comment out for WDL
-            sample_regions.append(insert_extension(sample_regions_file, e))  #comment out for WDL
-            mf.append(insert_extension(mfile[0], e))  #comment out for WDL
-            cluster_file.append("hardcoded_clusters" + e + ".tsv") #comment out for WDL
-    else: #comment out for WDL
-        sample_regions = list([sample_regions_file]) #comment out for WDL
-        mf = mfile #comment out for WDL
-        cluster_file = list(["hardcoded_clusters" + extension[0] + ".tsv"]) #comment out for WDL
-        
-    
+def prepare_taxonium(sample_regions_file, mfile, extension=[''], isWDL = False):
+    #== for WDL ===
+    # isWDL = True
+    #===
+
+    #input file names
+    if isWDL:
+        sample_regions = ['~{regions}', '~{regions_us}']
+        mf = ['~{merged}', '~{merged_us}']
+        cluster_file = ['~{clusters_counties}', '~{clusters_state}']
+        extension = ['', '_us']
+    else: 
+        sample_regions = list([sample_regions_file])
+        mf = list([mfile])
+        cluster_file = ["hardcoded_clusters.tsv"]
+        if len(extension) > 1:
+            for e in extension[1:]:
+                sample_regions.append(insert_extension(sample_regions_file, e)) #comment out for WDL?
+                mf.append(insert_extension(mfile[0], e)) #comment out for WDL?
+                cluster_file.append("hardcoded_clusters" + e + ".tsv")
+
     for j, e in enumerate(extension):
         cluster_swp_file = "clusterswapped" + e + ".tsv"
         sd = {}
