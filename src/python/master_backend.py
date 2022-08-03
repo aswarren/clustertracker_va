@@ -93,7 +93,7 @@ def primary_pipeline(args):
         update_js(jfile, conversion, ext)
 
         print("Generating top cluster tables.")
-        generate_display_tables(conversion, args.host, ext)
+        generate_display_tables(ext)
 
         print("Preparing taxonium view.")
         prepare_taxonium(sfile, mfile, ext)
