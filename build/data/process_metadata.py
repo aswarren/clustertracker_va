@@ -42,7 +42,7 @@ def process_metadata(lexiconfile, metadatafiles, extension=["_us"], isWDL = Fals
         ext = "_us" 
     else:
         mfiles = metadatafiles
-        if extension is None: #comment out this block for WDL, replace with: ext = "_us"
+        if extension is None:
             ext = "_us"
         else:
             ext = extension[0]
@@ -96,9 +96,8 @@ def process_metadata(lexiconfile, metadatafiles, extension=["_us"], isWDL = Fals
                     # merged metadata file and sample regions file
                     county = fields[5]
                     if county != "":
-                        if county.upper() in (c.upper() for c in county_conversion): 
+                        if county.upper() in (c.upper() for c in county_conversion): # convert all names to uppercase to avoid differences in case
                             has_valid_county = True
-                            # convert all names to uppercase to avoid differences in case
                             text = county_conversion[county.upper()].replace(" ", "_")
                             print(fields[0] + "\t" + text, file = region_assoc)
                             #add item to merged metadata file for CA county analysis
@@ -121,9 +120,7 @@ def process_metadata(lexiconfile, metadatafiles, extension=["_us"], isWDL = Fals
                                 print(fields[0] + "\t" + fields[6], file = date_file)
                     #add Specimen ID to association file
                     if fields[9] != "":
-                        print(fields[0] + "\t" + fields[9], file = pid_assoc)   
-                    #check for valid date
-
+                        print(fields[0] + "\t" + fields[9], file = pid_assoc)
             else:
                 # public metadata header: strain,genbank_accession,date,country,host,completeness,length,Nextstrain_clade,pangolin_lineage,Nextstrain_clade_usher,pango_lineage_usher
                 for entry in inf:
@@ -152,13 +149,13 @@ def process_metadata(lexiconfile, metadatafiles, extension=["_us"], isWDL = Fals
                                 newfields.append("") #specimen_accession_number
                                 newfields.append(fields[1]) #genbank_accession
                                 newfields.append("USA") #country
-                                print("\t".join(newfields), file = metadata)
                                 print("\t".join(newfields), file = metadata_us)
                                 #add sample ID and state name to sample regions files
                                 text = state_conversion[state.upper()].replace(" ", "_")
                                 print(fields[0] + "\t" + text, file = region_assoc_us)
                                 #filter out CA samples for CA county analysis
                                 if state != "CA":
+                                    print("\t".join(newfields), file = metadata)
                                     print(fields[0] + "\t" + text, file = region_assoc)
     metadata.close()
     badsamples.close()
