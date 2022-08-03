@@ -49,20 +49,8 @@ print("Processing metadata file(s)")
 process_metadata(args.lexicon, args.metadata, args.region_extension)
 #--------------------------------------------------------------
 
-# Step 2: Use merged metadata file to filter samples from protobuf file
-print("Clearing out unparseable samples.")
-# extract from input pbf only the usable samples
-subprocess.check_call("matUtils extract -i " + pbf + " -s sample_regions.tsv -o clean.pb", shell = True)
-if args.region_extension is not None:
-    print("Clearing out unparseable samples for next region.")
-    for ext in args.region_extension:
-        # extract from input pbf only the usable samples
-        subprocess.check_call("matUtils extract -i " + pbf + " -s sample_regions" + ext + ".tsv -o clean" + ext + ".pb", shell = True)
-#--------------------------------------------------------------
-
-# Step 3: Run the primary pipeline
+# Step 2: Run the primary pipeline
 #update the arguments parsed
-args.input = "clean.pb"
 args.metadata = "metadata_merged.tsv"
 args.sample_regions = "sample_regions.tsv"
 args.date_metadata = "sample_dates.tsv"
