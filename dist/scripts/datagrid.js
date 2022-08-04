@@ -47,11 +47,37 @@ function blankClusterObj() {
   };
   return el;
 }
-function clusterObjs(items, host) {
+// File name extension for CDPH County vs State visualization
+function getFNameExtn() {
+  let ext = '';
+  // eslint-disable-next-line camelcase
+  if (map_layer == 1) {
+    ext = '_us';
+  }
+  return ext;
+}
+function getTaxoniumLink(host, cluster) {
+  let link = '<a href="https://taxonium.org/?protoUrl=';
+  link += host + 'cview' + getFNameExtn() + '.jsonl.gz';
+  link += '&color={"field":"meta_region"}';
+  link += '&srch=[{"key":"aa1","type":"meta_cluster","method":"text_match","text":"';
+  link += cluster;
+  link += '","gene":"S","position":484,"new_residue":"any","min_tips":0,"controls":true}]';
+  link += '&zoomToSearch=0" target="_blank">View Cluster</a>';
+  return link;
+}
+function getInvetigatorLink(cluster, nPauis, ext = '') {
+  let link = '<a href="https://investigator.big-tree.ucsc.edu?';
+  link += 'file=cluster_pids' + getFNameExtn() + '.json';
+  link += '&cid=' + cluster;
+  link += '" target="_blank">View ' + nPauis + ' Samples</a>';
+  return link;
+}
+function clusterObjs(items, host, ext = '') {
   if (items[10] === 0) {
     items[10] = 'No identifiable samples';
   } else {
-    items[10] = '<a href="https://investigator.big-tree.ucsc.edu?cid=' + items[0].toString() + '" target="_blank">View ' + items[10].toString() + ' Samples</a>';
+    items[10] = getInvetigatorLink(items[0].toString(), items[10].toString(), ext);
   }
   el = {
     'cid': items[0],
@@ -64,7 +90,7 @@ function clusterObjs(items, host) {
     'origin': items[7].replace(/_/g, ' '),
     'confidence': items[8].toString(),
     'growth': items[9].toString(),
-    'taxlink': '<a href="https://taxonium.org/?protoUrl=' + host + 'cview.pb.gz&search=%5B%7B%22id%22:0.123,%22category%22:%22cluster%22,%22value%22:%22' + items[0] + '%22,%22enabled%22:true,%22aa_final%22:%22any%22,%22min_tips%22:1,%22aa_gene%22:%22S%22,%22search_for_ids%22:%22%22%7D%5D&colourBy=%7B%22variable%22:%22region%22,%22gene%22:%22S%22,%22colourLines%22:false,%22residue%22:%22681%22%7D&zoomToSearch=0&blinking=false" target="_blank">View Cluster</a>',
+    'taxlink': getTaxoniumLink(host, items[0], ext),
     'investigator': items[10],
   };
   return el;
@@ -236,13 +262,13 @@ function setCols() {
     {id: 'latest', name: `<span title='${tooltipText[4]}'>Latest Date</span>`, field: 'latest', width: 70, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
     {id: 'clade', name: `<span title='${tooltipText[5]}'>Clade</span>`, field: 'clade', sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
     {id: 'lineage', name: `<span title='${tooltipText[6]}'>Lineage</span>`, field: 'lineage', sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
-    {id: 'origin', name: `<span title='${tooltipText[7]}'>Inferred Origin</span>`, field: 'origin', width: 110, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
-    {id: 'confidence', name: `<span title='${tooltipText[8]}'>Inferred Origin Confidence</span>`, field: 'confidence', width: 70, sortable: true, sorter: sorterNumeric, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'origin', name: `<span title='${tooltipText[7]}'>Best Potential Origins</span>`, field: 'origin', width: 110, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'confidence', name: `<span title='${tooltipText[8]}'>Best Origin Regional Indices</span>`, field: 'confidence', width: 70, sortable: true, sorter: sorterNumeric, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
     {id: 'growth', name: `<span title='${tooltipText[9]}'>Growth Score</span>`, field: 'growth', width: 70, sortable: true, sorter: sorterNumeric, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
     {id: 'taxlink', name: `<span title='${tooltipText[10]}'>View in Taxonium</span>`, field: 'taxlink', formatter: linkFormatter, sortable: true, sorter: sorterStringCompare},
     {id: 'investigator', name: `<span title='${tooltipText[11]}'>View in Big Tree Investigataor</span>`, field: 'investigator', width: 125, formatter: linkFormatter, sortable: true, sorter: sorterStringCompare},
     {id: 'samplecol', name: `<span title='${tooltipText[12]}'>Samples</span>`, field: 'samplecol', width: 125, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
-    {id: 'pauicol', name: `<span title='${tooltipText[13]}'>Specimen ID/Accession Number</span>`, field: 'pauicol', width: 125, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'pauicol', name: `<span title='${tooltipText[13]}'>Specimen ID</span>`, field: 'pauicol', width: 125, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
   ];
   return cols;
 }
@@ -270,8 +296,8 @@ const tooltipText = [
   'Date of the latest sample from this cluster.',
   'Nextstrain clade of the ancestral introduction.',
   'Pangolin lineage of the ancestral introduction.',
-  'The origin region with the greatest weight. May not be the true origin, especially if the corresponding confidence value is below 0.5.',
-  'Confidence metric for the origin; 1 is maximal, 0 is minimal.',
+  'The origin region with the greatest index value. May not be the true origin, especially if the corresponding index value is below 0.5.',
+  'Regional index for the origin; 1 is maximal, 0 is minimal.',
   'Importance estimate based on cluster size and age. Not directly comparable between regions with varying sequencing levels.',
   'Click to View in Taxonium',
   'Click to View in California Big Tree Investigator',
@@ -429,28 +455,43 @@ function setGridView() {
   // set up double click event to trigger popup
   grid.onDblClick.subscribe((e, p) => {
     // p.row, p.cell
-    let txt = '';
-    let ttl = '';
-    if (p.cell === 12) {
-      // get sample names from data
-      // txt = grid.getDataItem(p.row).samples;
-      txt = data[grid.getDataItem(p.row).id].samples;
-      ttl = 'Samples';
-    } else if (p.cell === 13) {
-      txt = data[grid.getDataItem(p.row).id].pauis;
-      ttl = 'Specimen ID/Accession Numbers';
+    if (p.cell === 12 || p.cell === 13) {
+      let txt = '';
+      let ttl = '';
+      if (p.cell === 12) {
+        // get sample names from data
+        txt = grid.getDataItem(p.row).samples;
+        ttl = 'Samples';
+      } else if (p.cell === 13) {
+        txt = grid.getDataItem(p.row).pauis;
+        ttl = 'Specimen ID';
+      }
+      $('<div id="sample-popup"></div>').dialog({
+        title: ttl,
+        open: function() {
+          txt = txt.replace(/,/g, ',<br/>');
+          $(this).html(txt);
+          $(this).dblclick(function() {
+            $(this).dialog('close');
+          });
+        },
+        close: function() {
+          // deselect item
+          grid.getSelectionModel().setSelectedRanges([]);
+          grid.resetActiveCell();
+        },
+        height: 300,
+      }); // end dialog
     }
-    $('<div id="sample-popup"></div>').dialog({
-      title: ttl,
-      open: function() {
-        txt = txt.replace(/,/g, ',<br/>');
-        $(this).html(txt);
-        $(this).dblclick(function() {
-          $(this).dialog('close');
-        });
-      },
-      height: 300,
-    }); // end dialog
+  });
+
+  // clear selected items on KeyDown of Esc key
+  grid.onKeyDown.subscribe(function(e) {
+    if (e.which === 27) {
+      // deselect item
+      grid.getSelectionModel().setSelectedRanges([]);
+      grid.resetActiveCell();
+    }
   });
 
   // wire up the search textbox to apply the filter to the model
