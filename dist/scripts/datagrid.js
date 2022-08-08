@@ -165,9 +165,6 @@ function appendData(items, type, host = '') {
 }
 // function to load the data and wire functions to table
 function loadData(dataArr, type, host = '') {
-  console.log('end read js, start assigning data to grid variable', Date.now());
-  console.log('clusterslenght: ' + dataArr.length);
-
   if (type === 'clusters') {
     if (!sampleDataLoaded) {
       initData(dataArr, type, host);
@@ -181,26 +178,18 @@ function loadData(dataArr, type, host = '') {
       // call update function
     }
   }
-
-  console.log(data.length);
-
   setGridView();
-
-  console.log('done loading basic data:', Date.now());
 } // end of loadData function
 async function loadBasicData(host, file) {
-  console.log('loading basic data from: ', host, file, Date.now());
   const workerBlob = new Blob([workerScript], {type: 'application/javascript'});
   const workerUrl = URL.createObjectURL(workerBlob);
 
   const worker = new Worker(workerUrl);
 
-  // const compressedBlob1 = await fetch(host + 'cluster-data.json.gz?v=' + new Date().getTime())
   const compressedBlob1 = await fetch(host + file + '?v=' + new Date().getTime())
       .then((r) => r.blob());
 
   worker.onmessage = ({data}) => {
-    console.log('success-basic data');
     const clusters = JSON.parse(new TextDecoder().decode(data));
 
     if (!sampleDataLoaded) {
@@ -211,23 +200,19 @@ async function loadBasicData(host, file) {
     }
 
     basicDataLoaded = true;
-    console.log('done loading basic data from web worker,', Date.now());
   };
   worker.postMessage(compressedBlob1);
 }
 
 async function loadSampleData(host, file) {
-  console.log('loading sample data from: ', host, file, Date.now());
   const workerBlob = new Blob([workerScript], {type: 'application/javascript'});
   const workerUrl = URL.createObjectURL(workerBlob);
   const worker = new Worker(workerUrl);
 
-  // const compressedBlob2 = await fetch(host + 'sample-data.json.gz?_=' + new Date().getTime())
   const compressedBlob2 = await fetch(host + file + '?v=' + new Date().getTime())
       .then((r) => r.blob());
 
   worker.onmessage = ({data}) => {
-    console.log('success-sample data');
     const samples = JSON.parse(new TextDecoder().decode(data));
     if (basicDataLoaded) {
       appendData(samples, 'samples');
@@ -236,7 +221,6 @@ async function loadSampleData(host, file) {
       loadData(samples, 'samples');
     }
     sampleDataLoaded = true;
-    console.log('done loading sample data from web worker,', Date.now());
   };
   worker.postMessage(compressedBlob2);
 }
@@ -268,7 +252,7 @@ function setCols() {
     {id: 'taxlink', name: `<span title='${tooltipText[10]}'>View in Taxonium</span>`, field: 'taxlink', formatter: linkFormatter, sortable: true, sorter: sorterStringCompare},
     {id: 'investigator', name: `<span title='${tooltipText[11]}'>View in Big Tree Investigataor</span>`, field: 'investigator', width: 125, formatter: linkFormatter, sortable: true, sorter: sorterStringCompare},
     {id: 'samplecol', name: `<span title='${tooltipText[12]}'>Samples</span>`, field: 'samplecol', width: 125, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
-    {id: 'pauicol', name: `<span title='${tooltipText[13]}'>Specimen ID</span>`, field: 'pauicol', width: 125, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'pauicol', name: `<span title='${tooltipText[13]}'>Specimen IDs</span>`, field: 'pauicol', width: 125, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
   ];
   return cols;
 }
@@ -277,7 +261,6 @@ function tempData() {
   const item = [{id: 'id_0'}];
   Object.assign(item[0], blankClusterObj());
   Object.assign(item[0], blankSampleObj());
-  console.log(item)
   return item;
 };
 
@@ -360,12 +343,12 @@ function updateFilter() {
 }
 // function to show/hide data by region
 function showRegion(region) {
+  if (region === 'default') {
+    regionString = '';
+  } else {
+    regionString = region;
+  }
   if (basicDataLoaded) {
-    if (region === 'default') {
-      regionString = '';
-    } else {
-      regionString = region;
-    }
     updateFilter();
   } else {
     console.log('basic data not loaded yet');
@@ -392,8 +375,6 @@ function updateData() {
   dataView.endUpdate();
   grid.setData(dataView);
   grid.render();
-
-  console.log('done updating data', Date.now());
 }
 
 function setGridView() {
@@ -464,7 +445,7 @@ function setGridView() {
         ttl = 'Samples';
       } else if (p.cell === 13) {
         txt = grid.getDataItem(p.row).pauis;
-        ttl = 'Specimen ID';
+        ttl = 'Specimen IDs';
       }
       $('<div id="sample-popup"></div>').dialog({
         title: ttl,
@@ -517,8 +498,7 @@ function setGridView() {
   dataView.endUpdate();
 } // end of setGridView
 
-
-
+// eslint-disable-next-line no-unused-vars
 function initCTGrid(host, clusterfile, samplefile) {
   // clear everything
   basicDataLoaded = false;
@@ -534,70 +514,3 @@ function initCTGrid(host, clusterfile, samplefile) {
   loadBasicData(host, clusterfile);
   loadSampleData(host, samplefile);
 }
-
-
-
-
-
-// (async () => {
-//   const workerBlob = new Blob([workerScript], {type: 'application/javascript'});
-//   const workerUrl = URL.createObjectURL(workerBlob);
-
-//   const worker1 = new Worker(workerUrl);
-
-//   const compressedBlob1 = await fetch(host + 'cluster-data.json.gz?v=' + new Date().getTime())
-//       .then((r) => r.blob());
-
-//   worker1.onmessage = ({data}) => {
-//     console.log('success-basic data');
-//     const clusters = JSON.parse(new TextDecoder().decode(data));
-//     console.log(clusters[21]);
-//     loadData(clusters);
-//     basicData = true;
-//     console.log('done loading basic data from web worker,', Date.now());
-//   };
-//   worker1.postMessage(compressedBlob1);
-// })().catch(console.error);
-
-// (async () => {
-//   const workerBlob = new Blob([workerScript], {type: 'application/javascript'});
-//   const workerUrl = URL.createObjectURL(workerBlob);
-//   const worker2 = new Worker(workerUrl);
-
-//   const compressedBlob2 = await fetch(host + 'sample-data.json.gz?_=' + new Date().getTime())
-//       .then((r) => r.blob());
-
-//   worker2.onmessage = ({data}) => {
-//     console.log('success-sample data');
-//     const samples = JSON.parse(new TextDecoder().decode(data));
-//     if (basicData) updateData(samples);
-//     console.log('done loading sample data from web worker,', Date.now());
-//   };
-//   worker2.postMessage(compressedBlob2);
-// })().catch(console.error);
-
-
-// use web worker to load data
-// var worker1 = new Worker('load-data-worker.js')
-// worker1.addEventListener('message', function(e) {
-//   console.log('success-basic data')
-//   const clusters = JSON.parse(e.data)
-//   //const clusters = e.data
-//   console.log(clusters[21])
-//   loadData(clusters)
-//   basicData = true
-//   console.log('done loading basic data from web worker,', Date.now())
-// }, false)
-// worker1.postMessage('https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/dev/cluster-data.json') // Send filename to our worker.
-// console.log('starting web worker request 2 for sample data,', Date.now())
-// var worker2 = new Worker('load-data-worker.js')
-// worker2.addEventListener('message', function(e) {
-//   console.log('success-sample data')
-//   const samples = JSON.parse(e.data)
-//   //const samples = e.data
-//   if (basicData) updateData(samples)
-//   console.log('done loading sample data from web worker,', Date.now())
-// }, false)
-// worker2.postMessage('https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/dev/sample-data.json') // Send filename to our worker.
-
-
