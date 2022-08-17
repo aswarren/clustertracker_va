@@ -59,10 +59,10 @@ function getFNameExtn() {
 function getTaxoniumLink(host, cluster) {
   let link = '<a href="https://taxonium.org/?protoUrl=';
   link += host + 'cview' + getFNameExtn() + '.jsonl.gz';
-  link += '&xType=x_dist&color={"field":"meta_region"}';
-  link += '&srch=[{"key":"aa1","type":"meta_cluster","method":"text_exact","text":"';
+  link += '&xType=x_dist&color=%7B%22field%22:%22meta_region%22%7D';
+  link += '&srch=%5B%7B%22key%22:%22aa1%22,%22type%22:%22meta_cluster%22,%22method%22:%22text_exact%22,%22text%22:%22';
   link += cluster;
-  link += '","gene":"S","position":484,"new_residue":"any","min_tips":0,"controls":true}]';
+  link += '%22,%22gene%22:%22S%22,%22position%22:484,%22new_residue%22:%22any%22,%22min_tips%22:0,%22controls%22:true%7D%5D';
   link += '&zoomToSearch=0" target="_blank">View Cluster</a>';
   return link;
 }
