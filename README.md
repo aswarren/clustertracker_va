@@ -1,7 +1,7 @@
 # Calfornia Big Tree Cluster-Tracker
 Code to generate a webpage displaying SARS-CoV-2 clusters and introductions inferred via [matUtils introduce](https://usher-wiki.readthedocs.io/en/latest/matUtils.html#introduce). SARS-CoV-2 introductions between California counties and U.S. states are displayed geographically on an interactive map and in a separate table below the map, with links to view and explore the data in [Taxonium](http://taxonium.org) and the [California Big Tree Investigator](https://github.com/pathogen-genomics/paui-mapper). This version is a customizaton for use with data produced from the Calfornia Big Tree effort at UCSC for the California Department of Public Health; the original Cluster-Tracker project can be found [here](https://github.com/jmcbroome/introduction-website).
 
-**Approach:** This site uses python to perform backend setup and vanilla javascript for website rendering. We use the protobuf file format to store mutation-annotated phylogentic tree information, and tab-separated text files (TSV) for metadata and text-based output files. Python scripts are used to process a mix of samples from California State and public repositories, and to launch the [matUtils](https://usher-wiki.readthedocs.io/en/latest/matUtils.html) suite of tools for manipulating the protobuf files and calculating the introductions into each region. [TaxoniumTools](https://docs.taxonium.org/en/latest/taxoniumtools.html) is used to convert protobuf files to JSONL for use in the Taxonium viewer. We use the [Terra](https://terra.bio/) platform as our primary data pipeline, so our python scripts are modularized to be be compatible with WDL, but can also be run on the user's desktop computer. A [GeoJSON](https://geojson.org/) file with introductions for each region is created for input into a [Leaflet-based map](https://leafletjs.com/). TSV files supply a table below the map with cluster details. 
+**Approach:** This site uses python to perform backend setup and vanilla javascript for website rendering. We use the protobuf file format to store mutation-annotated phylogentic tree information, and tab-separated text files (TSV) for metadata and text-based output files. Python scripts are used to process a mix of samples from California State and public repositories, and to launch the [matUtils](https://usher-wiki.readthedocs.io/en/latest/matUtils.html) suite of tools for manipulating the protobuf files and calculating the introductions into each region. [TaxoniumTools](https://docs.taxonium.org/en/latest/taxoniumtools.html) is used to convert protobuf files to JSONL for use in the Taxonium viewer. We use the [Terra](https://terra.bio/) platform as our primary data pipeline, so our python scripts are modularized to be be compatible with WDL, but can also be run on the user's desktop computer. A [GeoJSON](https://geojson.org/) file with introductions for each region is created for input into a [Leaflet-based map](https://leafletjs.com/). JSON files supply a table below the map with cluster details. 
 
 **Customization:** Information on how to create a customized version of Cluster Tracker can be found [below](#customizing-cluster-tracker). A python script and a number of data files would be required to preprocess your data if you wish to use data not in the [global public SARS-CoV-2 phylogenetic tree](https://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/).
 
@@ -34,13 +34,17 @@ Code to generate a webpage displaying SARS-CoV-2 clusters and introductions infe
 * Displays on a map the total number of introductions into a region, and introductions from one region into another.
 * Numbers of introductions can be displayed either in raw numbers or using log scaling.
 * Introductions on the map can be filtered to show just those from the past 3 months, past 6 months, past 12 months, or the whole pandemic.
-* A table below the map displays information for the top 100 clusters in the selected region and includes:
-  * the number of samples in the cluster, the range of dates for the cluster, clade and lineage information, the inferred origin of the cluster and a score indicating the confidence of the origin estimate, the cluster's growth score (an importance estimate based on cluster size and age)
+* Users can toggle between two levels of analysis: California counties or California state. The county-level introductions display introductions to and from Calfornia counties as well as other U.S. states. The state-level introductions display introductions between all of California (as a single region) and other states.
+* A table below the map displays information clusters in the selected region and includes:
+  * the number of samples in the cluster, the range of dates for the cluster, clade and lineage information, the best potential origin for the cluster and an index value indicating the confidence of the origin estimate, the cluster's growth score (an importance estimate based on cluster size and age)
   * a link to view the cluster in [Taxonium](http://taxonium.org)
   * a link to view the samples in the California Big Tree Investigator tool, where users can join PHI to the phylogentic tree information (for authorized users only)
-* All data in the table can be sorted in ascending or descending order.
+  * all sample names in the cluster
+  * for CDPH samples, a list of all associated specimen IDs
+* All data in the table can be sorted in ascending or descending order. 
+* Mulitple column sorting can be achieved by pressing the Shift key while clicking on a second column.
 * A search box allows the user to filter the table contents.
-* Users can toggle between two levels of analysis: California counties or California state. The county-level introductions display introductions to and from Calfornia counties as well as other U.S. states. The state-level introductions display introductions between all of California (as a single region) and other states.
+* Table data can be copied by selecting a range of table cells and using Ctrl-C to copy the contents to the computer's clipboard.
 * The Taxonium JSONL file with phylogenetic tree information and a tab-separated file with information for all introductions can be downloaded for further analysis.
 
 ## Quickstart
@@ -131,26 +135,24 @@ Outputs:
 * The primary data outputs contaning the calculated introductions are hardcoded_clusters.tsv (tab separated file with detailed cluster and introduction information) and cview.jsonl.gz (file for viewing introductions with Taxonium).
 * The following set of files are used in the web site:
   * regions.js: This file supplies the geojson data to the Leaflet map (via the introData variable).
-  * display_tables/ folder: The files in this folder supply the data in the table below the map. They are converted to HTML tables via the csv_to_html_table.js script. Due to the large number of clusters the COVID-19 pandemic has produced, we limit the display of detailed cluster information in the table to the top 100 clusters, sorted by growth score. (The growth score is the number of samples in the cluster divided by the cluster's observed time frame; see the [matUtils introduce documentation](https://usher-wiki.readthedocs.io/en/latest/matUtils.html#introduce) for details.) 
-* A couple of intermediate data files are also produced: clusterswapped.tsv (metadata file used to add metadata fields to the Taxonium protobuf) and cluster_labels.tsv (associates sample names with the cluster ID for downstream manipulation).
+  * cluster_data.json.gz: This JSON-formateed file supplies the data table below the map with basic cluster information; it is pre-sorted by growth score. (The growth score is the number of samples in the cluster divided by the cluster's observed time frame; see the [matUtils introduce documentation](https://usher-wiki.readthedocs.io/en/latest/matUtils.html#introduce) for details.) 
+  * sample_data.json.gz: This JSON-formateed file supplies the data table below the map with the sample names (and specimen IDs for CDPH data) in the final column(s) of the data table.
 
 4. If you are not working from the example/data directory, you will need to copy regions.js, the display_tables folder, cview.jsonl.gz, and hardcoded_clusters.tsv into the directory where your web site files are located. We suggest grouping these files in a data folder. Our example web site has the following structure:
 * index.html: the HTML code for the app
 * css: contains the style sheet for the site
-* data: contains the above mentioned data files, with the topclusters.tsv files grouped into the display_tables folder
-* lib: contains the Leaflet JS library files
-* scripts: contains the JS files that power the Leaflet map (main.js) and the table (csv_to_html_table.js) and related jquery libraries (jquery.min.js and jquery.csv.min.js).
+* data: contains the above mentioned data files
+* lib: contains the JS libraries used in the app: Leaflet JS, SlickGrid, jQuery, and jQueryUI
+* scripts: contains the JS files that power the Leaflet map (main.js) and the table (datagrid.js).
 
 5. Assuming you are working from the the example/data directory, navigate up one level to the example root directory (or the root directory of your website) and run 
 ```
 python3 -m http.server
 ```
 
-**Customizations to the Cluster Table Below the Map:** Basic customizations to the table can be achieved by modifying the parameters in the loadTargetTable function of scripts/main.js. Documentation can be found [here](https://github.com/derekeder/csv-to-html-table). 
+**Customizations to the Cluster Table Below the Map:** Cluster Tracker uses the highly-customizeable [SlickGrid](http://slickgrid.net/) JS library to display cluster information below the map. Customizations to the table can be achieved by modifying scripts/datagrid.js; you may wish to consult the SlickGrid documentation for details. 
 
-As noted above data for the table are limited to the top 100 clusters in each geographic region. To increase this limit (or eliminate it altogether), you would need to modify generate_display_tables.py.
-
-Our version for CDPH includes additional fields in the cluster table that are not automatically generated from matUtils introduce. To do likewise, you may wish to modify both the generate_display_tables.py python script to insert additional fields (we have done this by setting the is_custom_data flag and creating branching logic in the generate_display_tables.py python script), and add additional custom_formatting elements in the scripts/main.js loadTargetTable function. If needed, you can modify the scripts/tsv_to_html_table.js library to manipulate how the data files are read. (Our modifications to these JS files can be seen in dist/scripts.)
+Our version for CDPH includes additional fields in the cluster table that are not automatically generated from matUtils introduce. To do likewise, you will need to modify the datagrid.js file to insert additional columns of data (the setCols function specifies column parameters) and modify how the data is read and assignd to the SlickGrid DataView object. 
 
 **Customizing the Map--Basics:** We use [Leaflet.js](https://leafletjs.com/) for our mapping app, and largely built upon their [Interactive Choropleth Map example](https://leafletjs.com/examples/choropleth/). The scripts/main.js file is where you will find all the Leaflet map functions. Some common basic modifications you may wish to make:
 * The map center and extent is set via the Leaflet [setView](https://github.com/pathogen-genomics/introduction-website/blob/756310ec0d81e575aa5348a9949d499bcdc733a4/src/js/main.js#L1) method in main.js.
