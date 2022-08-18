@@ -25,7 +25,7 @@
 #   python3 process_metadata.py -m samplemeta.tsv public.plusGisaid.latest.metadata.tsv -l state_and_county_lexicon.txt
 #-------------------------------------------------------------
 
-import re
+import re, csv
 import sys, os #comment out for WDL
 #set path to directory 
 sys.path.insert(1, os.path.join(os.path.abspath(__file__ + "/../../../"), "src/python/")) #comment out for WDL
@@ -39,20 +39,29 @@ def process_metadata(lexiconfile, metadatafiles, extension=["_us"], isWDL = Fals
     if isWDL:
         lexiconfile = '~{state_and_county_lex}'
         mfiles = ['~{samples}', '~{public_meta}']
-        ext = "_us" 
+        ext = "_us"
+        #names of airport sample input files
+        airport_file_p = '~{airport_p}'
+        airport_file_c = '~{airport_c}'
     else:
         mfiles = metadatafiles
         if extension is None:
             ext = "_us"
         else:
             ext = extension[0]
+        #names of airport sample input files
+        airport_file_p = "F1a-qry-TravelerCOVIDNet-ToUCSC-Data-P-ALL-07052022.csv"
+        airport_file_c = "F1b-qry-TravelerCOVIDNet-ToUCSC-Data-C-ALL-07052022.csv"
 
     county_conversion = {}
     state_conversion = {}
+    airp_conversion = {}
     with open(lexiconfile) as inf:
         for entry in inf:
             spent = entry.strip().split(",")
-            if "County" in spent[0]:
+            if "Airport" in spent[0]:
+                airp_conversion[spent[1]] = spent[0]
+            elif "County" in spent[0]:
                 county_conversion[spent[1].upper()] = spent[0]
             else:
                 for alternative in spent:
@@ -73,6 +82,17 @@ def process_metadata(lexiconfile, metadatafiles, extension=["_us"], isWDL = Fals
     print("strain\tname\tpangolin_lineage\tnextclade_clade\tgisaid_accession\tcounty\tdate\tpaui\tsequencing_lab\tspecimen_id\tspecimen_accession_number\tgenbank_accession\tcountry", file = metadata)
     print("strain\tname\tpangolin_lineage\tnextclade_clade\tgisaid_accession\tcounty\tdate\tpaui\tsequencing_lab\tspecimen_id\tspecimen_accession_number\tgenbank_accession\tcountry", file = metadata_us)
     duplicates = set() #stores sample names of potential duplicates
+
+    #read airport sample data
+    airport_data = []
+    with open(airport_file_p, mode='r') as csv_file:
+        data = csv.DictReader(csv_file)
+        for row in data:
+            airport_data.append([str(row["Barcode"]),'',row["GISAID_epi_isl"],row["Kiosk"]])
+    with open(airport_file_c, mode='r') as csv_file:
+        data = csv.DictReader(csv_file)
+        for row in data:
+            airport_data.append([str(row["Submitter Specimen ID"]),str(row["PAUI"]),row["GISAID_epi_isl"],row["Airport"]])
     
     for f in mfiles:
         with open(f) as inf:
@@ -90,18 +110,44 @@ def process_metadata(lexiconfile, metadatafiles, extension=["_us"], isWDL = Fals
                     fields.append("USA")
                     #add item to merged metadata file for CA state analysis
                     print("\t".join(fields), file = metadata_us)
-                    #assign to CA state in region file
-                    print(fields[0] + "\tCalifornia", file = region_assoc_us)
-                    #check if county is in lexicon and if so add to 
-                    # merged metadata file and sample regions file
-                    county = fields[5]
-                    if county != "":
-                        if county.upper() in (c.upper() for c in county_conversion): # convert all names to uppercase to avoid differences in case
-                            has_valid_county = True
-                            text = county_conversion[county.upper()].replace(" ", "_")
+
+                    #For airports, override county info with airport
+                    ids = [fields[0],fields[1],fields[7],fields[-2],fields[-1]]
+                    isAirport = False
+                    for item in airport_data:
+                        if any(item[0] in id for id in ids):
+                            isAirport = True
+                            break
+                        elif item[1] != "" and any(item[1] in id for id in ids):
+                            isAirport = True
+                            break
+                        elif item[2] != "" and item[2] == fields[4]:
+                            isAirport = True
+                            break
+                    #assign region for airport data and add to merged metadata file
+                    if isAirport:
+                        if item[3] in airp_conversion:
+                            text = airp_conversion[item[3]].replace(" ", "_")
                             print(fields[0] + "\t" + text, file = region_assoc)
-                            #add item to merged metadata file for CA county analysis
+                            print(fields[0] + "\t" + text, file = region_assoc_us)
                             print("\t".join(fields), file = metadata)
+                        else:
+                            isAirport = False
+
+                    #assign region for non-airport data
+                    if not isAirport:
+                        #assign to CA state in region file
+                        print(fields[0] + "\tCalifornia", file = region_assoc_us)
+                        #check if county is in lexicon and if so add to 
+                        # merged metadata file and sample regions file
+                        county = fields[5]
+                        if county != "":
+                            if county.upper() in (c.upper() for c in county_conversion): # convert all names to uppercase to avoid differences in case
+                                has_valid_county = True
+                                text = county_conversion[county.upper()].replace(" ", "_")
+                                print(fields[0] + "\t" + text, file = region_assoc)
+                                #add item to merged metadata file for CA county analysis
+                                print("\t".join(fields), file = metadata)
                     #add sample names to list to check for duplicates; add date to date file
                     if fields[0].startswith("USA/"):
                         #add sample name if needed to check for duplicates later on

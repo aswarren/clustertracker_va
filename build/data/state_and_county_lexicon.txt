@@ -1,3 +1,7 @@
+Tijuana International Airport,CBX
+Los Angeles International Airport,LAX
+San Francisco International Airport,SFO
+John Wayne Airport,SNA
 Alameda County,Alameda
 Alpine County,Alpine
 Amador County,Amador
