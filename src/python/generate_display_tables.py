@@ -33,7 +33,6 @@ def generate_display_tables(extension = [''], isWDL = False):
     #== for WDL ===
     # isWDL = True
     #===
-    
 
     #For CDPH data, returns an array containing the unique sample ID's for
     #each sample in a cluster
