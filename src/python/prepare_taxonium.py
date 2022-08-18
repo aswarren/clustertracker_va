@@ -31,7 +31,7 @@ def prepare_taxonium(sample_regions_file, mfile, extension=[''], isWDL = False):
         extension = ['', '_us']
     else: 
         sample_regions = list([sample_regions_file])
-        mf = list([mfile])
+        mf = mfile
         cluster_file = ["hardcoded_clusters.tsv"]
         if len(extension) > 1:
             for e in extension[1:]:

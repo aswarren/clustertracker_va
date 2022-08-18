@@ -41,7 +41,6 @@ from process_metadata import process_metadata
 
 #get arguments and assign variable names
 args = parse_setup()
-pbf = args.input
 #--------------------------------------------------------------
 
 # Step 1: Process metadata file(s)
