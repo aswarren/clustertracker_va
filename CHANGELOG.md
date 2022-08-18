@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.6.0 (2022-08-17):
+   - UI changes: Imlments a new data display table via SlickGrid library; allows for filtering via Search box, sort column by ascending/descending order, mulitple column sort, highlight and copy a range of cells, column width adjustment, user-adjustable pagination options, and popups to display truncated cell text
+   - UI changes: Data for data display table is supplied by two JSON files that represent the full data set
+   - UI changes: Adds cluster sample names and CDPH specimen_IDs to the data table
+   - UI changes: Users can search the data table for sample names/CDPH specimen_IDs in addition to cluster information
+   - UI changes: Modification to table header and hover text to clarify inferred origin and inferred origin confidence
+   - Data processing: Removes filtering of protobuf to US-only samples
+   - Data processing: Replaces "top_clusters" files with a set of two JSON files, one for the basic cluster information, and one for sample names and CDPH specimen_IDs
+   - Data processing: New JSON data format for links to CA Big Tree Investigator
+   - Data processing: Adds flag in python scripts to indicate when data processing is via WDL Task or command line
+   - Data processing: Adds flag in python script to better handle custom CA Big Tree data processing requirements
+   - Data processing: moves the host URL variable to the index.html file
 ## v0.5.0 (2022-07-21):
    - Updates to use new Taxonium v.2 viewer
    - Data processing: updates utils.py to better handle complex file names
