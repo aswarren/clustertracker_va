@@ -24,26 +24,26 @@ let regionString = ''; // string to filter grid by region
 function blankSampleObj() {
   el = {
     'samples': '',
-    'samplecol': '',
+    'samplecol': '...loading data...',
     'pauis': '',
-    'pauicol': '',
+    'pauicol': '...loading data...',
   };
   return el;
 }
 function blankClusterObj() {
   el = {
     'cid': '...loading data...',
-    'region': '',
-    'sampcount': '',
-    'earliest': '',
-    'latest': '',
-    'clade': '',
-    'lineage': '',
-    'origin': '',
-    'confidence': '',
-    'growth': '',
-    'taxlink': '',
-    'investigator': '',
+    'region': '...',
+    'sampcount': '...',
+    'earliest': '...',
+    'latest': '...',
+    'clade': '...',
+    'lineage': '...',
+    'origin': '...',
+    'confidence': '...',
+    'growth': '...',
+    'taxlink': '...',
+    'investigator': '...',
   };
   return el;
 }
@@ -508,6 +508,7 @@ function initCTGrid(host, clusterfile, samplefile) {
   sortdir = -1;
   searchString = '';
   regionString = '';
+  document.getElementById('txtSearch').value = '';
   // create basic grid object while waiting for data to load
   grid = new Slick.Grid('#myGrid', tempData(), setCols(), gridOpts());
 
