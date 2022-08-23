@@ -26,17 +26,15 @@ def prepare_taxonium(sample_regions_file, mfile, extension=[''], isWDL = False):
     #input file names
     if isWDL:
         sample_regions = ['~{regions}', '~{regions_us}']
-        mf = ['~{merged}', '~{merged_us}']
+        mfile = '~{merged}'
         cluster_file = ['~{clusters_counties}', '~{clusters_state}']
         extension = ['', '_us']
     else: 
         sample_regions = list([sample_regions_file])
-        mf = mfile
         cluster_file = ["hardcoded_clusters.tsv"]
         if len(extension) > 1:
             for e in extension[1:]:
-                sample_regions.append(insert_extension(sample_regions_file, e)) #comment out for WDL?
-                mf.append(insert_extension(mfile[0], e)) #comment out for WDL?
+                sample_regions.append(insert_extension(sample_regions_file, e))
                 cluster_file.append("hardcoded_clusters" + e + ".tsv")
 
     for j, e in enumerate(extension):
@@ -54,7 +52,7 @@ def prepare_taxonium(sample_regions_file, mfile, extension=[''], isWDL = False):
             for entry in inf:
                 spent = entry.strip().split("\t")
                 rd[spent[0]] = spent[1] # rd[sample name] = region
-        with open(mf[j]) as inf:
+        with open(mfile) as inf:
             with open(cluster_swp_file,"w+") as outf:
                 #clusterswapped is the same as the metadata input
                 #except with the cluster ID field added, and "region" field added

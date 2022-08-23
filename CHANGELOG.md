@@ -1,5 +1,11 @@
 # Changelog
 
+## v.06.1 (2022-08-23):
+   - UI changes: fixed a bug that did not clear the Search box when loading new data
+   - UI changes: adds "loading" message to grid cells when loading sample/specimen IDs
+   - Data processing: adds all available sample metadata (including for international samples) to Taxonium JSONL
+   - Data processing: adds title to Taxonium JSONL
+   - Data processing: removes need for multiple instances of merged metadata file for multi-region analysis
 ## v0.6.0 (2022-08-17):
    - UI changes: Imlments a new data display table via SlickGrid library; allows for filtering via Search box, sort column by ascending/descending order, mulitple column sort, highlight and copy a range of cells, column width adjustment, user-adjustable pagination options, and popups to display truncated cell text
    - UI changes: Data for data display table is supplied by two JSON files that represent the full data set

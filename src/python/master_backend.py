@@ -12,13 +12,16 @@ def parse_setup():
     parser.add_argument("-d","--date_metadata",help="Path to a two-column tsv containing sample names and collection dates in YYYY-MM-DD format.", default = "")
     parser.add_argument("-j","--geojson", nargs='*', help="Path to a geojson to use. If doing a multi-level analysis (e.g., analyzing the same dataset over multiple geographic levels) additional geojson files can be added; also specify the -e argument to add a region designator to output files.", default = [''])
     parser.add_argument("-e","--region_extension", nargs='*', help="Appends a file name extension (e.g., '_xxxx') to output files in a multi-region-level analysis (i.e., when using two or more geojson files). Specify a file extension for only the 2nd, 3rd, ..., geojson files. Not needed if using only one geojson file.")
-    parser.add_argument("-m","--metadata", nargs='*', help="Path to a metadata file matching the targeted protobuf to update the website to display.", default=[''])
+    parser.add_argument("-m","--metadata", help="Path to a metadata file matching the targeted protobuf to update the website to display.", default="")
+    parser.add_argument("-mx","--merge_metafile", nargs='*', help="Path to additional metadata files to merge.", default=[''])
     parser.add_argument("-x","--taxonium_fields",help="Comma-separated list of additional metadata fields to include in Taxonium protobuf. Default is 'cluster,region'. Use name of field in metadata file. Do not separate items with spaces.")
     parser.add_argument("-a","--annotation",help="Path to a gene annotation file compatible with TaxoniumTools.")
     parser.add_argument("-t","--threads",type=int,help="Number of threads to use.", default = 4)
     parser.add_argument("-l","--lexicon",help="Optionally, link to a text file containing all names for the same region, one region per row, tab separated.", default = "")
     parser.add_argument("-X","--lookahead",type=int,help="Number to pass to parameter -X of introduce. Increase to merge nested clusters. Default 2", default = 2)
     parser.add_argument("-H","--host",help="Web-accessible link to the current directory for taxonium cluster view.")
+    parser.add_argument("-T","--title",help="Title to display in Taxonium.", default = "Cluster Tracker")
+    
     args = parser.parse_args()
     return args
 
@@ -61,10 +64,6 @@ def primary_pipeline(args):
     for i in range(len(jsons)):
         # get file names
         ext = list([exts[i]])
-        if isinstance(args.metadata, str):
-            mfile = list([args.metadata])
-        else:
-            mfile = args.metadata
         if i == 0:
             ifile = args.input
             sfile = args.sample_regions
@@ -78,7 +77,6 @@ def primary_pipeline(args):
             sfile = insert_extension(args.sample_regions, ext[0])
             dfile = insert_extension(args.date_metadata, ext[0])
             ufile = insert_extension("hardcoded_clusters.tsv",ext[0])
-            mfile = list([insert_extension(mfile[0], ext[0])])
             cfile = insert_extension("clusterswapped.tsv",ext[0])
             ofile = insert_extension("cview.jsonl.gz",ext[0])
         jfile = list([jsons[i]])
@@ -96,10 +94,10 @@ def primary_pipeline(args):
         generate_display_tables(ext)
 
         print("Preparing taxonium view.")
-        prepare_taxonium(sfile, mfile, ext)
+        prepare_taxonium(sfile, args.metadata, ext)
 
         print("Generating JSONL file for Taxonium view.")
-        subprocess.check_call("usher_to_taxonium -i " + ifile + " -m "+ cfile + " -c "+ tax_fields + " -o " + ofile + " -g " + args.annotation,shell=True)
+        subprocess.check_call("usher_to_taxonium -i " + ifile + " -m "+ cfile + " -c "+ tax_fields + " -o " + ofile + " -g " + args.annotation + " -t " + args.title,shell=True)
     
     print("Process completed; check website for results.")
     

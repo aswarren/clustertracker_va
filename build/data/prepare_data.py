@@ -25,10 +25,10 @@
 #     (3) Run the primary pipeline
 #
 # Example command line usage:
-# python3 prepare_data.py -i new_tree.pb -m samplemeta.tsv public.plusGisaid.latest.metadata.tsv 
+# python3 prepare_data.py -i new_tree.pb -m public.plusGisaid.latest.metadata.tsv -mx samplemeta.tsv
 #  -a hu1.gb -j us-states_ca-counties.geo.json us-states.geo.json 
-#  -e "_us" -l state_and_county_lexicon.txt -H https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/
-#  -x "genbank_accession,gisaid_accession,country,county,date,name,pangolin_lineage,nextclade_clade,specimen_id,specimen_accession_number,sequencing_lab"
+#  -e "_us" -l state_and_county_lexicon.txt -T "California Big Tree Cluster Tracker"
+#  -x "genbank_accession,gisaid_accession,country,county,date,name,pango_lineage,nextclade_clade,Nextstrain_clade,pangolin_lineage,Nextstrain_clade_usher,pango_lineage_usher,specimen_id,specimen_accession_number,sequencing_lab"
 #
 #------------------------------------------------------------------------------------------
 
@@ -45,7 +45,7 @@ args = parse_setup()
 
 # Step 1: Process metadata file(s)
 print("Processing metadata file(s)")
-process_metadata(args.lexicon, args.metadata, args.region_extension)
+process_metadata(args.lexicon, args.metadata, args.merge_metafile, args.region_extension)
 #--------------------------------------------------------------
 
 # Step 2: Run the primary pipeline
