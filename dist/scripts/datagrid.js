@@ -170,13 +170,19 @@ function loadData(dataArr, type, host = '') {
       initData(dataArr, type, host);
     } else if (!basicDataLoaded) {
       // call update function
+      appendData(dataArr, type, host);
+      updateData();
     }
+    basicDataLoaded = true;
   } else if (type === 'samples') {
-    if (!sampleDataLoaded) {
-      initData(dataArr, type);
-    } else if (!basicDataLoaded) {
+    if (basicDataLoaded) {
       // call update function
+      appendData(dataArr, type);
+      updateData();
+    } else {
+      initData(dataArr, type);
     }
+    sampleDataLoaded = true;
   }
   setGridView();
 } // end of loadData function
@@ -191,15 +197,7 @@ async function loadBasicData(host, file) {
 
   worker.onmessage = ({data}) => {
     const clusters = JSON.parse(new TextDecoder().decode(data));
-
-    if (!sampleDataLoaded) {
-      loadData(clusters, 'clusters', host);
-    } else {
-      appendData(clusters, 'clusters', host);
-      updateData();
-    }
-
-    basicDataLoaded = true;
+    loadData(clusters, 'clusters', host);
   };
   worker.postMessage(compressedBlob1);
 }
@@ -214,13 +212,7 @@ async function loadSampleData(host, file) {
 
   worker.onmessage = ({data}) => {
     const samples = JSON.parse(new TextDecoder().decode(data));
-    if (basicDataLoaded) {
-      appendData(samples, 'samples');
-      updateData();
-    } else {
-      loadData(samples, 'samples');
-    }
-    sampleDataLoaded = true;
+    loadData(samples, 'samples');
   };
   worker.postMessage(compressedBlob2);
 }
