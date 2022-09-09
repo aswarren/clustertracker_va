@@ -27,7 +27,7 @@ def insert_extension(fname, extension):
         f = fname[0]
     else:
         f = fname
-    parts = f.rpartition('.')
+    parts = f.split(".")
     parts[0] = parts[0] + extension
-    newname = ".".join.parts
+    newname = ".".join(parts)
     return newname
