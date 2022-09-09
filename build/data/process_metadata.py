@@ -25,7 +25,7 @@
 #   python3 process_metadata.py -m public.plusGisaid.latest.metadata.tsv -mx samplemeta.tsv -l state_and_county_lexicon.txt
 #-------------------------------------------------------------
 
-import re
+import re, csv
 import sys, os #comment out for WDL
 #set path to directory 
 sys.path.insert(1, os.path.join(os.path.abspath(__file__ + "/../../../"), "src/python/")) #comment out for WDL
@@ -41,6 +41,9 @@ def process_metadata(lexiconfile, mfile, mfile_merge, extension=["_us"], isWDL =
         mfile = '~{public_meta}'
         mfile_merge = '~{samples}'
         ext = "_us" 
+        #names of airport sample input files
+        airport_file_p = '~{airport_p}'
+        airport_file_c = '~{airport_c}'
     else:
         if type(mfile_merge) == list:
             mfile_merge = mfile_merge[0]
@@ -48,13 +51,19 @@ def process_metadata(lexiconfile, mfile, mfile_merge, extension=["_us"], isWDL =
             ext = "_us"
         else:
             ext = extension[0]
+        #names of airport sample input files
+        airport_file_p = "F1a-qry-AirportCOVIDNet-ToUCSC-Data-P-ALL.csv"
+        airport_file_c = "F1b-qry-AirportCOVIDNet-ToUCSC-Data-C-ALL.csv"
 
     county_conversion = {}
     state_conversion = {}
+    airp_conversion = {}
     with open(lexiconfile) as inf:
         for entry in inf:
             spent = entry.strip().split(",")
-            if "County" in spent[0]:
+            if "Airport" in spent[0]:
+                airp_conversion[spent[1]] = spent[0]
+            elif "County" in spent[0]:
                 county_conversion[spent[1].upper()] = spent[0]
             else:
                 for alternative in spent:
@@ -73,6 +82,17 @@ def process_metadata(lexiconfile, mfile, mfile_merge, extension=["_us"], isWDL =
     #write metadata header
     print("strain\tname\tpango_lineage\tnextclade_clade\tgisaid_accession\tcounty\tdate\tpaui\tsequencing_lab\tspecimen_id\tspecimen_accession_number\tgenbank_accession\tNextstrain_clade\tpangolin_lineage\tNextstrain_clade_usher\tpango_lineage_usher\tcountry", file = metadata)
     duplicates = set() #stores sample names of potential duplicates
+
+    #read airport sample data
+    airport_data = []
+    with open(airport_file_p, mode='r') as csv_file:
+        data = csv.DictReader(csv_file)
+        for row in data:
+            airport_data.append([str(row["Barcode"]),'',row["GISAID_epi_isl"],row["Kiosk"]])
+    with open(airport_file_c, mode='r') as csv_file:
+        data = csv.DictReader(csv_file)
+        for row in data:
+            airport_data.append([str(row["Submitter Specimen ID"]),str(row["PAUI"]),row["GISAID_epi_isl"],row["Airport"]])
     
     with open(mfile_merge) as inf:
         print("parsing input metadata file: " + mfile_merge)
@@ -91,15 +111,38 @@ def process_metadata(lexiconfile, mfile, mfile_merge, extension=["_us"], isWDL =
             fields.append("USA") #country
             #add item to merged metadata file
             print("\t".join(fields), file = metadata)
-            #assign to CA state in region file
-            print(fields[0] + "\tCalifornia", file = region_assoc_us)
-            #check if county is in lexicon and if so add to region association file
-            county = fields[5]
-            if county != "":
-                if county.upper() in (c.upper() for c in county_conversion): # convert all names to uppercase to avoid differences in case
-                    has_valid_county = True
-                    text = county_conversion[county.upper()].replace(" ", "_")
+            #For airports, override county info with airport
+            ids = [fields[0],fields[1],fields[7],fields[-2],fields[-1]]
+            isAirport = False
+            for item in airport_data:
+                if any(item[0] in id for id in ids):
+                    isAirport = True
+                    break
+                elif item[1] != "" and any(item[1] in id for id in ids):
+                    isAirport = True
+                    break
+                elif item[2] != "" and item[2] == fields[4]:
+                    isAirport = True
+                    break
+            #assign region for airport data
+            if isAirport:
+                if item[3] in airp_conversion:
+                    text = airp_conversion[item[3]].replace(" ", "_")
                     print(fields[0] + "\t" + text, file = region_assoc)
+                    print(fields[0] + "\t" + text, file = region_assoc_us)
+                else:
+                    isAirport = False
+            #assign region for non-airport data
+            if not isAirport:
+                #assign to CA state in region file
+                print(fields[0] + "\tCalifornia", file = region_assoc_us)
+                #check if county is in lexicon and if so add to region association file
+                county = fields[5]
+                if county != "":
+                    if county.upper() in (c.upper() for c in county_conversion): # convert all names to uppercase to avoid differences in case
+                        has_valid_county = True
+                        text = county_conversion[county.upper()].replace(" ", "_")
+                        print(fields[0] + "\t" + text, file = region_assoc)
             #add sample names to list to check for duplicates; add date to date file
             if fields[0].startswith("USA/"):
                 #add sample name if needed to check for duplicates later on
@@ -119,7 +162,7 @@ def process_metadata(lexiconfile, mfile, mfile_merge, extension=["_us"], isWDL =
             #add Specimen ID to association file
             if fields[9] != "":
                 print(fields[0] + "\t" + fields[9], file = pid_assoc)
-        
+
     with open(mfile) as inf:
         print("parsing input metadata file: " + mfile)
         # public metadata header: strain,genbank_accession,date,country,host,completeness,length,Nextstrain_clade,pangolin_lineage,Nextstrain_clade_usher,pango_lineage_usher
