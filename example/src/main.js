@@ -177,52 +177,6 @@ function resetHighlight(e) {
     info.update();
 }
 
-function loadTargetTable(target) {
-    CsvToHtmlTable.init({
-        csv_path: target, 
-        element: 'table-container', 
-        allow_download: false,
-        csv_options: {separator: '\t', delimiter: '\t'},
-        datatables_options: {"paging": true, "searching": true, "order": [[9,"desc"]]},
-        custom_formatting: [
-            [10, function (data,type,row,meta) {
-                return '<a href="' + encodeURI(data) + '" title="Click to View in Taxodium" target="_blank">View Cluster</a>';
-              }
-            ],[9, function (data,type,row,meta) {
-                return '<div title="Importance estimate based on cluster size and age. Not directly comparable between regions with varying sequencing levels.">' + data + "</div>"
-              }
-            ],[8, function (data,type,row,meta) {
-                return '<div title="Confidence metric for the origin; 1 is maximal, 0 is minimal.">' + data + "</div>"
-              }
-            ],[7, function (data,type,row,meta) {
-                return '<div title="The origin region with the greatest weight. May not be the true origin, especially if the corresponding confidence value is below 0.5.">' + data + "</div>"
-              }
-            ],[6, function (data,type,row,meta) {
-                return '<div title="Pangolin lineage of the ancestral introduction.">' + data + "</div>"
-              }
-            ],[5, function (data,type,row,meta) {
-                return '<div title="Nextstrain clade of the ancestral introduction.">' + data + "</div>"
-              }
-            ],[4, function (data,type,row,meta) {
-                return '<div title="Date of the latest sample from this cluster.">' + data + "</div>"
-              }
-            ],[3, function (data,type,row,meta) {
-                return '<div title="Date of the earliest sample from this cluster.">' + data + "</div>"
-              }
-            ],[2, function (data,type,row,meta) {
-                return '<div title="Number of samples in this cluster.">' + data + "</div>"
-              }
-            ],[1, function (data,type,row,meta) {
-                return '<div title="Region of this cluster.">' + data + "</div>"
-              }
-            ],[0, function (data,type,row,meta) {
-                return '<div title="The identifier of the internal node inferred to be the ancestral introduction. Can be used with the public protobuf and matUtils.">' + data + "</div>"
-              }
-            ]
-        ]
-      });
-}
-
 function resetView(e) {
     geojson.eachLayer(function (layer) {
         geojson.resetStyle(layer);
@@ -234,12 +188,7 @@ function resetView(e) {
     btn.innerText = "Show Raw Cluster Count";
     color_scale = "log";
     legend.update(global_state);
-    loadTargetTable('data/display_tables/default_clusters.tsv');
-}
-
-function loadStateTable(e) {
-    let path = "data/display_tables/" + e.target.feature.properties.name + "_topclusters.tsv";
-    loadTargetTable(path);
+    showRegion(global_state);
 }
 
 function changeMap(time) {
@@ -273,13 +222,13 @@ function changeView(e) {
     if (e.target.options.fillColor == "#1a0080") {
         resetView(e);
     } else {
-        loadStateTable(e);
         global_state = e.target.feature.properties.name;
         global_state_id = e.target.feature.id;
         clicklayer.setStyle({fillColor: "#1a0080"});
         colorIntros();
         document.getElementById("colorbtn").disabled = false;
         legend.update(global_state);
+        showRegion(global_state);
     }
 }
 
@@ -315,6 +264,7 @@ function changeScale() {
         btn.innerText = "Show Raw Cluster Count";
         colorIntros();
     }
+    initCTGrid(host, df, ds);
 }
 
 var legend = L.control({position: 'bottomleft'});
