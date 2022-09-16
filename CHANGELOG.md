@@ -1,6 +1,10 @@
 # Changelog
 
-## v.06.1 (2022-08-23):
+## v.0.6.2 (2022-09-16):
+   - UI changes: streamlines loading and appending data to grid.
+   - Data processing: adds a new set of samples collected at selected airports to CDPH data processing, and adds these as non-geocoded "regions" to calculate introductions from airports into other regions.
+   - Documentation: finishes adding new grid tool to documentation, example and src code, and cleans up project folder structure.
+## v.0.6.1 (2022-08-23):
    - UI changes: fixed a bug that did not clear the Search box when loading new data
    - UI changes: adds "loading" message to grid cells when loading sample/specimen IDs
    - Data processing: adds all available sample metadata (including for international samples) to Taxonium JSONL
