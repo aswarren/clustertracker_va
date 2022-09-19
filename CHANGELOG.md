@@ -1,5 +1,7 @@
 # Changelog
 
+## v.0.6.3 (2022-09-19):
+   - UI changes: added GISAID disclaimer and styling.
 ## v.0.6.2 (2022-09-16):
    - UI changes: streamlines loading and appending data to grid.
    - Data processing: adds a new set of samples collected at selected airports to CDPH data processing, and adds these as non-geocoded "regions" to calculate introductions from airports into other regions.
