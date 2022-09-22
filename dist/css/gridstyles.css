@@ -3,6 +3,7 @@
 #myGrid, #pager, #searchbox, div.ui-dialog {
   font-family: arial;
   font-size: 8pt;
+  line-height: normal;
 }
 div.ui-dialog {line-height: normal;}
 
@@ -15,11 +16,9 @@ div.ui-dialog {line-height: normal;}
 #searchbox {
   float: right;
   text-align: right;
+  margin-bottom: 6px;
 }
 #txtSearch {border: 1px solid gray;}
-
-#pager {margin-bottom: 6px;}
-
 
 /* header height */
 .slick-column-name { white-space: normal; }
