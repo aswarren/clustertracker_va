@@ -297,7 +297,7 @@ function registerResizer(grid) {
     container: '#grdContainer',
     bottomPadding: 10,
   },
-  {height: 555},
+  {height: 570},
   );
   grid.registerPlugin(resizer);
 }

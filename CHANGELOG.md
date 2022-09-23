@@ -1,6 +1,7 @@
 # Changelog
 
-## v.0.6.3 (2022-09-19):
+## v.0.6.3 (2022-09-22):
+   - UI changes: added auto resizing of grid columns, and misc. padding adjustments.
    - UI changes: added GISAID disclaimer and styling.
 ## v.0.6.2 (2022-09-16):
    - UI changes: streamlines loading and appending data to grid.
