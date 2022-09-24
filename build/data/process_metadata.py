@@ -88,11 +88,11 @@ def process_metadata(lexiconfile, mfile, mfile_merge, extension=["_us"], isWDL =
     with open(airport_file_p, mode='r') as csv_file:
         data = csv.DictReader(csv_file)
         for row in data:
-            airport_data.append([str(row["Barcode"]),'',row["GISAID_epi_isl"],row["Kiosk"]])
+            airport_data.append([str(row["Barcode"]),'',row["GISAID_epi_isl"],row["Kiosk"],row["Collection_Date"]])
     with open(airport_file_c, mode='r') as csv_file:
         data = csv.DictReader(csv_file)
         for row in data:
-            airport_data.append([str(row["Submitter Specimen ID"]),str(row["PAUI"]),row["GISAID_epi_isl"],row["Airport"]])
+            airport_data.append([str(row["Submitter Specimen ID"]),str(row["PAUI"]),row["GISAID_epi_isl"],row["Airport"],row["Collection_Date"]])
     
     with open(mfile_merge) as inf:
         print("parsing input metadata file: " + mfile_merge)
@@ -109,25 +109,46 @@ def process_metadata(lexiconfile, mfile, mfile_merge, extension=["_us"], isWDL =
             fields.append("") #Nextstrain_clade_usher (public metadata)
             fields.append("") #pango_lineage_usher (public metadata)
             fields.append("USA") #country
-            #add item to merged metadata file
-            print("\t".join(fields), file = metadata)
-            #For airports, override county info with airport
+            
+            #First, check to see if item is in airports file. If so, override county region with airport region
+            # and save values to fill in any missing blanks in metadata
             ids = [fields[0],fields[1],fields[7],fields[-2],fields[-1]]
             isAirport = False
+            aiport_paui = ""
+            airport_gisaid = ""
+            airport_abbr = ""
+            airport_date = ""
             for item in airport_data:
                 if any(item[0] in id for id in ids):
                     isAirport = True
+                    airport_paui = item[1]
+                    airport_gisaid = item[2]
+                    airport_abbr = item[3]
+                    airport_date = item[4]
                     break
                 elif item[1] != "" and any(item[1] in id for id in ids):
                     isAirport = True
+                    airport_paui = item[1]
+                    airport_gisaid = item[2]
+                    airport_abbr = item[3]
+                    airport_date = item[4]
                     break
                 elif item[2] != "" and item[2] == fields[4]:
                     isAirport = True
+                    airport_paui = item[1]
+                    airport_gisaid = item[2]
+                    airport_abbr = item[3]
+                    airport_date = item[4]
                     break
+            #if date isn't valid, reset to blank to avoid having to do multiple validity checks
+            if airport_date != "" and not re.search(date_pattern, airport_date):
+                airport_date = ""
+
+            #Next, assign a region
             #assign region for airport data
             if isAirport:
-                if item[3] in airp_conversion:
-                    text = airp_conversion[item[3]].replace(" ", "_")
+                if airport_abbr in airp_conversion:
+                    text = airp_conversion[airport_abbr].replace(" ", "_")
                     print(fields[0] + "\t" + text, file = region_assoc)
                     print(fields[0] + "\t" + text, file = region_assoc_us)
                 else:
@@ -143,6 +164,8 @@ def process_metadata(lexiconfile, mfile, mfile_merge, extension=["_us"], isWDL =
                         has_valid_county = True
                         text = county_conversion[county.upper()].replace(" ", "_")
                         print(fields[0] + "\t" + text, file = region_assoc)
+            
+            #Next, add dates to date file if needed
             #add sample names to list to check for duplicates; add date to date file
             if fields[0].startswith("USA/"):
                 #add sample name if needed to check for duplicates later on
@@ -151,17 +174,36 @@ def process_metadata(lexiconfile, mfile, mfile_merge, extension=["_us"], isWDL =
                 if not re.search(date_pattern, fields[0][-10:]):
                     if re.search(date_pattern, fields[6]):
                         print(fields[0] + "\t" + fields[6], file = date_file_us)
-                        if has_valid_county:
+                        if has_valid_county or isAirport:
                             print(fields[0] + "\t" + fields[6], file = date_file)
+                    elif isAirport and airport_date != "":
+                        print(fields[0] + "\t" + airport_date, file = date_file)
+                        print(fields[0] + "\t" + airport_date, file = date_file_us)
             else:
                 #check for valid date and add sample ID and date to sample dates file
                 if re.search(date_pattern, fields[6]):
                     print(fields[0] + "\t" + fields[6], file = date_file_us)
-                    if has_valid_county:
+                    if has_valid_county or isAirport:
                         print(fields[0] + "\t" + fields[6], file = date_file)
-            #add Specimen ID to association file
+                elif isAirport and airport_date != "":
+                    print(fields[0] + "\t" + airport_date, file = date_file)
+                    print(fields[0] + "\t" + airport_date, file = date_file_us)
+            
+            #Now, add Specimen ID to association file
             if fields[9] != "":
                 print(fields[0] + "\t" + fields[9], file = pid_assoc)
+
+            #Finally, write item to merged metadata file
+            if isAirport:
+                #if date, gisaid id, or paui are missing, fill those in
+                if fields[6] == "" and airport_date != "":
+                    fields[6] = airport_date
+                if fields[7] == "" and aiport_paui != "":
+                    fields[7] = aiport_paui
+                if fields[4] == "" and airport_gisaid != "":
+                    fields[4] = airport_gisaid
+            print("\t".join(fields), file = metadata)
+
 
     with open(mfile) as inf:
         print("parsing input metadata file: " + mfile)
