@@ -1,6 +1,7 @@
 # Changelog
 
-## v.0.6.3 (2022-09-22):
+## v.0.6.3 (2022-09-23):
+   - Data processing: fixed a but that did not output airport dates to the sample_dates.tsv file correctly, and added metadata from airports CSV file to merged metadata file if it was missing from the CovidNet metadata.
    - UI changes: added auto resizing of grid columns, and misc. padding adjustments.
    - UI changes: added GISAID disclaimer and styling.
 ## v.0.6.2 (2022-09-16):
