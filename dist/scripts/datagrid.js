@@ -57,9 +57,8 @@ function getFNameExtn() {
   }
   return ext;
 }
-function getTaxoniumLink(taxoniumHost, cluster) {
-  let link = '<a href="https://taxonium.org/?' + taxoniumHost;
-  //link += taxoniumHost + 'cview' + getFNameExtn() + '.jsonl.gz';
+function getTaxoniumLink(taxoniumURL, cluster, ext = '') {
+  let link = '<a href="https://taxonium.org/?backend=' + taxoniumURL;
   link += '%26configUrl%3Dhttps%3A%2F%2Fstorage.googleapis.com%2Fucsc-gi-cdph-bigtree%2Fdisplay_tables%2Ftaxonium-config.json';
   link += '&xType=x_dist&color=%7B%22field%22:%22meta_region%22%7D';
   link += '&srch=%5B%7B%22key%22:%22aa1%22,%22type%22:%22meta_cluster%22,%22method%22:%22text_exact%22,%22text%22:%22';
@@ -75,7 +74,7 @@ function getInvetigatorLink(cluster, nPauis, ext = '') {
   link += '" target="_blank">View ' + nPauis + ' Samples</a>';
   return link;
 }
-function clusterObjs(items, taxoniumHost, ext = '') {
+function clusterObjs(items, taxoniumURL, ext = '') {
   if (items[10] === 0) {
     items[10] = 'No identifiable samples';
   } else {
@@ -92,7 +91,7 @@ function clusterObjs(items, taxoniumHost, ext = '') {
     'origin': items[7].replace(/_/g, ' '),
     'confidence': items[8].toString(),
     'growth': items[9].toString(),
-    'taxlink': getTaxoniumLink(taxoniumHost, items[0], ext),
+    'taxlink': getTaxoniumLink(taxoniumURL, items[0], ext),
     'investigator': items[10],
   };
   return el;
@@ -120,14 +119,14 @@ function sampleObjs(items) {
   };
   return el;
 }
-function initData(items, type, taxoniumHost = '') {
+function initData(items, type, taxoniumURL = '') {
   const cl = items.length;
   data = Array(cl);
   if (type === 'clusters') {
     for (let i = 0; i < cl; i++) {
       const d = (data[i] = {});
       d.id = i;
-      Object.assign(d, clusterObjs(items[i], taxoniumHost));
+      Object.assign(d, clusterObjs(items[i], taxoniumURL));
       Object.assign(d, blankSampleObj());
     }
   } else if (type === 'samples') {
@@ -139,7 +138,7 @@ function initData(items, type, taxoniumHost = '') {
     }
   }
 }
-function appendData(items, type, taxoniumHost = '') {
+function appendData(items, type, taxoniumURL = '') {
   const sl = items.length;
   if (type === 'samples') {
     for (let i = 0; i < sl; i++) {
@@ -150,7 +149,7 @@ function appendData(items, type, taxoniumHost = '') {
       data[i].pauicol = newData.pauicol;
     }
   } else if (type === 'clusters') {
-    const newData = clusterObjs(items[i], taxoniumHost);
+    const newData = clusterObjs(items[i], taxoniumURL);
     data[i].cid = newData.cid;
     data[i].region = newData.region;
     data[i].sampcount = newData.sampcount;
@@ -166,13 +165,13 @@ function appendData(items, type, taxoniumHost = '') {
   }
 }
 // function to load the data and wire functions to table
-function loadData(dataArr, type, taxoniumHost = '') {
+function loadData(dataArr, type, taxoniumURL = '') {
   if (type === 'clusters') {
     if (!sampleDataLoaded) {
-      initData(dataArr, type, taxoniumHost);
+      initData(dataArr, type, taxoniumURL);
     } else if (!basicDataLoaded) {
       // call update function
-      appendData(dataArr, type, taxoniumHost);
+      appendData(dataArr, type, taxoniumURL);
       updateData();
     }
     basicDataLoaded = true;
@@ -188,7 +187,7 @@ function loadData(dataArr, type, taxoniumHost = '') {
   }
   setGridView();
 } // end of loadData function
-async function loadBasicData(dataHost, taxoniumHost, file) {
+async function loadBasicData(dataHost, taxoniumURL, file) {
   const workerBlob = new Blob([workerScript], {type: 'application/javascript'});
   const workerUrl = URL.createObjectURL(workerBlob);
 
@@ -199,7 +198,7 @@ async function loadBasicData(dataHost, taxoniumHost, file) {
 
   worker.onmessage = ({data}) => {
     const clusters = JSON.parse(new TextDecoder().decode(data));
-    loadData(clusters, 'clusters', taxoniumHost);
+    loadData(clusters, 'clusters', taxoniumURL);
   };
   worker.postMessage(compressedBlob1);
 }
@@ -521,6 +520,11 @@ function initCTGrid(dataHost, taxoniumHost, clusterfile, samplefile) {
   // attach resizer so column widths stay consistent as data is read and loaded
   registerResizer(grid);
 
-  loadBasicData(dataHost, taxoniumHost, clusterfile);
+  let taxoniumURL = taxoniumHost[0];
+  const extn = getFNameExtn();
+  if (extn != '') {
+    taxoniumURL = taxoniumHost[1];
+  }
+  loadBasicData(dataHost, taxoniumURL, clusterfile);
   loadSampleData(dataHost, samplefile);
 }

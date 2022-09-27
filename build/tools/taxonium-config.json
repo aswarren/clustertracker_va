@@ -1,29 +1,61 @@
-{
+  {
     "enable_ns_download": true,
     "source": "INSDC",
-    "title": "Taxonium",
+    "title": "California Big Tree",
     "customNames": {
       "num_tips": "Descendant sequences",
-      "meta_pango_lineage_usher": "PANGO lineage"
+      "meta_specimen_id": "Specimen ID",
+      "meta_pango_lineage_usher": "PANGO lineage (usher)",
+      "meta_pango_lineage": "PANGO lineage (CovidNet)",
+      "meta_Nextstrain_clade_usher": "Nextstrain clade (usher)",
+      "meta_nextclade_clade": "Nextclade clade (CovidNet)",
+      "meta_gisaid_accession": "GISAID accession"
     },
     "name_accessor": "name",
     "covspectrum_links": true,
     "enable_genbank_acknowledgement": true,
-    "defaultColorByField": "meta_pango_lineage_usher",
+    "defaultColorByField": "meta_region",
     "keys_to_display": [
       "genotype",
       "meta_date",
-      "meta_genbank_accession",
       "meta_pango_lineage_usher",
-      "meta_country",
-      "meta_cluster"
+      "meta_pango_lineage",
+      "meta_Nextstrain_clade_usher",
+      "meta_nextclade_clade",
+      "meta_cluster",
+      "meta_region",
+      "meta_county",
+      "meta_genbank_accession",
+      "meta_gisaid_accession",
+      "meta_specimen_id",
+      "meta_specimen_accession_number",
+      "meta_sequencing_lab",
+      "meta_country"
     ],
     "overlay": "Welcome to the California Big Tree.",
     "search_types": [
       { "name": "name", "label": "Name", "type": "text_match" },
+      { "name": "meta_cluster", "label": "Cluster", "type": "text_exact" },
+      { "name": "meta_region", "label": "Region", "type": "text_match" },
+      { "name": "meta_county", "label": "County", "type": "text_match" },
+      {
+        "name": "meta_pango_lineage",
+        "label": "PANGO lineage (CovidNet)",
+        "type": "text_exact"
+      },
       {
         "name": "meta_pango_lineage_usher",
-        "label": "PANGO lineage",
+        "label": "PANGO lineage (public)",
+        "type": "text_exact"
+      },
+      {
+        "name": "meta_nextclade_clade",
+        "label": "Nextclade clade (CovidNet)",
+        "type": "text_exact"
+      },
+      {
+        "name": "meta_Nextstrain_clade_usher",
+        "label": "Nextstrain clade (public)",
         "type": "text_exact"
       },
       {
@@ -31,8 +63,15 @@
         "label": "Genbank accession",
         "type": "text_per_line"
       },
+      {
+        "name": "meta_gisaid_accession",
+        "label": "GISAID accession",
+        "type": "text_per_line"
+      },
+      { "name": "meta_specimen_id", "label": "Specimen ID", "type": "text_per_line" },
+      { "name": "meta_specimen_accession_number", "label": "Specimen accession number", "type": "text_per_line" },
+      { "name": "meta_sequencing_lab", "label": "Sequencing lab", "type": "text_match" },
       { "name": "meta_country", "label": "Country", "type": "text_match" },
-      { "name": "meta_cluster", "label": "Cluster", "type": "text_match" },
       { "name": "mutation", "label": "Mutation", "type": "mutation" },
       { "name": "genotype", "label": "Genotype", "type": "genotype" },
       { "name": "revertant", "label": "Revertant", "type": "revertant" },
@@ -41,12 +80,16 @@
     ],
     "colorBy": {
       "colorByOptions": [
+        "meta_region",
+        "meta_county",
         "meta_pango_lineage_usher",
+        "meta_pango_lineage",
+        "meta_Nextstrain_clade_usher",
+        "meta_nextclade_clade",
         "meta_country",
         "genotype",
-        "meta_region",
         "None"
       ]
     },
-    "x_accessors": ["x_dist", "x_time"]
+    "x_accessors": ["x_dist"]
   }
