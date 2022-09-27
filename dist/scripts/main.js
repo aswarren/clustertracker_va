@@ -310,7 +310,7 @@ function swap_countystate() {
         pos = cSampleFile.length - 8;
         ds = cSampleFile.substring(0, pos) + ext + cSampleFile.substring(pos);
     }
-    initCTGrid(host, df, ds);
+    initCTGrid(dataHost, taxoniumHost, df, ds);
 }
 
 var legend = L.control({position: 'bottomleft'});

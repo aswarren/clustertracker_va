@@ -59,7 +59,7 @@ function getFNameExtn() {
 }
 function getTaxoniumLink(taxoniumURL, cluster, ext = '') {
   let link = '<a href="https://taxonium.org/?backend=' + taxoniumURL;
-  link += '%26configUrl%3Dhttps%3A%2F%2Fstorage.googleapis.com%2Fucsc-gi-cdph-bigtree%2Fdisplay_tables%2Ftaxonium-config.json';
+  link += '&configUrl=https%3A%2F%2Fstorage.googleapis.com%2Fucsc-gi-cdph-bigtree%2Fdisplay_tables%2Ftaxonium-config.json';
   link += '&xType=x_dist&color=%7B%22field%22:%22meta_region%22%7D';
   link += '&srch=%5B%7B%22key%22:%22aa1%22,%22type%22:%22meta_cluster%22,%22method%22:%22text_exact%22,%22text%22:%22';
   link += cluster;
