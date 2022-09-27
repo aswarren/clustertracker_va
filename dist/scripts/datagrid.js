@@ -57,9 +57,10 @@ function getFNameExtn() {
   }
   return ext;
 }
-function getTaxoniumLink(host, cluster) {
-  let link = '<a href="https://taxonium.org/?protoUrl=';
-  link += host + 'cview' + getFNameExtn() + '.jsonl.gz';
+function getTaxoniumLink(taxoniumHost, cluster) {
+  let link = '<a href="https://taxonium.org/?' + taxoniumHost;
+  //link += taxoniumHost + 'cview' + getFNameExtn() + '.jsonl.gz';
+  link += '%26configUrl%3Dhttps%3A%2F%2Fstorage.googleapis.com%2Fucsc-gi-cdph-bigtree%2Fdisplay_tables%2Ftaxonium-config.json';
   link += '&xType=x_dist&color=%7B%22field%22:%22meta_region%22%7D';
   link += '&srch=%5B%7B%22key%22:%22aa1%22,%22type%22:%22meta_cluster%22,%22method%22:%22text_exact%22,%22text%22:%22';
   link += cluster;
@@ -74,7 +75,7 @@ function getInvetigatorLink(cluster, nPauis, ext = '') {
   link += '" target="_blank">View ' + nPauis + ' Samples</a>';
   return link;
 }
-function clusterObjs(items, host, ext = '') {
+function clusterObjs(items, taxoniumHost, ext = '') {
   if (items[10] === 0) {
     items[10] = 'No identifiable samples';
   } else {
@@ -91,7 +92,7 @@ function clusterObjs(items, host, ext = '') {
     'origin': items[7].replace(/_/g, ' '),
     'confidence': items[8].toString(),
     'growth': items[9].toString(),
-    'taxlink': getTaxoniumLink(host, items[0], ext),
+    'taxlink': getTaxoniumLink(taxoniumHost, items[0], ext),
     'investigator': items[10],
   };
   return el;
@@ -119,14 +120,14 @@ function sampleObjs(items) {
   };
   return el;
 }
-function initData(items, type, host = '') {
+function initData(items, type, taxoniumHost = '') {
   const cl = items.length;
   data = Array(cl);
   if (type === 'clusters') {
     for (let i = 0; i < cl; i++) {
       const d = (data[i] = {});
       d.id = i;
-      Object.assign(d, clusterObjs(items[i], host));
+      Object.assign(d, clusterObjs(items[i], taxoniumHost));
       Object.assign(d, blankSampleObj());
     }
   } else if (type === 'samples') {
@@ -138,7 +139,7 @@ function initData(items, type, host = '') {
     }
   }
 }
-function appendData(items, type, host = '') {
+function appendData(items, type, taxoniumHost = '') {
   const sl = items.length;
   if (type === 'samples') {
     for (let i = 0; i < sl; i++) {
@@ -149,7 +150,7 @@ function appendData(items, type, host = '') {
       data[i].pauicol = newData.pauicol;
     }
   } else if (type === 'clusters') {
-    const newData = clusterObjs(items[i], host);
+    const newData = clusterObjs(items[i], taxoniumHost);
     data[i].cid = newData.cid;
     data[i].region = newData.region;
     data[i].sampcount = newData.sampcount;
@@ -165,13 +166,13 @@ function appendData(items, type, host = '') {
   }
 }
 // function to load the data and wire functions to table
-function loadData(dataArr, type, host = '') {
+function loadData(dataArr, type, taxoniumHost = '') {
   if (type === 'clusters') {
     if (!sampleDataLoaded) {
-      initData(dataArr, type, host);
+      initData(dataArr, type, taxoniumHost);
     } else if (!basicDataLoaded) {
       // call update function
-      appendData(dataArr, type, host);
+      appendData(dataArr, type, taxoniumHost);
       updateData();
     }
     basicDataLoaded = true;
@@ -187,28 +188,28 @@ function loadData(dataArr, type, host = '') {
   }
   setGridView();
 } // end of loadData function
-async function loadBasicData(host, file) {
+async function loadBasicData(dataHost, taxoniumHost, file) {
   const workerBlob = new Blob([workerScript], {type: 'application/javascript'});
   const workerUrl = URL.createObjectURL(workerBlob);
 
   const worker = new Worker(workerUrl);
 
-  const compressedBlob1 = await fetch(host + file + '?v=' + new Date().getTime())
+  const compressedBlob1 = await fetch(dataHost + file + '?v=' + new Date().getTime())
       .then((r) => r.blob());
 
   worker.onmessage = ({data}) => {
     const clusters = JSON.parse(new TextDecoder().decode(data));
-    loadData(clusters, 'clusters', host);
+    loadData(clusters, 'clusters', taxoniumHost);
   };
   worker.postMessage(compressedBlob1);
 }
 
-async function loadSampleData(host, file) {
+async function loadSampleData(dataHost, file) {
   const workerBlob = new Blob([workerScript], {type: 'application/javascript'});
   const workerUrl = URL.createObjectURL(workerBlob);
   const worker = new Worker(workerUrl);
 
-  const compressedBlob2 = await fetch(host + file + '?v=' + new Date().getTime())
+  const compressedBlob2 = await fetch(dataHost + file + '?v=' + new Date().getTime())
       .then((r) => r.blob());
 
   worker.onmessage = ({data}) => {
@@ -505,7 +506,7 @@ function setGridView() {
 } // end of setGridView
 
 // eslint-disable-next-line no-unused-vars
-function initCTGrid(host, clusterfile, samplefile) {
+function initCTGrid(dataHost, taxoniumHost, clusterfile, samplefile) {
   // clear everything
   basicDataLoaded = false;
   sampleDataLoaded = false;
@@ -520,6 +521,6 @@ function initCTGrid(host, clusterfile, samplefile) {
   // attach resizer so column widths stay consistent as data is read and loaded
   registerResizer(grid);
 
-  loadBasicData(host, clusterfile);
-  loadSampleData(host, samplefile);
+  loadBasicData(dataHost, taxoniumHost, clusterfile);
+  loadSampleData(dataHost, samplefile);
 }
