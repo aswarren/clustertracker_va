@@ -68,7 +68,6 @@
         "label": "GISAID accession",
         "type": "text_per_line"
       },
-      { "name": "meta_specimen_id", "label": "Specimen ID", "type": "text_per_line" },
       { "name": "meta_specimen_accession_number", "label": "Specimen accession number", "type": "text_per_line" },
       { "name": "meta_sequencing_lab", "label": "Sequencing lab", "type": "text_match" },
       { "name": "meta_country", "label": "Country", "type": "text_match" },
