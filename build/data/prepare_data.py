@@ -28,7 +28,7 @@
 # python3 prepare_data.py -i new_tree.pb -m public.plusGisaid.latest.metadata.tsv -mx samplemeta.tsv
 #  -a hu1.gb -j us-states_ca-counties.geo.json us-states.geo.json 
 #  -e "_us" -l state_and_county_lexicon.txt -T "California Big Tree Cluster Tracker"
-#  -x "genbank_accession,gisaid_accession,country,county,date,name,pango_lineage,nextclade_clade,Nextstrain_clade,pangolin_lineage,Nextstrain_clade_usher,pango_lineage_usher,specimen_id,specimen_accession_number,sequencing_lab"
+#  -x "genbank_accession,gisaid_accession,country,county,date,name,pango_lineage,nextstrain_clade,specimen_id,specimen_accession_number"
 #
 #------------------------------------------------------------------------------------------
 

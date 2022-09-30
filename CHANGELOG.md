@@ -1,7 +1,10 @@
 # Changelog
 
-## v.0.6.4 (2022-09-27):
+## v.0.6.4 (2022-09-29):
    - Backend: replace public Taxonium backend with local backend.
+   - Data processing: merge Covidnet and public clade/lineage metadata fields.
+   - Data processing: pare down metadata fields for Taxonium JSONL file.
+   - UI changes: fix typo in data table header.
 ## v.0.6.3 (2022-09-23):
    - Data processing: fixed a bug that did not output airport dates to the sample_dates.tsv file correctly, and added metadata from airports CSV file to merged metadata file if it was missing from the CovidNet metadata.
    - UI changes: added auto resizing of grid columns, and misc. padding adjustments.
