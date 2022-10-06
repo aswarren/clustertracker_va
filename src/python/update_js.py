@@ -63,7 +63,7 @@ def update_js(target=[''], conversion = {}, extension=['']):
                 if spent[0] == "cluster_id":
                     continue
                 reg = conversion[spent[9].replace("_"," ")]
-                if spent[10] == "indeterminate":
+                if  "indeterminate" in spent[10]:
                     continue
                 #get the date of this cluster's earliest sample into a usable form
                 dsplt = spent[2].split("-")

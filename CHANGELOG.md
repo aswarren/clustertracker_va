@@ -1,5 +1,7 @@
 # Changelog
 
+## v.0.6.5:
+   - Data processing: fix bug that caused update_js.py to fail with new indeterminate cluster origins verbosity in matUtils introduce.
 ## v.0.6.4 (2022-09-27):
    - Backend: replace public Taxonium backend with local backend.
 ## v.0.6.3 (2022-09-23):
