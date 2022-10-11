@@ -1,0 +1,58 @@
+name: Backup
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push mevents but only for the "cdph" branch
+  push:
+    branches: [ "cdph" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "backup"
+  backup:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      # Runs a set of commands using the runners shell
+      - name: Run a multi-line script
+        run: |
+          # Install backblaze CLI
+          sudo pip3 install --upgrade --ignore-installed b2
+
+          # Sign in to b2
+          b2 authorize-account ${{ secrets.B2_ACCOUNT_ID }} ${{ secrets.B2_APPLICATION_KEY }}
+
+          # This is set in the repo secret
+          bucket=${{ secrets.B2_BACKUP_BUCKET }}
+
+          # Setup repository name
+          repository=${{ github.event.repository.name }}
+
+          echo "Backing up $repository"
+
+          cd ..
+
+          tar cpzf $repository.tar.gz ***
+          if [ $? -ne 0 ]; then
+            echo "Error compressing $repository"
+            exit 1
+          fi
+
+          if [ -f $repository.tar.gz ]; then
+            b2 upload-file $bucket $repository.tar.gz $repository.tar.gz
+          fi
+
+          if [ $? -ne 0 ]; then
+            echo "Error uploading $repository to Backblaze B2"
+            exit 1
+          fi
+
+          echo "Succesfully backed up $repository"
