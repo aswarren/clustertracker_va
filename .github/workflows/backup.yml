@@ -25,11 +25,10 @@ jobs:
       - name: Run a multi-line script
         run: |
           # Install backblaze CLI
-          pip3 install --upgrade --ignore-installed b2
-          #sudo pip3 install --upgrade --ignore-installed b2
+          sudo pip3 install --upgrade --ignore-installed b2
 
           # Sign in to b2
-          b2 authorize-account ${{ secrets.B2_ACCOUNT_ID }} ${{ secrets.B2_APPLICATION_KEY }}
+          b2 authorize-account ${{ secrets.B2_ACCOUNT_ID_CT }} ${{ secrets.B2_APPLICATION_KEY_CT }}
 
           # This is set in the repo secret
           bucket=${{ secrets.B2_BACKUP_BUCKET }}
