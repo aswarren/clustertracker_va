@@ -73,7 +73,7 @@ def prepare_taxonium(sample_regions_file, mfile, extension=[''], isWDL = False):
                         spent.append("N/A")
                     #adds region name
                     if spent[0] in rd:
-                        spent.append(rd[spent[0]])
+                        spent.append(rd[spent[0]].replace("_", " "))
                     else:
                         spent.append("None")
                     i += 1

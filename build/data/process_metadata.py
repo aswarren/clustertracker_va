@@ -80,7 +80,7 @@ def process_metadata(lexiconfile, mfile, mfile_merge, extension=["_us"], isWDL =
     pid_assoc = open("pids.tsv","w+") # file to store associations between sample ID and specimen_id (formerly PAUI or link_id)
     date_pattern = '[0-9]{4}-[0-9]{2}-[0-9]{2}'
     #write metadata header
-    print("strain\tname\tpango_lineage\tnextclade_clade\tgisaid_accession\tcounty\tdate\tpaui\tsequencing_lab\tspecimen_id\tspecimen_accession_number\tgenbank_accession\tNextstrain_clade\tpangolin_lineage\tNextstrain_clade_usher\tpango_lineage_usher\tcountry", file = metadata)
+    print("strain\tname\tpango_lineage\tnextstrain_clade\tgisaid_accession\tcounty\tdate\tpaui\tsequencing_lab\tspecimen_id\tspecimen_accession_number\tgenbank_accession\tcountry", file = metadata)
     duplicates = set() #stores sample names of potential duplicates
 
     #read airport sample data
@@ -104,10 +104,6 @@ def process_metadata(lexiconfile, mfile, mfile_merge, extension=["_us"], isWDL =
             for i in range(len(fields)):
                 fields[i] = fields[i].strip()
             fields.append("") #genbank_accession
-            fields.append("") #Nextstrain_clade (public metadata)
-            fields.append("") #pangolin_lineage (public metadata)
-            fields.append("") #Nextstrain_clade_usher (public metadata)
-            fields.append("") #pango_lineage_usher (public metadata)
             fields.append("USA") #country
             
             #First, check to see if item is in airports file. If so, override county region with airport region
@@ -220,8 +216,8 @@ def process_metadata(lexiconfile, mfile, mfile_merge, extension=["_us"], isWDL =
                 newfields = []
                 newfields.append(fields[0]) #sample name
                 newfields.append("") #CDPH name
-                newfields.append("") #pango_lineage (CDPH metadata)
-                newfields.append("") #nextclade_clade (CDPH metadata)
+                newfields.append(fields[10]) #pango_lineage_usher (public metadata); pango_lineage (Covidnet)
+                newfields.append(fields[9]) #Nextstrain_clade_usher (public metadata); nextclade_clade (Covidnet)
                 newfields.append("") #gisaid_accession
                 newfields.append("") #county name
                 newfields.append(fields[2]) #date
@@ -230,10 +226,6 @@ def process_metadata(lexiconfile, mfile, mfile_merge, extension=["_us"], isWDL =
                 newfields.append("") #specimen_id
                 newfields.append("") #specimen_accession_number
                 newfields.append(fields[1]) #genbank_accession
-                newfields.append(fields[7]) #Nextstrain_clade (public metadata)
-                newfields.append(fields[8]) #pangolin_lineage (public metadata)
-                newfields.append(fields[9]) #Nextstrain_clade_usher (public metadata)
-                newfields.append(fields[10]) #pango_lineage_usher (public metadata)
                 newfields.append(fields[3]) #country
                 print("\t".join(newfields), file = metadata)
                 # get region for US samples
