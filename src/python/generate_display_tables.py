@@ -89,14 +89,12 @@ def generate_display_tables(extension = [''], isWDL = False):
         
         # get clusters data and put into array
         cluster_data = []
+        bad_date_data = [] #store clusters with no-valid-date
         with open(cluster_file[i]) as inf:
             for entry in inf:
                 spent = entry.strip().split("\t")
                 if spent[0] == "cluster_id": 
                     continue
-                #fix date format
-                spent[2] = fix_month(spent[2])
-                spent[3] = fix_month(spent[3])
                 if is_custom:
                     #add California sample PAUIs
                     ids = ""
@@ -105,10 +103,27 @@ def generate_display_tables(extension = [''], isWDL = False):
                         sample_pids[spent[0]] = pids_arr
                         ids = ",".join(pids_arr)
                     spent.append(ids)
-                cluster_data.append(spent)
+                #add additional field to handle asterisked growth values
+                spent.append(spent[4])
+                #check for cluster with no-valid-dates
+                if spent[2] == "no-valid-date" and spent[3] == "no-valid-date":
+                    # add asterisk on growth values and put into separate array
+                    spent[17] = spent[17] + "*"
+                    bad_date_data.append(spent)
+                else:
+                    #fix date format
+                    spent[2] = fix_month(spent[2])
+                    spent[3] = fix_month(spent[3])
+                    if int(spent[1]) <= 5:
+                        # add asterisk on growth value
+                        spent[17] = spent[17] + "*"
+                    cluster_data.append(spent)
         
         #now, sort by growth score
         cluster_data.sort(key = lambda x: x[4], reverse = True)
+        # sort clusters with no-valid-date by growth score and append to cluster_data at the end
+        bad_date_data.sort(key = lambda x: x[4], reverse = True)
+        cluster_data.extend(bad_date_data)
 
         #output data to be compatible with parse.JSON
         # -create as compact a string as possible,
@@ -116,7 +131,7 @@ def generate_display_tables(extension = [''], isWDL = False):
         txt_data = "["
         txt_samples = "["
         for i, d in enumerate(cluster_data):
-            outline_data = [addq(d[0]), addq(d[9]), d[1], addq(d[2]), addq(d[3]), addq(d[12]), addq(d[13]), addq(d[10]), d[11], d[4]]
+            outline_data = [addq(d[0]), addq(d[9]), d[1], addq(d[2]), addq(d[3]), addq(d[12]), addq(d[13]), addq(d[10]), d[11], addq(d[17])]
             outline_samples = [addq(d[15])]
             if is_custom:
                 # get the number of PAUIS

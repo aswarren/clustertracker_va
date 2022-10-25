@@ -1,6 +1,9 @@
 # Changelog
 
-## v.0.6.5 (2022-10-06):
+## v.0.6.5 (2022-10-25):
+   - Data processing: add asterisk to growth values for small clusters (5 or fewer samples), and for clusters with no valid dates
+   - UI changes: add interpretive note regarding growth values
+   - UI changes: adjust sort functions for cluster date columns and growth value column
    - Data processing: fix bug that caused update_js.py to fail with new indeterminate cluster origins verbosity in matUtils introduce.
 ## v.0.6.4 (2022-09-29):
    - Backend: replace public Taxonium backend with local backend.

@@ -15,7 +15,7 @@ const workerScript = `
       self.postMessage(decompressed, [decompressed.buffer]);
     };
   `;
-let sortcol = 'growth'; // default column to sort on
+let sortcol = ''; // default column to sort on
 let sortdir = -1; // default sort direction
 let searchString = ''; // string used to search and sort grid
 let regionString = ''; // string to filter grid by region
@@ -90,7 +90,7 @@ function clusterObjs(items, taxoniumURL, ext = '') {
     'lineage': items[6],
     'origin': items[7].replace(/_/g, ' '),
     'confidence': items[8].toString(),
-    'growth': items[9].toString(),
+    'growth': items[9],
     'taxlink': getTaxoniumLink(taxoniumURL, items[0], ext),
     'investigator': items[10],
   };
@@ -235,13 +235,13 @@ function setCols() {
     {id: 'cid', name: `<span title='${tooltipText[0]}'>Cluster ID</span>`, field: 'cid', minWidth: 150, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
     {id: 'region', name: `<span title='${tooltipText[1]}'>Region</span>`, field: 'region', minWidth: 100, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
     {id: 'sampcount', name: `<span title='${tooltipText[2]}'>Sample Count</span>`, field: 'sampcount', minWidth: 50, sortable: true, sorter: sorterNumeric, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
-    {id: 'earliest', name: `<span title='${tooltipText[3]}'>Earliest Date</span>`, field: 'earliest', minWidth: 70, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
-    {id: 'latest', name: `<span title='${tooltipText[4]}'>Latest Date</span>`, field: 'latest', minWidth: 70, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'earliest', name: `<span title='${tooltipText[3]}'>Earliest Date</span>`, field: 'earliest', minWidth: 70, sortable: true, sorter: sorterDates, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'latest', name: `<span title='${tooltipText[4]}'>Latest Date</span>`, field: 'latest', minWidth: 70, sortable: true, sorter: sorterDates, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
     {id: 'clade', name: `<span title='${tooltipText[5]}'>Clade</span>`, field: 'clade', minWidth: 80, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
     {id: 'lineage', name: `<span title='${tooltipText[6]}'>Lineage</span>`, field: 'lineage', minWidth: 80, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
     {id: 'origin', name: `<span title='${tooltipText[7]}'>Best Potential Origins</span>`, field: 'origin', minWidth: 100, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
     {id: 'confidence', name: `<span title='${tooltipText[8]}'>Best Origin Regional Indices</span>`, field: 'confidence', minWidth: 60, sortable: true, sorter: sorterNumeric, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
-    {id: 'growth', name: `<span title='${tooltipText[9]}'>Growth Score</span>`, field: 'growth', minWidth: 70, sortable: true, sorter: sorterNumeric, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'growth', name: `<span title='${tooltipText[9]}'>Growth Score</span>`, field: 'growth', minWidth: 70, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
     {id: 'taxlink', name: `<span title='${tooltipText[10]}'>View in Taxonium</span>`, field: 'taxlink', minWidth: 70, formatter: linkFormatter, sortable: true, sorter: sorterStringCompare},
     {id: 'investigator', name: `<span title='${tooltipText[11]}'>View in Big Tree Investigator</span>`, field: 'investigator', minWidth: 120, formatter: linkFormatter, sortable: true, sorter: sorterStringCompare},
     {id: 'samplecol', name: `<span title='${tooltipText[12]}'>Samples</span>`, field: 'samplecol', minWidth: 100, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
@@ -363,6 +363,23 @@ function sorterStringCompare(a, b) {
   const y = b[sortcol];
   return sortdir * (x === y ? 0 : (x > y ? 1 : -1));
 }
+// sort function for cluster earliest/lates dates
+function sorterDates(a, b) {
+  const x = a[sortcol];
+  const y = b[sortcol];
+  let retVal = 0;
+  if (x !== y) {
+    if (x == 'no-valid-date') {
+      retVal = 1; // put 'no-valid-dates' after dates
+    } else if (y == 'no-valid-date') {
+      retVal = -1; // put dates before 'no-valid-dates'
+    } else { 
+      // comparing two date strings
+      retVal = sortdir * (x > y ? 1 : -1);
+    }
+  }
+  return retVal;
+}
 // sort function for numeric data
 function sorterNumeric(a, b) {
   const x = (isNaN(a[sortcol]) || a[sortcol] === '' || a[sortcol] === null) ? -99e+10 : parseFloat(a[sortcol]);
@@ -395,7 +412,7 @@ function setGridView() {
   registerResizer(grid);
 
   // set column sort default column; put this before grid.onsort since the data is already sorted
-  grid.setSortColumn('growth', false); // columnId, descending sort order
+  // grid.setSortColumn('growth', false); // columnId, descending sort order
 
 
   // adds sorting functionaility
@@ -510,7 +527,7 @@ function initCTGrid(dataHost, taxoniumHost, clusterfile, samplefile) {
   basicDataLoaded = false;
   sampleDataLoaded = false;
   data = [];
-  sortcol = 'growth';
+  sortcol = '';
   sortdir = -1;
   searchString = '';
   regionString = '';
