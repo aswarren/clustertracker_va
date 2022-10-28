@@ -16,7 +16,7 @@ const workerScript = `
     };
   `;
 let sortcol = ''; // default column to sort on
-let sortdir = -1; // default sort direction
+let sortdir = -1; // default sort direction (descending)
 let searchString = ''; // string used to search and sort grid
 let regionString = ''; // string to filter grid by region
 

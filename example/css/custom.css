@@ -104,11 +104,30 @@ h2 {
   opacity: 0.7;
 }
 
+.definition {
+  border-bottom: 1px dotted black;
+}
+
 .btn_selected {
     background: #cccccc;
 }
 
 #dropcolor { 
     position: absolute;
+    right: 164px;
+}
+
+#droploc { 
+    position: absolute;
     right: 8px;
+}
+
+#downloads {
+  margin-top: 18px;
+}
+
+.tableNote {
+  font-family: arial;
+  font-size: 8pt;
+  line-height: normal;
 }

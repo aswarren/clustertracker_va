@@ -2,6 +2,7 @@
 let grid; // variable for SlickGrid object
 let dataView; // data manipulation variable for SlickGrid object
 let data = []; //  variable to store data for grid
+let resizer; // variable to reference SlickGrid resizer component
 let basicDataLoaded = false; // basic cluster data are/not loaded into the grid
 let sampleDataLoaded = false; // samples are/not loaded into the grid
 // web worker script
@@ -14,8 +15,8 @@ const workerScript = `
       self.postMessage(decompressed, [decompressed.buffer]);
     };
   `;
-let sortcol = ''; // column to sort on
-let sortdir = 1; // default sort direction (ascending)
+let sortcol = ''; // default column to sort on
+let sortdir = -1; // default sort direction (descending)
 let searchString = ''; // string used to search and sort grid
 let regionString = ''; // string to filter grid by region
 
@@ -65,7 +66,7 @@ function clusterObjs(items, host) {
     'lineage': items[6],
     'origin': items[7].replace(/_/g, ' '),
     'confidence': items[8].toString(),
-    'growth': items[9].toString(),
+    'growth': items[9],
     'taxlink': getTaxoniumLink(host, items[0]),
   };
   return el;
@@ -186,27 +187,27 @@ async function loadSampleData(host, file) {
 function gridOpts() {
   const opt = {
     enableCellNavigation: true,
-    forceFitColumns: false,
     multiColumnSort: true,
     enableColumnReorder: false,
+    enableAutoSizeColumns: true,
   };
   return opt;
 }
 // sets the number of columns and their parameters
 function setCols() {
   const cols = [
-    {id: 'cid', name: `<span title='${tooltipText[0]}'>Cluster ID</span>`, field: 'cid', width: 160, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
-    {id: 'region', name: `<span title='${tooltipText[1]}'>Region</span>`, field: 'region', width: 110, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
-    {id: 'sampcount', name: `<span title='${tooltipText[2]}'>Sample Count</span>`, field: 'sampcount', width: 50, sortable: true, sorter: sorterNumeric, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
-    {id: 'earliest', name: `<span title='${tooltipText[3]}'>Earliest Date</span>`, field: 'earliest', width: 80, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
-    {id: 'latest', name: `<span title='${tooltipText[4]}'>Latest Date</span>`, field: 'latest', width: 80, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
-    {id: 'clade', name: `<span title='${tooltipText[5]}'>Clade</span>`, field: 'clade', width: 100, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
-    {id: 'lineage', name: `<span title='${tooltipText[6]}'>Lineage</span>`, field: 'lineage', sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
-    {id: 'origin', name: `<span title='${tooltipText[7]}'>Best Potential Origins</span>`, field: 'origin', width: 110, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
-    {id: 'confidence', name: `<span title='${tooltipText[8]}'>Best Origin Regional Indices</span>`, field: 'confidence', width: 70, sortable: true, sorter: sorterNumeric, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
-    {id: 'growth', name: `<span title='${tooltipText[9]}'>Growth Score</span>`, field: 'growth', width: 70, sortable: true, sorter: sorterNumeric, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
-    {id: 'taxlink', name: `<span title='${tooltipText[10]}'>View in Taxonium</span>`, field: 'taxlink', formatter: linkFormatter, sortable: true, sorter: sorterStringCompare},
-    {id: 'samplecol', name: `<span title='${tooltipText[12]}'>Samples</span>`, field: 'samplecol', width: 300, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'cid', name: `<span title='${tooltipText[0]}'>Cluster ID</span>`, field: 'cid', minWidth: 150, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'region', name: `<span title='${tooltipText[1]}'>Region</span>`, field: 'region', minWidth: 100, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'sampcount', name: `<span title='${tooltipText[2]}'>Sample Count</span>`, field: 'sampcount', minWidth: 50, sortable: true, sorter: sorterNumeric, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'earliest', name: `<span title='${tooltipText[3]}'>Earliest Date</span>`, field: 'earliest', minWidth: 70, sortable: true, sorter: sorterDates, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'latest', name: `<span title='${tooltipText[4]}'>Latest Date</span>`, field: 'latest', minWidth: 70, sortable: true, sorter: sorterDates, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'clade', name: `<span title='${tooltipText[5]}'>Clade</span>`, field: 'clade', minWidth: 80, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'lineage', name: `<span title='${tooltipText[6]}'>Lineage</span>`, field: 'lineage', minWidth: 80, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'origin', name: `<span title='${tooltipText[7]}'>Best Potential Origins</span>`, field: 'origin', minWidth: 100, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'confidence', name: `<span title='${tooltipText[8]}'>Best Origin Regional Indices</span>`, field: 'confidence', minWidth: 60, sortable: true, sorter: sorterNumeric, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'growth', name: `<span title='${tooltipText[9]}'>Growth Score</span>`, field: 'growth', minWidth: 70, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'taxlink', name: `<span title='${tooltipText[10]}'>View in Taxonium</span>`, field: 'taxlink', minWidth: 70, formatter: linkFormatter, sortable: true, sorter: sorterStringCompare},
+    {id: 'samplecol', name: `<span title='${tooltipText[12]}'>Samples</span>`, field: 'samplecol', minWidth: 100, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter}
   ];
   return cols;
 }
@@ -249,6 +250,16 @@ function tooltipFormatter(row, cell, value, column, dataContext) {
   const tttxt = tooltipText[cell];
 
   return `<span title='${tttxt}'>${val}</span>`;
+}
+function registerResizer(grid) {
+  // function to add automatic column resizing to fill width of grid
+  resizer = new Slick.Plugins.Resizer({
+    container: '#grdContainer',
+    bottomPadding: 10,
+  },
+  {height: 570},
+  );
+  grid.registerPlugin(resizer);
 }
 
 // == grid filtering and sorting ==
@@ -310,6 +321,23 @@ function sorterStringCompare(a, b) {
   const y = b[sortcol];
   return sortdir * (x === y ? 0 : (x > y ? 1 : -1));
 }
+// sort function for cluster earliest/lates dates
+function sorterDates(a, b) {
+  const x = a[sortcol];
+  const y = b[sortcol];
+  let retVal = 0;
+  if (x !== y) {
+    if (x == 'no-valid-date') {
+      retVal = 1; // put 'no-valid-dates' after dates
+    } else if (y == 'no-valid-date') {
+      retVal = -1; // put dates before 'no-valid-dates'
+    } else { 
+      // comparing two date strings
+      retVal = sortdir * (x > y ? 1 : -1);
+    }
+  }
+  return retVal;
+}
 // sort function for numeric data
 function sorterNumeric(a, b) {
   const x = (isNaN(a[sortcol]) || a[sortcol] === '' || a[sortcol] === null) ? -99e+10 : parseFloat(a[sortcol]);
@@ -337,6 +365,9 @@ function setGridView() {
   let pager = new Slick.Controls.Pager(dataView, grid, $('#pager'));
   // sets # of items to display by default
   dataView.setPagingOptions({pageSize: 20});
+
+  // adds column resizing to fill width of grid
+  registerResizer(grid);
 
   // set column sort default column; put this before grid.onsort since the data is already sorted
   // grid.setSortColumn('growth', false); // columnId, descending sort order
@@ -446,13 +477,15 @@ function initCTGrid(host, clusterfile, samplefile) {
   basicDataLoaded = false;
   sampleDataLoaded = false;
   data = [];
-  // sortcol = 'growth';
-  sortdir = 1;
+  sortcol = '';
+  sortdir = -1;
   searchString = '';
   regionString = '';
   document.getElementById('txtSearch').value = '';
   // create basic grid object while waiting for data to load
   grid = new Slick.Grid('#myGrid', tempData(), setCols(), gridOpts());
+  // attach resizer so column widths stay consistent as data is read and loaded
+  registerResizer(grid);
 
   loadBasicData(host, clusterfile);
   loadSampleData(host, samplefile);

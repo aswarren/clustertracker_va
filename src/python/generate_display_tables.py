@@ -108,7 +108,7 @@ def generate_display_tables(extension = [''], isWDL = False):
                 #check for cluster with no-valid-dates
                 if spent[2] == "no-valid-date" and spent[3] == "no-valid-date":
                     # add asterisk on growth values and put into separate array
-                    spent[17] = spent[17] + "*"
+                    spent[-1] = spent[-1] + "*"
                     bad_date_data.append(spent)
                 else:
                     #fix date format
@@ -116,7 +116,7 @@ def generate_display_tables(extension = [''], isWDL = False):
                     spent[3] = fix_month(spent[3])
                     if int(spent[1]) <= 5:
                         # add asterisk on growth value
-                        spent[17] = spent[17] + "*"
+                        spent[-1] = spent[-1] + "*"
                     cluster_data.append(spent)
         
         #now, sort by growth score
@@ -131,7 +131,7 @@ def generate_display_tables(extension = [''], isWDL = False):
         txt_data = "["
         txt_samples = "["
         for i, d in enumerate(cluster_data):
-            outline_data = [addq(d[0]), addq(d[9]), d[1], addq(d[2]), addq(d[3]), addq(d[12]), addq(d[13]), addq(d[10]), d[11], addq(d[17])]
+            outline_data = [addq(d[0]), addq(d[9]), d[1], addq(d[2]), addq(d[3]), addq(d[12]), addq(d[13]), addq(d[10]), d[11], addq(d[-1])]
             outline_samples = [addq(d[15])]
             if is_custom:
                 # get the number of PAUIS

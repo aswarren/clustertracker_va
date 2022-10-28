@@ -72,15 +72,21 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
                  to the <a title="Repository containing daily-updated comprehensive global phylogenetic trees for SARS-CoV-2" target="_blank" href="http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/">global public SARS-CoV-2 phylogenetic tree</a>
                 to identify groups of sequences from an area that may have recently migrated from outside the region. These may reflect cases of an infected traveler
                 entering a region, followed by local spread.  Many biases might affect these results including relative local sequencing effort, timeliness of data deposition into public sequence repositories, and accuracy of phylogenetic reconstruction. 
-                You can view each cluster in <a title="Github repository for the Taxonium browser tree viewer" href="https://github.com/theosanderson/taxonium" target="_blank">Taxonium</a> and perform your own analysis with <a title="Github repository for our underlying tools" href="https://github.com/yatisht/usher" target="_blank">our toolkit and database.</a>
+                You can view each <span class="definition" title="The set of sequences within a region that are inferred to result from a single introduction via travel.">cluster</span> in <a title="Github repository for the Taxonium browser tree viewer" href="https://github.com/theosanderson/taxonium" target="_blank">Taxonium</a> and perform your own analysis with <a title="Github repository for our underlying tools" href="https://github.com/yatisht/usher" target="_blank">our toolkit and database.</a>
             </p>
         </div>
         <div id="searchbox">
             Search: 
             <input type=text id="txtSearch" style="width:150px;">
         </div>
-        <div id="myGrid" style="width:100%;height:600px;"></div>
-        <div id="pager" style="width:100%;height:20px;"></div>
+
+        <div id="grdContainer">
+            <div id="myGrid" style="width:100%;height:570px;"></div>
+            <div id="pager"></div>
+            <div>
+                <p class="tableNote">* = Interpret with caution. Value may not be meaningful due to small cluster size, or cluster dates were not able to be parsed.</p>
+            </div>
+        </div>
 
 
         <script src="lib/leafletjs/leaflet.js"></script>
@@ -102,6 +108,8 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
         <script src="lib/slickgrid/plugins/slick.cellselectionmodel.js"></script>
         <script src="lib/slickgrid/plugins/slick.cellrangedecorator.js"></script>
         <script src="lib/slickgrid/plugins/slick.cellrangeselector.js"></script>
+        <!-- SlickGrid: resize columns -->
+        <script src="lib/slickgrid/plugins/slick.resizer.js"></script>
         <!-- Slick Grid: tool tip -->
         <script src="lib/slickgrid/plugins/slick.customtooltip.js"></script>
         <!-- Gets data and loads into Slick Grid table -->
@@ -110,8 +118,10 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
             initCTGrid(host, cDataFile, cSampleFile);
         </script>
 
-        <a href = "data/hardcoded_clusters.tsv", download = "sarscov2_clusters.tsv">Download full output file.</a>
-        <a href = "data/cview.jsonl.gz", download = "cluster_taxonium.jsonl.gz">Download the Taxonium JSONL file for viewing.</a>
-        <p>Please post an issue at <a title="The github repository for this site." href="https://github.com/pathogen-genomics/introduction-website" target="_blank">the github</a> or email us at help-pathogengenomics@ucsc.edu if you have questions or feedback.</p>
+        <div id="downloads">
+            <a href = "data/hardcoded_clusters.tsv", download = "sarscov2_clusters.tsv">Download full output file.</a>
+            <a href = "data/cview.jsonl.gz", download = "cluster_taxonium.jsonl.gz">Download the Taxonium JSONL file for viewing.</a>
+            <p>Please post an issue at <a title="The github repository for this site." href="https://github.com/pathogen-genomics/introduction-website" target="_blank">the github</a> or email us at help-pathogengenomics@ucsc.edu if you have questions or feedback.</p>
+        </div>
     </body>
 </html>
