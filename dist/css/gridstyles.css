@@ -14,11 +14,28 @@ div.ui-dialog {line-height: normal;}
 }
 
 #searchbox {
-  float: right;
-  text-align: right;
   margin-bottom: 6px;
+  position: relative;
 }
-#txtSearch {border: 1px solid gray;}
+#txtSearch {
+  border: 1px solid gray;
+  width: 320px;
+}
+.colContainer {display: flex;}
+.lSide {
+  margin-right: 30px;
+}
+.rSide {
+  display: flex;
+  flex-grow: 1;
+  text-align: left;
+}
+div.rSide {display:inline-block;}
+.searchSubt {}
+.searchNote {
+  font-style: italic;
+  width: 320px;
+}
 
 /* header height */
 .slick-column-name { white-space: normal; }
@@ -94,6 +111,3 @@ div.ui-dialog {line-height: normal;}
   top: 0px;
   left: 650px;
 }
-
-
-

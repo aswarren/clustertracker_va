@@ -80,8 +80,30 @@ div.hide {display: none;}
             </p>
         </div>
         <div id="searchbox">
-            Search: 
-            <input type=text id="txtSearch" style="width:150px;">
+            <div id="accordion">
+                <h3>Search</h3>
+                <div class="colContainer">
+                    <div class="lSide">
+                        <input type="text" id="txtSearch" placeholder="Search across all columns...">
+                        <button onclick="doSimpleSearch();" id="btnSimpleSearch">Search</button>
+                        <button onclick="clearFilter();" id="btnClearSearch">Clear</button>
+                        <div class="searchNote">
+                            Separate multiple search terms with a comma. Do not use spaces between search terms.
+                        </div>
+                    </div>
+                    <div class="rSide">
+                        <span class=searchSubt>Boolean Search Options</span><br>
+                        <div>
+                            <input type="radio" checked="checked" name="bool" value="and" id="boolAnd">
+                            <label for="boolAnd">AND (contains ALL search terms)</label>
+                        </div>
+                        <div>
+                            <input type="radio" name="bool" value="or" id="boolOr">
+                            <label for="boolOr">OR (contains ANY search term)</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div id="grdContainer">
@@ -131,7 +153,15 @@ div.hide {display: none;}
         <!-- Gets data and loads into Slick Grid table -->
         <script src="scripts/datagrid.js"></script>
         <script>
-            initCTGrid(dataHost, taxoniumHost, cDataFile, cSampleFile);
+            // set jquery-ui accordian params
+            $( function() {
+                $( "#accordion" ).accordion({
+                  collapsible: true,
+                  heightStyle: "content"
+                });
+              } );
+            // itialize grid
+            initCTGrid(host, cDataFile, cSampleFile);
         </script>
 
         <div id="downloads">
