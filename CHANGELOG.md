@@ -1,5 +1,7 @@
 # Changelog
 
+## v.0.6.6 (2022-11-10):
+   - UI changes: adds ability to search using multiple search terms separated by a comma and to use boolean and/or.
 ## v.0.6.5 (2022-10-25):
    - Data processing: add asterisk to growth values for small clusters (5 or fewer samples), and for clusters with no valid dates
    - UI changes: add interpretive note regarding growth values
