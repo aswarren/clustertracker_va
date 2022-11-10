@@ -19,6 +19,7 @@ let sortcol = 'growth'; // default column to sort on
 let sortdir = -1; // default sort direction
 let searchString = ''; // string used to search and sort grid
 let regionString = ''; // string to filter grid by region
+let searchBool = 'and'; // boolean search operator ('and' or 'or')
 
 
 // == functions for attaching data to grid ==
@@ -303,39 +304,83 @@ function registerResizer(grid) {
 }
 
 // == grid filtering and sorting ==
+function clearFilter() {
+  document.getElementById('txtSearch').value = '';
+  searchString = '';
+  if (basicDataLoaded && sampleDataLoaded) {
+    updateFilter();
+  }
+}
+// triggers simple search on button click
+function doSimpleSearch() {
+  searchString = document.getElementById('txtSearch').value;
+  // get boolean search criteria from radio buttons
+  const radios = document.getElementsByName('bool');
+  for (let i = 0, length = radios.length; i < length; i++) {
+    if (radios[i].checked) {
+      searchBool = radios[i].value;
+      break;
+    }
+  }
+  if (basicDataLoaded && sampleDataLoaded) {
+    updateFilter();
+  }
+}
 // sets which data to search on
 function searchFilter(item, args) {
   // show items if no region and no search string
   if (args.searchString === '' && args.regionString === '') {
     return true;
   }
+
+  // handle filtering by region before tackling search items
   // filter out items not in the region
   if (args.regionString !== '' && item.region.indexOf(regionString) === -1) {
     return false;
   }
-  // make search string case independent
-  const sString = args.searchString.toLowerCase();
-  // for text searching, fields in the table to search:
-  const searchFields = item.cid.toLowerCase().indexOf(sString) === -1 &&
-     item.region.toLowerCase().indexOf(sString) === -1 &&
-     item.sampcount.toLowerCase().indexOf(sString) === -1 &&
-     item.earliest.toLowerCase().indexOf(sString) === -1 &&
-     item.latest.toLowerCase().indexOf(sString) === -1 &&
-     item.clade.toLowerCase().indexOf(sString) === -1 &&
-     item.lineage.toLowerCase().indexOf(sString) === -1 &&
-     item.origin.toLowerCase().indexOf(sString) === -1 &&
-     item.confidence.toLowerCase().indexOf(sString) === -1 &&
-     item.growth.toLowerCase().indexOf(sString) === -1 &&
-     item.taxlink.toLowerCase().indexOf(sString) === -1 &&
-     item.investigator.toLowerCase().indexOf(sString) === -1 &&
-     item.samples.toLowerCase().indexOf(sString) === -1 &&
-     item.pauis.toLowerCase().indexOf(sString) === -1;
-  // filter out items that don't match search criteria
-  if (args.searchString !== '' && searchFields) {
-    return false;
+
+  // now, check for search items
+  if (args.searchString !== '') {
+    // split search string into values, and make case independent
+    const sStrings = args.searchString.toLowerCase().split(',');
+    let foundItemAny = false;
+    let foundItemAll = true;
+
+    for (let i of Object.keys(sStrings)) {
+      // for text searching, fields in the table to search
+      const searchFields = item.cid.toLowerCase().indexOf(sStrings[i]) !== -1 ||
+           item.region.toLowerCase().indexOf(sStrings[i]) !== -1 ||
+           item.sampcount.toLowerCase().indexOf(sStrings[i]) !== -1 ||
+           item.earliest.toLowerCase().indexOf(sStrings[i]) !== -1 ||
+           item.latest.toLowerCase().indexOf(sStrings[i]) !== -1 ||
+           item.clade.toLowerCase().indexOf(sStrings[i]) !== -1 ||
+           item.lineage.toLowerCase().indexOf(sStrings[i]) !== -1 ||
+           item.origin.toLowerCase().indexOf(sStrings[i]) !== -1 ||
+           item.confidence.toLowerCase().indexOf(sStrings[i]) !== -1 ||
+           item.growth.toLowerCase().indexOf(sStrings[i]) !== -1 ||
+           item.taxlink.toLowerCase().indexOf(sStrings[i]) !== -1 ||
+           item.investigator.toLowerCase().indexOf(sStrings[i]) !== -1 ||
+           item.samples.toLowerCase().indexOf(sStrings[i]) !== -1 ||
+           item.pauis.toLowerCase().indexOf(sStrings[i]) !== -1;
+      if (searchFields) {
+        foundItemAny = true;
+        if (searchBool == 'or') {break;}
+      } else {
+        foundItemAll = false;
+        if (searchBool == 'and') {break;}
+      }
+    }
+    if ((searchBool == 'or') && foundItemAny) {
+      return true;
+    } else if ((searchBool == 'and') && foundItemAll) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    // passes all filters; show item
+    return true;
   }
-  // passes all filters; show item
-  return true;
 }
 function updateFilter() {
   dataView.setFilterArgs({
@@ -488,9 +533,6 @@ function setGridView() {
       this.value = '';
     }
     searchString = this.value;
-    if (basicDataLoaded && sampleDataLoaded) {
-      updateFilter();
-    }
   });
 
   // initialize the model after all the events have been hooked up
@@ -499,6 +541,7 @@ function setGridView() {
   dataView.setFilterArgs({
     regionString,
     searchString,
+    searchBool,
   });
   dataView.setFilter(searchFilter);
   dataView.endUpdate();
