@@ -64,6 +64,7 @@ h1 {
   font: 32px/1em 'GibsonBold', serif;
   text-transform: uppercase;
   color: #827E7E;
+  margin: 0 5px 0.67em 0;
 }
 
 h2 {
@@ -130,7 +131,7 @@ h2 {
   position: fixed;
   top: 0;
   right: 0;
-  z-index: 3000;
+  z-index: 1000;
   padding: 0px;
   width:  300px;
   opacity: 0.9;
@@ -184,4 +185,34 @@ div.hide {
   font-family: arial;
   font-size: 8pt;
   line-height: normal;
+}
+
+#btnMenuDiv {
+  width: 24px;
+  float: right;
+}
+#btnMenu {
+  cursor: pointer;
+  color: gray;
+  margin: 0;
+  vertical-align: top;
+}
+#btnMenu:hover {
+  background-color: #F5F5F5;
+  cursor: pointer;
+}
+.material-symbols-outlined {
+  vertical-align: middle;
+}
+.ui-menu { 
+  width: 150px;
+  color: gray;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: .8em;
+}
+#menuContainer {
+  position: absolute;
+  top: 30px;
+  right: 8px;
+  z-index: 300;
 }

@@ -4,6 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,1,0" />
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -20,14 +21,33 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
 .w3-bar,h1,button {font-family: "Montserrat", sans-serif}
 .fa-anchor,.fa-coffee {font-size:200px}
 .dropdown {position: relative; display: inline-block; width: 150px}
-.dropdown-content {display: none; position: absolute; z-index: 2000; width: 100%; background-color:#f1f1f1; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2)} 
+.dropdown-content {display: none; position: absolute; z-index: 200; width: 100%; background-color:#f1f1f1; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2)} 
 .timel {display: block; width: 100%; text-align: center;}
 .show {display:block;}
 div.hide {display: none;}
 </style>
     <body>
         <div id="status_msg" class="warning hide" onclick="hideMsg()"></div>
-        <h1>California Big Tree Cluster Tracker </h1>
+        <div id="menuContainer" style="display:none;">
+            <ul id="menuList">
+                <li>
+                    <div id="logout" title="Switch between authorized accounts">
+                        <span class="material-symbols-outlined">switch_account</span>
+                        Switch Login
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div>
+            <div id="btnMenuDiv">
+                <div id="btnMenu" title="Show/hide menu">
+                    <span class="material-symbols-outlined">menu</span>
+                </div>
+            </div>
+            <div>
+                <h1>California Big Tree Cluster Tracker </h1>
+            </div>
+        </div>
         <script>
             dataHost = 'https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/';
             taxoniumHost = ['https%3A%2F%2Ftaxonium.cluster-tracker.big-tree.ucsc.edu%2F', 'https%3A%2F%2Fclustertracker-california-taxonium-backend-6twdguah7a-uw.a.run.app'];
@@ -129,6 +149,20 @@ div.hide {display: none;}
            document.getElementById('script-main').src = 'scripts/main.js?v=' + ver;
            document.getElementById('script-region').src = 'https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/regions.js?v=' + ver;
            document.getElementById('script-region_us').src = 'https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/regions_us.js?v=' + ver;
+
+           //attaches events to menu
+           $( function() {
+             $( "#menuList" ).menu();
+           } );
+           $('#btnMenu').click(function(){ 
+            const el = document.getElementById("menuContainer");
+            if (el.style.display == "none") {
+                el.style.display = "inline";
+            } else {
+                el.style.display = "none";
+            }
+            return false; });
+           $('#logout').click(function(){ window.open('?gcp-iap-mode=CLEAR_LOGIN_COOKIE', '_self'); return false;});
 
            //checks data update status and triggers alert if needed
            readStatus();
