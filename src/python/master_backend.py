@@ -21,6 +21,7 @@ def parse_setup():
     parser.add_argument("-X","--lookahead",type=int,help="Number to pass to parameter -X of introduce. Increase to merge nested clusters. Default 2", default = 2)
     parser.add_argument("-H","--host",help="Web-accessible link to the current directory for taxonium cluster view.")
     parser.add_argument("-T","--title",help="Title to display in Taxonium.", default = "Cluster Tracker")
+    parser.add_argument("-r","--num_to_report",help="Report the top r potential origins for any given cluster from a region in multi-region mode. Set to 0 to report as many as possible.", default="")
     
     args = parser.parse_args()
     return args
@@ -49,6 +50,10 @@ def primary_pipeline(args):
     tax_fields = "cluster,region"
     if args.taxonium_fields is not None:
         tax_fields += "," + args.taxonium_fields
+    #number of potential origins to report
+    norigins = ""
+    if args.num_to_report != "":
+        norigins = " -r " + str(args.num_to_report)
     
     # check that GeoJSON file is formatted as required
     if len(jsons) > 0:
@@ -83,9 +88,9 @@ def primary_pipeline(args):
 
         print("Calling introduce.")
         if dfile == "":
-            subprocess.check_call("matUtils introduce -i " + ifile + " -s " + sfile + " -u "+ ufile + " -T " + str(args.threads) + " -X " + str(args.lookahead), shell=True)
+            subprocess.check_call("matUtils introduce -i " + ifile + " -s " + sfile + norigins + " -u "+ ufile + " -T " + str(args.threads) + " -X " + str(args.lookahead), shell=True)
         else:
-            subprocess.check_call("matUtils introduce -i " + ifile + " -s " + sfile + " -M " + dfile + " -u "+ ufile + " -T " + str(args.threads) + " -X " + str(args.lookahead), shell=True)
+            subprocess.check_call("matUtils introduce -i " + ifile + " -s " + sfile + " -M " + dfile + norigins + " -u "+ ufile + " -T " + str(args.threads) + " -X " + str(args.lookahead), shell=True)
 
         print("Updating map display data.")
         update_js(jfile, conversion, ext)

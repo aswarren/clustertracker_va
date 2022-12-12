@@ -53,5 +53,6 @@ process_metadata(args.lexicon, args.metadata, args.merge_metafile, args.region_e
 args.metadata = "metadata_merged.tsv"
 args.sample_regions = "sample_regions.tsv"
 args.date_metadata = "sample_dates.tsv"
+args.num_to_report = "0"
 print("Starting main pipeline.")
 primary_pipeline(args)
