@@ -1,7 +1,9 @@
 # Changelog
 
-## v.0.6.7 (2022-12-08):
+## v.0.6.7 (2022-12-12):
    - UI changes: adds options menu with function to change Google login account
+   - UI changes: show pagination options by default
+   - Data processing: add ability to show all calculated potential cluster origins
 ## v.0.6.6 (2022-11-10):
    - UI changes: adds ability to search using multiple search terms separated by a comma and to use boolean and/or.
 ## v.0.6.5 (2022-10-25):

@@ -450,6 +450,8 @@ function setGridView() {
 
   // adds pagination
   let pager = new Slick.Controls.Pager(dataView, grid, $('#pager'));
+  // expand pager by default
+  $(".slick-pager-settings-expanded").toggle()
   // sets # of items to display by default
   dataView.setPagingOptions({pageSize: 20});
 
