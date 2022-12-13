@@ -131,7 +131,7 @@ def generate_display_tables(extension = [''], isWDL = False):
         txt_data = "["
         txt_samples = "["
         for i, d in enumerate(cluster_data):
-            outline_data = [addq(d[0]), addq(d[9]), d[1], addq(d[2]), addq(d[3]), addq(d[12]), addq(d[13]), addq(d[10]), d[11], addq(d[-1])]
+            outline_data = [addq(d[0]), addq(d[9]), d[1], addq(d[2]), addq(d[3]), addq(d[12]), addq(d[13]), addq(d[10]), addq(d[11]), addq(d[-1])]
             outline_samples = [addq(d[15])]
             if is_custom:
                 # get the number of PAUIS
