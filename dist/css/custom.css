@@ -131,7 +131,7 @@ h2 {
   position: fixed;
   top: 0;
   right: 0;
-  z-index: 1000;
+  z-index: 3000;
   padding: 0px;
   width:  300px;
   opacity: 0.9;
@@ -209,5 +209,5 @@ div.hide {
   position: absolute;
   top: 30px;
   right: 8px;
-  z-index: 300;
+  z-index: 2000;
 }
