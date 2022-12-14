@@ -117,6 +117,12 @@ def generate_display_tables(extension = [''], isWDL = False):
                     if int(spent[1]) <= 5:
                         # add asterisk on growth value
                         spent[-1] = spent[-1] + "*"
+                    #put potential origins and indices in descending order
+                    if "," in spent[10]:
+                        vals = spent[10].split(",")
+                        spent[10] = ",".join(vals[::-1])
+                        vals = spent[11].split(",")
+                        spent[11] = ",".join(vals[::-1])
                     cluster_data.append(spent)
         
         #now, sort by growth score
