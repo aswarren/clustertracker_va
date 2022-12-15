@@ -119,10 +119,18 @@ def generate_display_tables(extension = [''], isWDL = False):
                         spent[-1] = spent[-1] + "*"
                     #put potential origins and indices in descending order
                     if "," in spent[10]:
-                        vals = spent[10].split(",")
-                        spent[10] = ",".join(vals[::-1])
-                        vals = spent[11].split(",")
-                        spent[11] = ",".join(vals[::-1])
+                        #check if all confidences are equal
+                        reorder = False
+                        confidences = spent[11].split(",")
+                        firsti = confidences[0]
+                        for i in range(1, len(confidences)):
+                            if confidences[i] != firsti:
+                                reorder = True
+                                break
+                        if reorder:
+                            origins = spent[10].split(",")
+                            spent[10] = ",".join(origins[::-1])
+                            spent[11] = ",".join(confidences[::-1])
                     cluster_data.append(spent)
         
         #now, sort by growth score
