@@ -506,21 +506,33 @@ function setGridView() {
   // set up double click event to trigger popup
   grid.onDblClick.subscribe((e, p) => {
     // p.row, p.cell
-    if (p.cell === 12 || p.cell === 13) {
+    if (p.cell === 12 || p.cell === 13 || p.cell === 7 || p.cell === 8) {
       let txt = '';
       let ttl = '';
       if (p.cell === 12) {
         // get sample names from data
         txt = grid.getDataItem(p.row).samples;
+        txt = txt.replace(/,/g, ',<br/>');
         ttl = 'Samples';
       } else if (p.cell === 13) {
         txt = grid.getDataItem(p.row).pauis;
+        txt = txt.replace(/,/g, ',<br/>');
         ttl = 'Specimen IDs';
+      } else if (p.cell === 7 || p.cell === 8) {
+        txt = grid.getDataItem(p.row).origin;
+        const origins = txt.split(',');
+        txt = grid.getDataItem(p.row).confidence;
+        const conf = txt.split(',');
+        txt = '<table class="grdInfoTable"><tr><th>Origin</th><th>Regional Index</th></tr>';
+        for (let i = 0; i < origins.length; i++) {
+          txt += '<tr><td>' + origins[i] + '</td><td class="ctr">' + conf[i] + '</td></tr>';
+        }
+        txt += '</table>';
+        ttl = 'Best Potential Origins and Indices';
       }
       $('<div id="sample-popup"></div>').dialog({
         title: ttl,
         open: function() {
-          txt = txt.replace(/,/g, ',<br/>');
           $(this).html(txt);
           $(this).dblclick(function() {
             $(this).dialog('close');
