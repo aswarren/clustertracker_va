@@ -103,6 +103,20 @@ def generate_display_tables(extension = [''], isWDL = False):
                         sample_pids[spent[0]] = pids_arr
                         ids = ",".join(pids_arr)
                     spent.append(ids)
+                #put potential origins and indices in descending order
+                if "," in spent[10]:
+                    #check if all confidences are equal
+                    reorder = False
+                    confidences = spent[11].split(",")
+                    firsti = confidences[0]
+                    for i in range(1, len(confidences)):
+                        if confidences[i] != firsti:
+                            reorder = True
+                            break
+                    if reorder:
+                        origins = spent[10].split(",")
+                        spent[10] = ",".join(origins[::-1])
+                        spent[11] = ",".join(confidences[::-1])
                 #add additional field to handle asterisked growth values
                 spent.append(spent[4])
                 #check for cluster with no-valid-dates
@@ -117,20 +131,6 @@ def generate_display_tables(extension = [''], isWDL = False):
                     if int(spent[1]) <= 5:
                         # add asterisk on growth value
                         spent[-1] = spent[-1] + "*"
-                    #put potential origins and indices in descending order
-                    if "," in spent[10]:
-                        #check if all confidences are equal
-                        reorder = False
-                        confidences = spent[11].split(",")
-                        firsti = confidences[0]
-                        for i in range(1, len(confidences)):
-                            if confidences[i] != firsti:
-                                reorder = True
-                                break
-                        if reorder:
-                            origins = spent[10].split(",")
-                            spent[10] = ",".join(origins[::-1])
-                            spent[11] = ",".join(confidences[::-1])
                     cluster_data.append(spent)
         
         #now, sort by growth score
