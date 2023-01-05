@@ -1,5 +1,7 @@
 # Changelog
 
+## v.0.6.8 (2023-01-04):
+   - updated JS libraries
 ## v.0.6.7 (2022-12-15):
    - UI changes: adds options menu with function to change Google login account
    - UI changes: show pagination options by default

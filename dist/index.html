@@ -10,9 +10,9 @@
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="manifest" href="/site.webmanifest" crossorigin="use-credentials">
-<link rel="stylesheet" href="lib/slickgrid/slick.grid.css" type="text/css"/>
+<link rel="stylesheet" href="lib/slickgrid/slick.grid.min.css" type="text/css"/>
 <link rel="stylesheet" href="lib/jquery-ui/jquery-ui.min.css" type="text/css"/>
-<link rel="stylesheet" href="lib/slickgrid/controls/slick.pager.css" type="text/css"/>
+<link rel="stylesheet" href="lib/slickgrid/controls/slick.pager.min.css" type="text/css"/>
 <link rel="stylesheet" href="lib/leafletjs/leaflet.css" type="text/css"/>
 <link rel="stylesheet" href="css/gridstyles.css" type="text/css"/>
 <link rel="stylesheet" href="css/custom.css" type="text/css"/>
@@ -142,7 +142,6 @@ div.hide {display: none;}
         <script src="scripts/main.js" id="script-main"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <script>!window.jQuery && document.write('<script src="lib/jquery/jquery.min.js"><\/script>')</script>
-        <!-- <script src="lib/bootstrap/bootstrap.bundle.min.js"></script> -->
         <script type="text/javascript">
            // prevents loading from browser cache
            const ver = Date.now();
@@ -167,23 +166,24 @@ div.hide {display: none;}
            //checks data update status and triggers alert if needed
            readStatus();
         </script>
-        <!-- SlickGrid: core jquery libs -->
         <script src="lib/jquery-ui/jquery-ui.min.js"></script>
-        <script src="lib/slickgrid/lib/jquery.event.drag-2.3.0.js"></script>
+        <!-- SlickGrid: dependencies -->
+        <script src="lib/sortablejs/Sortable.min.js"></script>
         <!-- SlickGrid: core js-->
-        <script src="lib/slickgrid/slick.core.js"></script>
-        <script src="lib/slickgrid/slick.grid.js"></script>
-        <script src="lib/slickgrid/slick.dataview.js"></script>
-        <script src="lib/slickgrid/controls/slick.pager.js"></script>
+        <script src="lib/slickgrid/slick.core.min.js"></script>
+        <script src="lib/slickgrid/slick.interactions.min.js"></script>
+        <script src="lib/slickgrid/slick.grid.min.js"></script>
+        <script src="lib/slickgrid/slick.dataview.min.js"></script>
+        <script src="lib/slickgrid/controls/slick.pager.min.js"></script>
         <!-- SlickGrid: copy cells -->
-        <script src="lib/slickgrid/plugins/slick.cellexternalcopymanager.js"></script>
-        <script src="lib/slickgrid/plugins/slick.cellselectionmodel.js"></script>
-        <script src="lib/slickgrid/plugins/slick.cellrangedecorator.js"></script>
-        <script src="lib/slickgrid/plugins/slick.cellrangeselector.js"></script>
+        <script src="lib/slickgrid/plugins/slick.cellexternalcopymanager.min.js"></script>
+        <script src="lib/slickgrid/plugins/slick.cellselectionmodel.min.js"></script>
+        <script src="lib/slickgrid/plugins/slick.cellrangedecorator.min.js"></script>
+        <script src="lib/slickgrid/plugins/slick.cellrangeselector.min.js"></script>
         <!-- SlickGrid: resize columns -->
-        <script src="lib/slickgrid/plugins/slick.resizer.js"></script>
+        <script src="lib/slickgrid/plugins/slick.resizer.min.js"></script>
         <!-- Slick Grid: tool tip -->
-        <script src="lib/slickgrid/plugins/slick.customtooltip.js"></script>
+        <script src="lib/slickgrid/plugins/slick.customtooltip.min.js"></script>
         <!-- Gets data and loads into Slick Grid table -->
         <script src="scripts/datagrid.js"></script>
         <script>

@@ -1,4 +1,4 @@
-@import url('../lib/slickgrid/slick-default-theme.css');
+@import url('../lib/slickgrid/slick-default-theme.min.css');
 
 #myGrid, #pager, #searchbox, div.ui-dialog {
   font-family: arial;
