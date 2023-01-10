@@ -49,11 +49,14 @@ div.hide {display: none;}
             </div>
         </div>
         <script>
-            dataHost = 'https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/';
-            taxoniumHost = ['https%3A%2F%2Ftaxonium.cluster-tracker.big-tree.ucsc.edu%2F', 'https%3A%2F%2Fclustertracker-california-taxonium-backend-6twdguah7a-uw.a.run.app'];
-            cDataFile = 'cluster_data.json.gz';
-            cSampleFile = 'sample_data.json.gz';
-            ext = '';
+            const dataHost = 'https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/';
+            const taxoniumHost = ['https%3A%2F%2Ftaxonium.cluster-tracker.big-tree.ucsc.edu%2F', 'https%3A%2F%2Fclustertracker-california-taxonium-backend-6twdguah7a-uw.a.run.app'];
+            const cDataFile = 'cluster_data.json.gz';
+            const cSampleFile = 'sample_data.json.gz';
+            var ext = '';
+            // map settings
+            const mapCenter = [36.77, -119.418];
+            const mapInitialZoom = 5;
 
 
             function showList() {

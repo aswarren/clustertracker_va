@@ -1,4 +1,11 @@
-var map = L.map('mapid', {'tap': false}).setView([36.77, -119.418], 5);
+const map = L.map('mapid', {'tap': false}).setView(L.latLng(mapCenter), mapInitialZoom);
+// set max zoomed out extent via bounds and minZoom
+const southWest = L.latLng(-90, -179);
+const northEast = L.latLng(90, 0);
+const bounds = L.latLngBounds(southWest, northEast);
+map.setMaxBounds(bounds);
+map.options.minZoom = 2;
+
 var global_state = "default";
 var global_time = "";
 var global_state_id = "00";

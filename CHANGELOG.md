@@ -1,6 +1,7 @@
 # Changelog
 
-## v.0.6.8 (2023-01-04):
+## v.0.6.8 (2023-01-10):
+   - added maximum lat/long boundaries and minumim zoom level to Leaflet map
    - updated JS libraries
 ## v.0.6.7 (2022-12-15):
    - UI changes: adds options menu with function to change Google login account
