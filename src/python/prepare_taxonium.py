@@ -59,7 +59,8 @@ def prepare_taxonium(sample_regions_file, mfile, extension=[''], isWDL = False):
                 #to account for blank values. 
                 i = 0
                 for entry in inf:
-                    spent = entry.strip().split("\t")
+                    spent = entry.split("\t")
+                    spent[-1] = spent[-1].strip() #remove newline char
                     if i == 0:
                         spent.append("cluster")
                         spent.append("region")

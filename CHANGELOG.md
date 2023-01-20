@@ -1,5 +1,7 @@
 # Changelog
 
+## v.0.6.9 (2023-01-20):
+   - Data processing: fixes bug in reading metadata file when there are blank metadata elements at the end of the line.
 ## v.0.6.8 (2023-01-10):
    - added maximum lat/long boundaries and minumim zoom level to Leaflet map
    - updated JS libraries
