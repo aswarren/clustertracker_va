@@ -103,13 +103,13 @@ div.hide {display: none;}
             </p>
         </div>
         <div id="searchbox">
-            <div id="accordion">
+            <div id="simpleSearch">
                 <h3>Search</h3>
                 <div class="colContainer">
                     <div class="lSide">
                         <input type="text" id="txtSearch" placeholder="Search across all columns...">
                         <button onclick="doSimpleSearch();" id="btnSimpleSearch">Search</button>
-                        <button onclick="clearFilter();" id="btnClearSearch">Clear</button>
+                        <button onclick="clearSearch();" id="btnClearSearch">Clear</button>
                         <div class="searchNote">
                             Separate multiple search terms with a comma. Do not use spaces between search terms.
                         </div>
@@ -124,6 +124,39 @@ div.hide {display: none;}
                             <input type="radio" name="bool" value="or" id="boolOr">
                             <label for="boolOr">OR (contains ANY search term)</label>
                         </div>
+                    </div>
+                </div>
+            </div>
+            <div id="advancedSearch">
+                <h3>Advanced Filter</h3>
+                <div class="colContainer">
+                    <div class="lSide">
+                        <table class="layout">
+                            <tr>
+                                <td>Growth Score &nbsp;</td>
+                                <td>From: 
+                                <input type="number" id="txtGrowthMin" placeholder="Min" min="0"></td>
+                                <td>To:
+                                <input type="number" id="txtGrowthMax" placeholder="Max" min="0"></td>
+                            </tr>
+                            <tr>
+                                <td>Cluster Size</td>
+                                <td>From: 
+                                <input type="number" id="txtSizeMin" placeholder="Min" min="1"></td>
+                                <td>To:
+                                <input type="number" id="txtSizeMax" placeholder="Max" min="1"></td>
+                            </tr>
+                            <tr>
+                                <td>Cluster Date</td><td>From: 
+                                <input type="text" id="txtDateMin" placeholder="Min"></td>
+                                <td>To:
+                                <input type="text" id="txtDateMax" placeholder="Max"></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="rSide">
+                        <button onclick="doAdvSearch()" id="btnAdvSearch">Search</button>
+                        <button onclick="clearAdvSearch()" id="btnClearAdvSearch">Clear</button>
                     </div>
                 </div>
             </div>
@@ -165,6 +198,11 @@ div.hide {display: none;}
             }
             return false; });
            $('#logout').click(function(){ window.open('?gcp-iap-mode=CLEAR_LOGIN_COOKIE', '_self'); return false;});
+           //attaches datepicker to advanced search boxes
+           $( function() {
+               $("#txtDateMin").datepicker({ dateFormat: 'yy-mm-dd' });
+               $("#txtDateMax").datepicker({ dateFormat: 'yy-mm-dd' });
+           } );
 
            //checks data update status and triggers alert if needed
            readStatus();
@@ -192,9 +230,14 @@ div.hide {display: none;}
         <script>
             // set jquery-ui accordian params
             $( function() {
-                $( "#accordion" ).accordion({
+                $( "#simpleSearch" ).accordion({
                   collapsible: true,
                   heightStyle: "content"
+                });
+                $( "#advancedSearch" ).accordion({
+                  collapsible: true,
+                  heightStyle: "content",
+                  active: false,
                 });
               } );
             // itialize grid

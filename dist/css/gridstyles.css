@@ -36,6 +36,20 @@ div.rSide {display:inline-block;}
   font-style: italic;
   width: 320px;
 }
+#txtGrowthMin, #txtGrowthMax, #txtSizeMin, #txtSizeMax {
+  border: 1px solid gray;
+  width: 70px;
+}
+#txtDateMin, #txtDateMax {
+  border: 1px solid gray;
+  width: 90px;
+}
+table.layout { 
+  border: none;
+  font-family: Verdana,Arial,sans-serif;
+  font-size: 100%;
+  line-height: normal;
+}
 
 /* header height */
 .slick-column-name { white-space: normal; }

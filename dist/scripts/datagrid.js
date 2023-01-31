@@ -17,7 +17,16 @@ const workerScript = `
   `;
 let sortcol = ''; // default column to sort on
 let sortdir = -1; // default sort direction (descending)
-let searchString = ''; // string used to search and sort grid
+let searchString = ''; // string used to search the grid across all columns
+let searchAdvancedFlag = false; // flag to use advanced filtering or not
+let gridFilters = { // advanced grid filtering options
+  minGrowth: '',
+  maxGrowth: '',
+  minDate: '',
+  maxDate: '',
+  minSize: '',
+  maxSize: '',
+};
 let regionString = ''; // string to filter grid by region
 let searchBool = 'and'; // boolean search operator ('and' or 'or')
 
@@ -304,9 +313,29 @@ function registerResizer(grid) {
 }
 
 // == grid filtering and sorting ==
-function clearFilter() {
+function clearSearch() {
   document.getElementById('txtSearch').value = '';
   searchString = '';
+  if (basicDataLoaded && sampleDataLoaded) {
+    updateFilter();
+  }
+}
+function clearAdvSearch() {
+  document.getElementById('txtGrowthMin').value = '';
+  document.getElementById('txtGrowthMax').value = '';
+  document.getElementById('txtSizeMin').value = '';
+  document.getElementById('txtSizeMax').value = '';
+  document.getElementById('txtDateMin').value = '';
+  document.getElementById('txtDateMax').value = '';
+  searchAdvancedFlag = false;
+  gridFilters = {
+    minGrowth: '',
+    maxGrowth: '',
+    minDate: '',
+    maxDate: '',
+    minSize: '',
+    maxSize: '',
+  };
   if (basicDataLoaded && sampleDataLoaded) {
     updateFilter();
   }
@@ -326,10 +355,87 @@ function doSimpleSearch() {
     updateFilter();
   }
 }
+function validateAdvSearch(minField, maxField, varName) {
+  let minVal = document.getElementById(minField).value.trim();
+  let maxVal = document.getElementById(maxField).value.trim();
+  let strWarn = 'Advanced Filter Error: ';
+  // first, check valid entry ranges
+  if (varName == 'Cluster Date') {
+    // check date format
+    if (minVal != '' && minVal.search(/\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])/) < 0) {
+      alert(strWarn + 'Please enter a valid date for the minimum ' + varName + '.');
+      return false;
+    } else {
+      minVal = minVal.replace(/\-/g, '');
+    }
+    if (maxVal != '' && maxVal.search(/\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])/) < 0) {
+      alert(strWarn + 'Please enter a valid date for the maximum ' + varName + '.');
+      return false;
+    } else {
+      maxVal = maxVal.replace(/\-/g, '');
+    }
+  } else {
+    if (Number.isNaN(minVal)) {
+      alert(strWarn + 'Please enter a valid value for the minimum ' + varName + '.');
+      return false;
+    }
+    if (Number.isNaN(maxVal)) {
+      alert(strWarn + 'Please enter a valid value for the maximum ' + varName + '.');
+      return false;
+    }
+    if (varName == 'Growth Score') {
+      if (Number(minVal) < 0) {
+        alert(strWarn + 'The minimum ' + varName + ' must be 0 or larger.');
+        return false;
+      }
+    } else if (varName == 'Cluster Size') {
+      if (minVal.trim() != '' && Number(minVal) < 1) {
+        alert(strWarn + 'The minimum ' + varName + ' must be 1 or larger.');
+        return false;
+      }
+      if (!Number.isInteger(Number(minVal)) || !Number.isInteger(Number(maxVal))) {
+        alert(strWarn + varName + ' values must be an integer.');
+        return false;
+      }
+    }
+  }
+  // next check min > max
+  if (maxVal != '' && Number(minVal) > Number(maxVal)) {
+    alert(strWarn + 'The minimum ' + varName + ' exceeds the maximum value.');
+    return false;
+  }
+  return true;
+}
+// triggers advanced search on button click
+function doAdvSearch() {
+  // validate options
+  const validGVs = validateAdvSearch('txtGrowthMin', 'txtGrowthMax', 'Growth Score');
+  const validDates = validateAdvSearch('txtDateMin', 'txtDateMax', 'Cluster Date');
+  const validSize = validateAdvSearch('txtSizeMin', 'txtSizeMax', 'Cluster Size');
+
+  if (validGVs && validDates && validSize) {
+    gridFilters.minGrowth = document.getElementById('txtGrowthMin').value.trim();
+    gridFilters.maxGrowth = document.getElementById('txtGrowthMax').value.trim();
+    gridFilters.minDate = document.getElementById('txtDateMin').value.trim();
+    gridFilters.maxDate = document.getElementById('txtDateMax').value.trim();
+    gridFilters.minSize = document.getElementById('txtSizeMin').value.trim();
+    gridFilters.maxSize = document.getElementById('txtSizeMax').value.trim();
+    // check to see if all search terms are blank or not
+    for (const key of Object.keys(gridFilters)) {
+      if (gridFilters[key] != '') {
+        searchAdvancedFlag = true;
+        break;
+      }
+    }
+    if (basicDataLoaded && sampleDataLoaded) {
+      updateFilter();
+    }
+  }
+}
 // sets which data to search on
 function searchFilter(item, args) {
   // show items if no region and no search string
-  if (args.searchString === '' && args.regionString === '') {
+  if (args.searchString === '' && args.regionString === '' && !searchAdvancedFlag) {
     return true;
   }
 
@@ -337,6 +443,40 @@ function searchFilter(item, args) {
   // filter out items not in the region
   if (args.regionString !== '' && item.region.indexOf(regionString) === -1) {
     return false;
+  }
+
+  // next, filter on advanced search criteria
+  if (searchAdvancedFlag) {
+    if (gridFilters.minGrowth != '') {
+      if (parseFloat(item['growth']) < parseFloat(gridFilters.minGrowth)) {
+        return false;
+      }
+    }
+    if (gridFilters.maxGrowth != '') {
+      if (parseFloat(item['growth']) > parseFloat(gridFilters.maxGrowth)) {
+        return false;
+      }
+    }
+    if (gridFilters.minSize != '') {
+      if (parseInt(item['sampcount']) < parseInt(gridFilters.minSize)) {
+        return false;
+      }
+    }
+    if (gridFilters.maxSize != '') {
+      if (parseInt(item['sampcount']) > parseInt(gridFilters.maxSize)) {
+        return false;
+      }
+    }
+    if (gridFilters.minDate != '') {
+      if (parseInt(item['earliest'].replace(/\-/g, '')) < parseInt(gridFilters.minDate.replace(/\-/g, ''))) {
+        return false;
+      }
+    }
+    if (gridFilters.maxDate != '') {
+      if (parseInt(item['latest'].replace(/\-/g, '')) > parseInt(gridFilters.maxDate.replace(/\-/g, ''))) {
+        return false;
+      }
+    }
   }
 
   // now, check for search items
