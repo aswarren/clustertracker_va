@@ -20,6 +20,26 @@ div.ui-dialog {line-height: normal;}
 #txtSearch {
   border: 1px solid gray;
   width: 320px;
+  margin-top: 4px;
+}
+.accordion-body {
+  display: flex;
+  flex-direction: row;
+}
+.simpleSearch {
+  flex: 3;
+  order: 1;
+  margin-right: 5px;
+}
+.advSearch {
+  flex: 3;
+  order: 2;
+  min-width: 350px;
+}
+.searchBtns {
+  flex: 1;
+  order: 3;
+  margin-top: 14px;
 }
 .colContainer {display: flex;}
 .lSide {
@@ -31,7 +51,22 @@ div.ui-dialog {line-height: normal;}
   text-align: left;
 }
 div.rSide {display:inline-block;}
-.searchSubt {}
+.searchSubT {
+  font-family: Verdana,Arial,sans-serif;
+  font-size: 1.1em;
+  font-weight: 600;
+  color: gray;
+  margin-bottom: 0px;
+  margin-top: 0px;
+}
+.searchSubSubT {
+  font-family: Verdana,Arial,sans-serif;
+  font-size: 1em;
+  font-weight: 600;
+  color: gray;
+  margin-bottom: 0px;
+  margin-top: 5px;
+}
 .searchNote {
   font-style: italic;
   width: 320px;
@@ -49,6 +84,11 @@ table.layout {
   font-family: Verdana,Arial,sans-serif;
   font-size: 100%;
   line-height: normal;
+}
+@media (max-width: 400px){
+.faccordion-body {
+    flex-direction: column;
+  }
 }
 
 /* header height */

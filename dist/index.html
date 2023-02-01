@@ -102,35 +102,31 @@ div.hide {display: none;}
             <p>The California Big Tree Cluster Tracker combines sequence data from the <a title="Repository containing daily-updated comprehensive global phylogenetic trees for SARS-CoV-2" target="_blank" href="https://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/">global public SARS-CoV-2 phylogenetic tree</a> and sequences in California’s central repository in Terra. The Cluster Tracker applies a <a title="Wiki page describing the heuristic calculation." target="_blank" href="https://usher-wiki.readthedocs.io/en/latest/matUtils.html#introduce">heuristic</a> to identify groups of sequences in a given region that may have recently arrived from another region. These groups may reflect cases of an infected traveler entering a region, followed by local spread. Note that biases might affect these results: relative local sequencing effort, the rate sequences arrive in repositories, and accuracy of reconstructed evolutionary relationships. You can view each <span class="definition" title="The set of sequences within a region that are inferred to result from a single introduction via travel.">cluster</span> in <a title="link to California Big Tree Investigator" href="https://investigator.big-tree.ucsc.edu/" target="_blank">CA Big Tree Investigator</a> or <a title="Github repository for the Taxonium browser tree viewer" href="https://github.com/theosanderson/taxonium" target="_blank">Taxonium</a> and perform your own analysis with UCSC’s <a title="Github repository for UShER" href="https://github.com/yatisht/usher" target="_blank">UShER</a> after downloading the output files from the link below the table.
             </p>
         </div>
+        
         <div id="searchbox">
-            <div id="simpleSearch">
-                <h3>Search</h3>
-                <div class="colContainer">
-                    <div class="lSide">
-                        <input type="text" id="txtSearch" placeholder="Search across all columns...">
-                        <button onclick="doSimpleSearch();" id="btnSimpleSearch">Search</button>
-                        <button onclick="clearSearch();" id="btnClearSearch">Clear</button>
-                        <div class="searchNote">
-                            Separate multiple search terms with a comma. Do not use spaces between search terms.
-                        </div>
+            <div class="accordion">
+                <div class="accordion-head">Search</div>
+                <div class="accordion-body">
+                    <div class="simpleSearch">
+                        
+                                <p class="searchSubT">Simple Text Search</p>
+                                <input type="text" id="txtSearch" placeholder="Search across all columns...">
+                                <div class="searchNote">
+                                    Separate multiple search terms with a comma. Do not use spaces between search terms.
+                                </div>
+                            
+                                <p class=searchSubSubT>Boolean Search Options</p>
+                                <div>
+                                    <input type="radio" checked="checked" name="bool" value="and" id="boolAnd">
+                                    <label for="boolAnd">AND (contains ALL search terms)</label>
+                                </div>
+                                <div>
+                                    <input type="radio" name="bool" value="or" id="boolOr">
+                                    <label for="boolOr">OR (contains ANY search term)</label>
+                                </div>
                     </div>
-                    <div class="rSide">
-                        <span class=searchSubt>Boolean Search Options</span><br>
-                        <div>
-                            <input type="radio" checked="checked" name="bool" value="and" id="boolAnd">
-                            <label for="boolAnd">AND (contains ALL search terms)</label>
-                        </div>
-                        <div>
-                            <input type="radio" name="bool" value="or" id="boolOr">
-                            <label for="boolOr">OR (contains ANY search term)</label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div id="advancedSearch">
-                <h3>Advanced Filter</h3>
-                <div class="colContainer">
-                    <div class="lSide">
+                    <div class="advSearch">
+                        <p class="searchSubT">Advanced Filter Options</p>
                         <table class="layout">
                             <tr>
                                 <td>Growth Score &nbsp;</td>
@@ -154,9 +150,9 @@ div.hide {display: none;}
                             </tr>
                         </table>
                     </div>
-                    <div class="rSide">
-                        <button onclick="doAdvSearch()" id="btnAdvSearch">Search</button>
-                        <button onclick="clearAdvSearch()" id="btnClearAdvSearch">Clear</button>
+                    <div class="searchBtns">
+                        <button onclick="doSearch();" id="btnSimpleSearch">Search</button>
+                        <button onclick="clearSearch();" id="btnClearSearch">Clear</button>
                     </div>
                 </div>
             </div>
@@ -230,16 +226,24 @@ div.hide {display: none;}
         <script>
             // set jquery-ui accordian params
             $( function() {
-                $( "#simpleSearch" ).accordion({
+                $("div.accordianOpen").accordion({
                   collapsible: true,
                   heightStyle: "content"
                 });
-                $( "#advancedSearch" ).accordion({
+                $("div.accordianClosed").accordion({
                   collapsible: true,
                   heightStyle: "content",
                   active: false,
                 });
               } );
+            $(".accordion").accordion({
+                header: ">.accordion-head", //Note the selector change
+                collapsible: true,
+                heightStyle: "content"
+            });
+            $(".collapsed").accordion({
+                active: false,
+            });
             // itialize grid
             initCTGrid(dataHost, taxoniumHost, cDataFile, cSampleFile);
         </script>
