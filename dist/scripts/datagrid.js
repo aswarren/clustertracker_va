@@ -30,6 +30,7 @@ let filterArgs = { // grid filter arguments
     minSize: '',
     maxSize: '',
   },
+  onlyValidDates: false,
 };
 
 
@@ -325,6 +326,7 @@ function clearSearch() {
   document.getElementById('txtSizeMax').value = '';
   document.getElementById('txtDateMin').value = '';
   document.getElementById('txtDateMax').value = '';
+  document.getElementById('chkValidDates').checked = false;
   filterArgs.searchString = '';
   filterArgs.searchBool = 'and';
   filterArgs.searchAdvancedFlag = false;
@@ -336,6 +338,7 @@ function clearSearch() {
     minSize: '',
     maxSize: '',
   };
+  filterArgs.onlyValidDates = false;
   if (basicDataLoaded && sampleDataLoaded) {
     updateFilter();
   }
@@ -346,6 +349,7 @@ function doSearch() {
   // check advanced options
   let validVals = true;
   let searchAdvancedFlag = false;
+  let onlyValidDates = false;
   const gridFilters = {
     minGrowth: document.getElementById('txtGrowthMin').value.trim(),
     maxGrowth: document.getElementById('txtGrowthMax').value.trim(),
@@ -368,6 +372,10 @@ function doSearch() {
   if (!validGVs || !validDates || !validSize) {
     validVals = false;
   }
+  // exclude 'no-valid-date' clusters
+  if (document.getElementById('chkValidDates').checked) {
+    onlyValidDates = true;
+  }
 
   // basic text search
   const searchString = document.getElementById('txtSearch').value;
@@ -383,6 +391,7 @@ function doSearch() {
     filterArgs.searchBool = searchBool;
     filterArgs.searchAdvancedFlag = searchAdvancedFlag;
     filterArgs.gridFilters = gridFilters;
+    filterArgs.onlyValidDates = onlyValidDates;
     updateFilter();
   }
 }
@@ -439,6 +448,12 @@ function validateAdvSearch(minField, maxField, varName) {
 }
 // sets which data to search on
 function searchFilter(item, args) {
+  // filter out any 'no-valid-date' clusters
+  if (args.onlyValidDates) {
+    if (item['earliest'] == 'no-valid-date') {
+      return false;
+    }
+  }
   // show items if no region and no search string
   if (args.searchString === '' && args.regionString === '' && !args.searchAdvancedFlag) {
     return true;
@@ -479,6 +494,11 @@ function searchFilter(item, args) {
     }
     if (args.gridFilters.maxDate != '') {
       if (parseInt(item['latest'].replace(/\-/g, '')) > parseInt(args.gridFilters.maxDate.replace(/\-/g, ''))) {
+        return false;
+      }
+    }
+    if (args.gridFilters.minDate != '' & args.gridFilters.maxDate != '') {
+      if (item['earliest'] == 'no-valid-date') {
         return false;
       }
     }
@@ -534,6 +554,7 @@ function updateFilter() {
     searchBool: filterArgs.searchBool,
     searchAdvancedFlag: filterArgs.searchAdvancedFlag,
     gridFilters: filterArgs.gridFilters,
+    onlyValidDates: filterArgs.onlyValidDates,
   });
   dataView.refresh();
 }
@@ -723,6 +744,7 @@ function setGridView() {
     searchBool: 'and',
     searchAdvancedFlag: false,
     gridFilters: {},
+    onlyValidDates: false,
   });
   dataView.setFilter(searchFilter);
   dataView.endUpdate();

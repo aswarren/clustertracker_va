@@ -129,24 +129,38 @@ div.hide {display: none;}
                         <p class="searchSubT">Advanced Filter Options</p>
                         <table class="layout">
                             <tr>
-                                <td>Growth Score &nbsp;</td>
-                                <td>From: 
-                                <input type="number" id="txtGrowthMin" placeholder="Min" min="0"></td>
-                                <td>To:
-                                <input type="number" id="txtGrowthMax" placeholder="Max" min="0"></td>
+                                <td>Cluster Date</td>
+                                <td>
+                                    <label for="txtDateMin">From: </label><input type="text" id="txtDateMin" name="txtDateMin" placeholder="Min">
+                                </td>
+                                <td>
+                                    <label for="txtDateMax">To: </label><input type="text" id="txtDateMax" name="txtDateMax" placeholder="Max">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td colspan="2">
+                                    <input type="checkbox" id="chkValidDates" name="chkValidDates">
+                                    <label for="chkValidDates">Exclude clusters with no valid dates</label>
+                                </td>
                             </tr>
                             <tr>
                                 <td>Cluster Size</td>
-                                <td>From: 
-                                <input type="number" id="txtSizeMin" placeholder="Min" min="1"></td>
-                                <td>To:
-                                <input type="number" id="txtSizeMax" placeholder="Max" min="1"></td>
+                                <td>
+                                    <label for="txtSizeMin">From: </label><input type="number" id="txtSizeMin" name="txtSizeMin" placeholder="Min" min="1">
+                                </td>
+                                <td>
+                                    <label for="txtSizeMin">To: </label><input type="number" id="txtSizeMax" name="txtSizeMax" placeholder="Max" min="1">
+                                </td>
                             </tr>
                             <tr>
-                                <td>Cluster Date</td><td>From: 
-                                <input type="text" id="txtDateMin" placeholder="Min"></td>
-                                <td>To:
-                                <input type="text" id="txtDateMax" placeholder="Max"></td>
+                                <td>Growth Score &nbsp;</td>
+                                <td>
+                                    <label for="txtGrowthMin">From: </label><input type="number" id="txtGrowthMin" name="txtGrowthMin" placeholder="Min" min="0">
+                                </td>
+                                <td>
+                                    <label for="txtGrowthMax">To: </label><input type="number" id="txtGrowthMax" name="txtGrowthMax" placeholder="Max" min="0">
+                                </td>
                             </tr>
                         </table>
                     </div>
