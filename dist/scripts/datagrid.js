@@ -33,6 +33,37 @@ let filterArgs = { // grid filter arguments
   onlyValidDates: false,
 };
 
+// attaches events to search and filter elements
+// attaches datepicker to advanced search boxes
+$('#txtDateMin').datepicker({dateFormat: 'yy-mm-dd'});
+$('#txtDateMax').datepicker({dateFormat: 'yy-mm-dd'});
+// clear Search box on escape
+$('#txtSearch').keyup(function(e) {
+  // clear on Esc
+  if (e.which === 27) {
+    this.value = '';
+  }
+});
+// force filtering out no-valid-date clusters when searching between dates
+$('#txtDateMin').change(function() {
+  const valMax = document.getElementById('txtDateMax').value;
+  if (this.value != '' && valMax != '') {
+    document.getElementById('chkValidDates').checked = true;
+    document.getElementById('chkValidDates').disabled = true;
+  } else {
+    document.getElementById('chkValidDates').disabled = false;
+  }
+});
+$('#txtDateMax').change(function() {
+  const valMin = document.getElementById('txtDateMin').value;
+  if (this.value != '' && valMin != '') {
+    document.getElementById('chkValidDates').checked = true;
+    document.getElementById('chkValidDates').disabled = true;
+  } else {
+    document.getElementById('chkValidDates').disabled = false;
+  }
+});
+
 
 // == functions for attaching data to grid ==
 function blankSampleObj() {
@@ -327,6 +358,7 @@ function clearSearch() {
   document.getElementById('txtDateMin').value = '';
   document.getElementById('txtDateMax').value = '';
   document.getElementById('chkValidDates').checked = false;
+  document.getElementById('chkValidDates').disabled = false;
   filterArgs.searchString = '';
   filterArgs.searchBool = 'and';
   filterArgs.searchAdvancedFlag = false;
@@ -724,15 +756,6 @@ function setGridView() {
       grid.getSelectionModel().setSelectedRanges([]);
       grid.resetActiveCell();
     }
-  });
-
-  // wire up the search textbox to apply the filter to the model
-  $('#txtSearch').keyup(function(e) {
-    // clear on Esc
-    if (e.which === 27) {
-      this.value = '';
-    }
-    searchString = this.value;
   });
 
   // initialize the model after all the events have been hooked up
