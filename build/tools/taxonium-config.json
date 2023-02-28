@@ -3,6 +3,10 @@
     "source": "INSDC",
     "title": "California Big Tree",
     "customNames": {
+      "cluster": "Cluster ID, CA County Analysis",
+      "cluster2": "Cluster ID, CA State Analysis",
+      "region": "Region, CA County Analysis",
+      "region2": "Region, CA State Analysis",
       "num_tips": "Descendant sequences",
       "meta_specimen_id": "Specimen ID",
       "meta_pango_lineage": "PANGO lineage",
@@ -20,6 +24,8 @@
       "meta_nextstrain_clade",
       "meta_cluster",
       "meta_region",
+      "meta_cluster2",
+      "meta_region2",
       "meta_county",
       "meta_genbank_accession",
       "meta_gisaid_accession",
@@ -31,8 +37,10 @@
     "overlay": "Welcome to the California Big Tree.",
     "search_types": [
       { "name": "name", "label": "Name", "type": "text_match" },
-      { "name": "meta_cluster", "label": "Cluster", "type": "text_exact" },
-      { "name": "meta_region", "label": "Region", "type": "text_match" },
+      { "name": "meta_cluster", "label": "Cluster ID, CA County Analysis", "type": "text_exact" },
+      { "name": "meta_region", "label": "Region, CA County Analysis", "type": "text_match" },
+      { "name": "meta_cluster2", "label": "Cluster ID, CA State Analysis", "type": "text_exact" },
+      { "name": "meta_region2", "label": "Region, CA State Analysis", "type": "text_match" },
       { "name": "meta_county", "label": "County", "type": "text_match" },
       {
         "name": "meta_pango_lineage",
@@ -66,6 +74,7 @@
     "colorBy": {
       "colorByOptions": [
         "meta_region",
+        "meta_region2",
         "meta_county",
         "meta_pango_lineage",
         "meta_nextstrain_clade",
