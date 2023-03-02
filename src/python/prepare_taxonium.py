@@ -71,7 +71,8 @@ def prepare_taxonium(sample_regions_file, mfile, extension=[''], isWDL = False):
             line = inf.readline()
             print(line.strip() + header_labels,file=outf) #add header labels
             for entry in inf:
-                spent = entry.strip().split("\t")
+                spent = entry.split("\t") #don't use strip here to preserve trailing tabs
+                spent[-1] = spent[-1].strip() #remove newline char
                 for index in range(len(extension)):
                     #adds cluster id
                     if spent[0] in cluster_dicts[index]:
