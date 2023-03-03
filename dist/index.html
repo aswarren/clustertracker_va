@@ -12,80 +12,70 @@
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
         <link rel="icon" type="image/x-icon" href="favicon.ico">
         <link rel="manifest" href="/site.webmanifest" crossorigin="use-credentials">
-        <link rel="stylesheet" href="lib/bootstrap/bootstrap.min.css" type="text/css"/>
-        <link rel="stylesheet" href="lib/slickgrid/slick.grid.min.css" type="text/css"/>
+        
         <link rel="stylesheet" href="lib/jquery-ui/jquery-ui.min.css" type="text/css"/>
+        <link rel="stylesheet" href="lib/bootstrap/bootstrap.min.css">
+        <link rel="stylesheet" href="lib/slickgrid/slick.grid.min.css" type="text/css"/>
         <link rel="stylesheet" href="lib/slickgrid/controls/slick.pager.min.css" type="text/css"/>
         <link rel="stylesheet" href="lib/leafletjs/leaflet.css" type="text/css"/>
         <link rel="stylesheet" href="lib/filter-multi-select/filter_multi_select.css" type="text/css"/>
         <link rel="stylesheet" href="css/gridstyles.css" type="text/css"/>
         <link rel="stylesheet" href="css/custom.css" type="text/css"/>
-        <style>
-            .show {display:block;}
-        </style>
-    </head>
-    <body>
-        <div id="status_msg" class="warning" onclick="hideMsg()"></div>
-        <div id="menuContainer" style="display:none;">
-            <ul id="menuList">
-                <li>
-                    <div id="logout" title="Switch between authorized accounts">
-                        <span class="material-symbols-outlined">switch_account</span>
-                        Switch Login
-                    </div>
-                </li>
-            </ul>
-        </div>
-        <div>
-            <div id="btnMenuDiv">
-                <div id="btnMenu" title="Show/hide menu">
-                    <span class="material-symbols-outlined">menu</span>
-                </div>
-            </div>
-            <div>
-                <h1>California Big Tree Cluster Tracker </h1>
-            </div>
-        </div>
+        
+        <script src="scripts/ui_interactions.js"></script>
         <script>
+            /* Data and Map Settings */
+            /* Data storage location */
             const dataHost = 'https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/';
+            /* URL of Taxonium Link and Custom Backend */
             const taxoniumHost = ['https%3A%2F%2Ftaxonium.cluster-tracker.big-tree.ucsc.edu%2F', 'https%3A%2F%2Fclustertracker-california-taxonium-backend-6twdguah7a-uw.a.run.app'];
+            /* Initial Cluster Data and Sample Data files */
             const cDataFile = 'cluster_data.json.gz';
             const cSampleFile = 'sample_data.json.gz';
+            /* initialize the file extension associated with the above data files */ 
             var ext = '';
-            // map settings
+            /* Leaflet map settings: map center coordinates and initial Zoom level */
             const mapCenter = [36.77, -119.418];
             const mapInitialZoom = 5;
-
-
-            function showList() {
-                document.getElementById("myDropdown").classList.toggle("show");
-            }
-            window.onclick = function(event) {
-                if (!event.target.matches('.dropbtn')) {
-                    var dropdowns = document.getElementsByClassName("dropdown-content");
-                    var i;
-                    for (i = 0; i < dropdowns.length; i++) {
-                        var openDropdown = dropdowns[i];
-                        if (openDropdown.classList.contains('show')) {
-                            openDropdown.classList.remove('show');
-                        }
-                    }
-                }
-            }
         </script>
-        <div class="dropdown" id="drop_SC">
+
+    </head>
+    <body>
+
+        <div id="status_msg" class="warning" onclick="hideMsg()"></div>
+        <div class="container-fluid pl-0 pr-0">
+            <div class="row">
+                <div class="col">
+                    <h1>California Big Tree Cluster Tracker </h1>
+                </div>
+                <div class="col-auto">
+                    <div class="dropdown">
+                        <div class="menuDiv" data-toggle="dropdown" title="Show/hide menu">
+                            <span class="material-symbols-outlined">menu</span>
+                        </div>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <div id="logout" class="dropdown-item mnuItem pl-2 pr-2" title="Switch between authorized accounts" onclick="logout();">
+                                <span class="material-symbols-outlined">switch_account</span>
+                                Switch Login
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mapButton" id="drop_SC">
             <button onclick="swap_countystate()" class="dropbtn" id="btn_SC">Show CA State Introductions</button>
         </div>
-        <div class="dropdown" id="dropcolor">
+        <div class="mapButton" id="dropcolor">
             <button onclick="changeScale()" class="dropbtn" id="colorbtn" disabled>Show Raw Cluster Count</button>
         </div>
-        <div class="dropdown" id="droploc">
+        <div class="mapButton" id="droploc">
             <button onclick="showList()" class="dropbtn">Choose Map Display Time Period</button>
             <div id="myDropdown" class="dropdown-content">
-                <button id="btn_time_0" class="timel btn_selected" onclick="changeMap(0)">Whole Pandemic</p>
-                <button id="btn_time_12" class="timel" onclick="changeMap(12)">Last 12 Months</p>
-                <button id="btn_time_6" class="timel" onclick="changeMap(6)">Last 6 Months</p>
-                <button id="btn_time_3" class="timel" onclick="changeMap(3)">Last 3 Months</p>
+                <button id="btn_time_0" class="timel btn_selected" onclick="hideMapTimeBtns();changeMap(0);">Whole Pandemic</p>
+                <button id="btn_time_12" class="timel" onclick="hideMapTimeBtns();changeMap(12);">Last 12 Months</p>
+                <button id="btn_time_6" class="timel" onclick="hideMapTimeBtns();changeMap(6);">Last 6 Months</p>
+                <button id="btn_time_3" class="timel" onclick="hideMapTimeBtns();changeMap(3);">Last 3 Months</p>
             </div>
         </div>
         <div id="display" title="This map displays the count of inferred unique families of the virus in each region by default. When a region is selected, it instead displays a scaled estimate of the count of viral introductions to the selected region from each other region.">
@@ -100,75 +90,99 @@
             <p>The California Big Tree Cluster Tracker combines sequence data from the <a title="Repository containing daily-updated comprehensive global phylogenetic trees for SARS-CoV-2" target="_blank" href="https://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/">global public SARS-CoV-2 phylogenetic tree</a> and sequences in California’s central repository in Terra. The Cluster Tracker applies a <a title="Wiki page describing the heuristic calculation." target="_blank" href="https://usher-wiki.readthedocs.io/en/latest/matUtils.html#introduce">heuristic</a> to identify groups of sequences in a given region that may have recently arrived from another region. These groups may reflect cases of an infected traveler entering a region, followed by local spread. Note that biases might affect these results: relative local sequencing effort, the rate sequences arrive in repositories, and accuracy of reconstructed evolutionary relationships. You can view each <span class="definition" title="The set of sequences within a region that are inferred to result from a single introduction via travel.">cluster</span> in <a title="link to California Big Tree Investigator" href="https://investigator.big-tree.ucsc.edu/" target="_blank">CA Big Tree Investigator</a> or <a title="Github repository for the Taxonium browser tree viewer" href="https://github.com/theosanderson/taxonium" target="_blank">Taxonium</a> and perform your own analysis with UCSC’s <a title="Github repository for UShER" href="https://github.com/yatisht/usher" target="_blank">UShER</a> after downloading the output files from the link below the table.
             </p>
         </div>
+
+        <!-- load js for search and filter tools -->
+        <script src="lib/jquery/jquery.min.js"></script>
+        <script src="lib/jquery-ui/jquery-ui.min.js"></script>
+        <script src="lib/bootstrap/bootstrap.bundle.min.js"></script>
+        <script src="lib/filter-multi-select/filter-multi-select-bundle.min.js"></script>
         
-        <div id="searchbox">
-            <div class="accordion">
-                <div class="accordion-head">Search</div>
-                <div class="accordion-body">
-                    <div class="simpleSearch">
-                        
-                                <p class="searchSubT">Simple Text Search</p>
-                                <input type="text" id="txtSearch" placeholder="Search across all columns...">
-                                <div class="searchNote">
-                                    Separate multiple search terms with a comma. Do not use spaces between search terms.
-                                </div>
-                            
-                                <p class=searchSubSubT>Boolean Search Options</p>
-                                <div>
-                                    <input type="radio" checked="checked" name="bool" value="and" id="boolAnd">
-                                    <label for="boolAnd">AND (contains ALL search terms)</label>
-                                </div>
-                                <div>
-                                    <input type="radio" name="bool" value="or" id="boolOr">
-                                    <label for="boolOr">OR (contains ANY search term)</label>
-                                </div>
-                    </div>
-                    <div class="advSearch">
-                        <p class="searchSubT">Advanced Filter Options</p>
-                        <table class="layout">
-                            <tr>
-                                <td>Cluster Date</td>
-                                <td>
-                                    <label for="txtDateMin">From: </label><input type="text" id="txtDateMin" name="txtDateMin" placeholder="Min">
-                                </td>
-                                <td>
-                                    <label for="txtDateMax">To: </label><input type="text" id="txtDateMax" name="txtDateMax" placeholder="Max">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td></td>
-                                <td colspan="2">
-                                    <input type="checkbox" id="chkValidDates" name="chkValidDates">
-                                    <label for="chkValidDates">Exclude clusters with no valid dates</label>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Cluster Size</td>
-                                <td>
-                                    <label for="txtSizeMin">From: </label><input type="number" id="txtSizeMin" name="txtSizeMin" placeholder="Min" min="1">
-                                </td>
-                                <td>
-                                    <label for="txtSizeMin">To: </label><input type="number" id="txtSizeMax" name="txtSizeMax" placeholder="Max" min="1">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Growth Score &nbsp;</td>
-                                <td>
-                                    <label for="txtGrowthMin">From: </label><input type="number" id="txtGrowthMin" name="txtGrowthMin" placeholder="Min" min="0">
-                                </td>
-                                <td>
-                                    <label for="txtGrowthMax">To: </label><input type="number" id="txtGrowthMax" name="txtGrowthMax" placeholder="Max" min="0">
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                    <div class="searchBtns">
-                        <button onclick="doSearch();" id="btnSimpleSearch">Search</button>
-                        <button onclick="clearSearch();" id="btnClearSearch">Clear</button>
-                    </div>
+
+        <!-- Search and Filter -->
+        <div id="searchbox" class="container-fluid pb-2 pl-0 pr-0">
+            <div class="card">
+                <div id="searchCardHead" class="card-header pl-0 pt-1 pb-1" data-toggle="collapse" data-target="#collapseSection" onclick="toggleDropArrow(this.id);">
+                    <span class="material-symbols-outlined arrow down">arrow_drop_down</span>Search
                 </div>
-            </div>
-        </div>
+                <div id="collapseSection" class="collapse show">
+                    <div class="card-body pt-1 pb-3" id="searchContent">
+                        <p class="searchSubT">Simple Text Search</p>
+                        <div class="row"><!-- start of main flexcol row -->
+                            <div class="col"><!-- main flexcol row has 2 column -->
+                                <div class="row">
+                                    <div class="col-3" style="min-width: 350px;">
+                                        <input type="text" id="txtSearch" placeholder="Enter search terms...">
+                                        <p class="searchNote">
+                                            Separate multiple search terms with a comma. Do not use spaces between search terms.
+                                        </p>
+                                    </div>
+                                    <div class="col-auto">
+                                        <p class="searchSubSubT">Boolean Search Options:</p>
+                                        <div>
+                                            <input type="radio" checked="checked" name="bool" value="and" id="boolAnd">
+                                            <label for="boolAnd">AND (contains ALL search terms)</label>
+                                        </div>
+                                        <div>
+                                            <input type="radio" name="bool" value="or" id="boolOr">
+                                            <label for="boolOr">OR (contains ANY search term)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-auto col-lg"  style="min-width: 350px;">
+                                        <p class="searchSubSubT">Search Columns:</p>
+                                        <select name="colSelect" id="colSelect" multiple class="filter-multi-select" onchange="console.log(this.selectedOptions)">
+                                            <option selected value="cluster">Cluster ID</option>
+                                            <option selected value="region">Region</option>
+                                            <option selected value="size">Sample Count</option>
+                                            <option selected value="earliest">Earliest Date</option>
+                                            <option selected value="latest">Latest Date</option>
+                                            <option selected value="clade">Clade</option>
+                                            <option selected value="lineage">Lineage</option>
+                                            <option selected value="origin">Best Potential Origins</option>
+                                            <option selected value="originIndex">Best Origin Regional Indices</option>
+                                            <option selected value="growth">Growth Score</option>
+                                            <option selected value="name">Sample Names</option>
+                                            <option selected value="specimenId">Specimen IDs</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <div id="filterTitle" class="searchSubT col pl-0" data-toggle="collapse" data-target="#filterOps" onclick="toggleDropArrow(this.id);">
+                                            <span class="material-symbols-outlined arrow right">arrow_right</span>Advanced Filter Options
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="filterOps" class="collapse">
+                                    <div class="row">
+                                        <div class="col-md-auto">
+                                            <p class=searchSubSubT>Cluster Date:</p>
+                                            <label for="txtDateMin">From: </label><input type="date" id="txtDateMin" name="txtDateMin" placeholder="Min">
+                                            <label for="txtDateMax">To: </label><input type="date" id="txtDateMax" name="txtDateMax" placeholder="Max"><br />
+                                            <input type="checkbox" id="chkValidDates" name="chkValidDates">
+                                            <label for="chkValidDates">Exclude clusters with no valid dates</label>
+                                        </div>
+                                        <div class="col-md-auto">
+                                            <p class=searchSubSubT>Cluster Size:</p>
+                                            <label for="txtSizeMin">From: </label><input type="number" id="txtSizeMin" name="txtSizeMin" placeholder="Min" min="1">
+                                            <label for="txtSizeMin">To: </label><input type="number" id="txtSizeMax" name="txtSizeMax" placeholder="Max" min="1">
+                                        </div>
+                                        <div class="col-md-auto">
+                                            <p class=searchSubSubT>Growth Score:</p>
+                                            <label for="txtGrowthMin">From: </label><input type="number" id="txtGrowthMin" name="txtGrowthMin" placeholder="Min" min="0">
+                                            <label for="txtGrowthMax">To: </label><input type="number" id="txtGrowthMax" name="txtGrowthMax" placeholder="Max" min="0">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-1 col-md-1 col-lg-auto" style="min-width: 90px;">
+                                <button onclick="doSearch();" id="btnSimpleSearch">Search</button>
+                                <button onclick="clearSearch();" id="btnClearSearch">Clear</button>
+                            </div>
+                        </div><!-- end of main flexcol row -->
+                    </div> <!-- end search option content -->
+                </div> <!-- end collapseSection -->
+            </div> <!-- end card class -->
+        </div><!-- end search and filter container -->
 
         <div id="grdContainer">
             <div id="myGrid" style="width:100%;height:570px;"></div>
@@ -178,44 +192,21 @@
             </div>
         </div>
 
-        <script src="scripts/check_status.js"></script>
+        <div id="downloads">
+            <p>Download full output file from the <a href = "https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/hardcoded_clusters.tsv", download = "sarscov2_clusters_CA_counties.tsv">California-county based analysis</a> or the <a href = "https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/hardcoded_clusters_us.tsv", download = "sarscov2_clusters_CA_state.tsv">California-state based analysis</a>.<br>
+            Download the Taxonium JSONL file from the <a href = "https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/cview.jsonl.gz", download = "cluster_taxonium_CA_counties.jsonl.gz">California-county based analysis</a> or the <a href = "https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/cview_us.jsonl.gz", download = "cluster_taxonium_CA_state.jsonl.gz">California-state based analysis</a> for viewing.</p>
+            <p>Please post an issue at <a title="The github repository for this site." href="https://github.com/pathogen-genomics/introduction-website" target="_blank">the github</a> or email us at help-pathogengenomics@ucsc.edu if you have questions or feedback.</p>
+        </div>
+        
         <script src="lib/leafletjs/leaflet.js"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-        <script src="lib/filter-multi-select/filter-multi-select-bundle.min.js"></script>
+        <script src="scripts/check_status.js"></script>
         <script src="https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/regions.js" id="script-region"></script>
         <script src="https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/regions_us.js" id="script-region_us"></script>
         <script src="scripts/main.js" id="script-main"></script>
-        <script>!window.jQuery && document.write('<script src="lib/jquery/jquery.min.js"><\/script>')</script>
         <script type="text/javascript">
-           // prevents loading from browser cache
-           const ver = Date.now();
-           document.getElementById('script-main').src = 'scripts/main.js?v=' + ver;
-           document.getElementById('script-region').src = 'https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/regions.js?v=' + ver;
-           document.getElementById('script-region_us').src = 'https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/regions_us.js?v=' + ver;
-
-           //attaches events to menu
-           $( function() {
-             $( "#menuList" ).menu();
-           } );
-           $('#btnMenu').click(function(){ 
-            const el = document.getElementById("menuContainer");
-            if (el.style.display == "none") {
-                el.style.display = "inline";
-            } else {
-                el.style.display = "none";
-            }
-            return false; });
-           $('#logout').click(function(){ window.open('?gcp-iap-mode=CLEAR_LOGIN_COOKIE', '_self'); return false;});
-           //attaches datepicker to advanced search boxes
-           $( function() {
-               $("#txtDateMin").datepicker({ dateFormat: 'yy-mm-dd' });
-               $("#txtDateMax").datepicker({ dateFormat: 'yy-mm-dd' });
-           } );
-
            //checks data update status and triggers alert if needed
            readStatus();
         </script>
-        <script src="lib/jquery-ui/jquery-ui.min.js"></script>
         <!-- SlickGrid: dependencies -->
         <script src="lib/sortablejs/Sortable.min.js"></script>
         <!-- SlickGrid: core js-->
@@ -236,34 +227,9 @@
         <!-- Gets data and loads into Slick Grid table -->
         <script src="scripts/datagrid.js"></script>
         <script>
-            // set jquery-ui accordian params
-            $( function() {
-                $("div.accordianOpen").accordion({
-                  collapsible: true,
-                  heightStyle: "content"
-                });
-                $("div.accordianClosed").accordion({
-                  collapsible: true,
-                  heightStyle: "content",
-                  active: false,
-                });
-              } );
-            $(".accordion").accordion({
-                header: ">.accordion-head", //Note the selector change
-                collapsible: true,
-                heightStyle: "content"
-            });
-            $(".collapsed").accordion({
-                active: false,
-            });
             // itialize grid
             initCTGrid(dataHost, taxoniumHost, cDataFile, cSampleFile);
         </script>
 
-        <div id="downloads">
-            <p>Download full output file from the <a href = "https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/hardcoded_clusters.tsv", download = "sarscov2_clusters_CA_counties.tsv">California-county based analysis</a> or the <a href = "https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/hardcoded_clusters_us.tsv", download = "sarscov2_clusters_CA_state.tsv">California-state based analysis</a>.<br>
-            Download the Taxonium JSONL file from the <a href = "https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/cview.jsonl.gz", download = "cluster_taxonium_CA_counties.jsonl.gz">California-county based analysis</a> or the <a href = "https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/cview_us.jsonl.gz", download = "cluster_taxonium_CA_state.jsonl.gz">California-state based analysis</a> for viewing.</p>
-            <p>Please post an issue at <a title="The github repository for this site." href="https://github.com/pathogen-genomics/introduction-website" target="_blank">the github</a> or email us at help-pathogengenomics@ucsc.edu if you have questions or feedback.</p>
-        </div>
     </body>
 </html>

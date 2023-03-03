@@ -19,15 +19,18 @@ button {
   boder-color:  rgb(118,118,118);
   background-color: rgb(239, 239, 239);
 }
-label {margin: 0px;}
+label {
+  margin: 0px;
+  padding-right: 4px;
+}
 
-.show {display:block;}
+div.show {display:block;}
 div.hide {
   display: none;
 }
 
 /** Buttons for the map **/
-.dropdown {position: relative; display: inline-block; width: 150px}
+.mapButton {position: relative; display: inline-block; width: 150px}
 .dropdown-content {
   display: none; 
   position: absolute; 
@@ -136,32 +139,19 @@ div.hide {
 
 
 /** hamburger menu **/
-#btnMenuDiv {
-  width: 24px;
-  float: right;
-}
-#btnMenu {
-  cursor: pointer;
+.menuDiv {
   color: gray;
-  margin: 0;
-  vertical-align: top;
-}
-#btnMenu:hover {
-  background-color: #F5F5F5;
   cursor: pointer;
+  font-size: .8em;
 }
-.material-symbols-outlined {
-  vertical-align: middle;
+.menuDiv:hover {
+  background-color: #e9ecef;
 }
-.ui-menu { 
-  width: 150px;
+.mnuItem {
   color: gray;
   font-family: Arial, Helvetica, sans-serif;
   font-size: .8em;
 }
-#menuContainer {
-  position: absolute;
-  top: 30px;
-  right: 8px;
-  z-index: 2000;
+.material-symbols-outlined {
+  vertical-align: middle;
 }

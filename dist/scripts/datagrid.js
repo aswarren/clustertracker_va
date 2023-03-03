@@ -34,9 +34,6 @@ let filterArgs = { // grid filter arguments
 };
 
 // attaches events to search and filter elements
-// attaches datepicker to advanced search boxes
-$('#txtDateMin').datepicker({dateFormat: 'yy-mm-dd'});
-$('#txtDateMax').datepicker({dateFormat: 'yy-mm-dd'});
 // clear Search box on escape
 $('#txtSearch').keyup(function(e) {
   // clear on Esc
