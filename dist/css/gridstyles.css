@@ -146,6 +146,10 @@ td.ctr {
   border: 1px solid gray;
   width: 100px;
 }
+#btnSimpleSearch {
+  margin-top: 5px;
+  margin-bottom:  5px;
+}
 /* multi-select styles */
 .filter-multi-select > .viewbar {
   font-size: 0.75rem;

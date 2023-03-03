@@ -12,16 +12,15 @@
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
         <link rel="icon" type="image/x-icon" href="favicon.ico">
         <link rel="manifest" href="/site.webmanifest" crossorigin="use-credentials">
-        
-        <link rel="stylesheet" href="lib/jquery-ui/jquery-ui.min.css" type="text/css"/>
+
         <link rel="stylesheet" href="lib/bootstrap/bootstrap.min.css">
+        <link rel="stylesheet" href="lib/jquery-ui/jquery-ui.min.css" type="text/css"/>
         <link rel="stylesheet" href="lib/slickgrid/slick.grid.min.css" type="text/css"/>
         <link rel="stylesheet" href="lib/slickgrid/controls/slick.pager.min.css" type="text/css"/>
         <link rel="stylesheet" href="lib/leafletjs/leaflet.css" type="text/css"/>
         <link rel="stylesheet" href="lib/filter-multi-select/filter_multi_select.css" type="text/css"/>
         <link rel="stylesheet" href="css/gridstyles.css" type="text/css"/>
         <link rel="stylesheet" href="css/custom.css" type="text/css"/>
-        
         <script src="scripts/ui_interactions.js"></script>
         <script>
             /* Data and Map Settings */
@@ -38,6 +37,11 @@
             const mapCenter = [36.77, -119.418];
             const mapInitialZoom = 5;
         </script>
+        <!-- load js for search and filter tools -->
+        <script src="lib/jquery/jquery.min.js"></script>
+        <script src="lib/bootstrap/bootstrap.bundle.min.js"></script>
+        <script src="lib/jquery-ui/jquery-ui.min.js"></script>
+        <script src="lib/filter-multi-select/filter-multi-select-bundle.min.js"></script>
 
     </head>
     <body>
@@ -90,13 +94,6 @@
             <p>The California Big Tree Cluster Tracker combines sequence data from the <a title="Repository containing daily-updated comprehensive global phylogenetic trees for SARS-CoV-2" target="_blank" href="https://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/">global public SARS-CoV-2 phylogenetic tree</a> and sequences in California’s central repository in Terra. The Cluster Tracker applies a <a title="Wiki page describing the heuristic calculation." target="_blank" href="https://usher-wiki.readthedocs.io/en/latest/matUtils.html#introduce">heuristic</a> to identify groups of sequences in a given region that may have recently arrived from another region. These groups may reflect cases of an infected traveler entering a region, followed by local spread. Note that biases might affect these results: relative local sequencing effort, the rate sequences arrive in repositories, and accuracy of reconstructed evolutionary relationships. You can view each <span class="definition" title="The set of sequences within a region that are inferred to result from a single introduction via travel.">cluster</span> in <a title="link to California Big Tree Investigator" href="https://investigator.big-tree.ucsc.edu/" target="_blank">CA Big Tree Investigator</a> or <a title="Github repository for the Taxonium browser tree viewer" href="https://github.com/theosanderson/taxonium" target="_blank">Taxonium</a> and perform your own analysis with UCSC’s <a title="Github repository for UShER" href="https://github.com/yatisht/usher" target="_blank">UShER</a> after downloading the output files from the link below the table.
             </p>
         </div>
-
-        <!-- load js for search and filter tools -->
-        <script src="lib/jquery/jquery.min.js"></script>
-        <script src="lib/jquery-ui/jquery-ui.min.js"></script>
-        <script src="lib/bootstrap/bootstrap.bundle.min.js"></script>
-        <script src="lib/filter-multi-select/filter-multi-select-bundle.min.js"></script>
-        
 
         <!-- Search and Filter -->
         <div id="searchbox" class="container-fluid pb-2 pl-0 pr-0">
@@ -155,7 +152,7 @@
                                 <div id="filterOps" class="collapse">
                                     <div class="row">
                                         <div class="col-md-auto">
-                                            <p class=searchSubSubT>Cluster Date:</p>
+                                            <p class="searchSubSubT">Cluster Date:</p>
                                             <label for="txtDateMin">From:</label>
                                             <input type="date" id="txtDateMin" name="txtDateMin" min="1900-01-01">
                                             <label for="txtDateMax">To: </label>
@@ -164,12 +161,12 @@
                                             <label for="chkValidDates">Exclude clusters with no valid dates</label>
                                         </div>
                                         <div class="col-md-auto">
-                                            <p class=searchSubSubT>Cluster Size:</p>
+                                            <p class="searchSubSubT">Cluster Size:</p>
                                             <label for="txtSizeMin">From: </label><input type="number" id="txtSizeMin" name="txtSizeMin" placeholder="Min" min="1">
                                             <label for="txtSizeMin">To: </label><input type="number" id="txtSizeMax" name="txtSizeMax" placeholder="Max" min="1">
                                         </div>
-                                        <div class="col-md-auto">
-                                            <p class=searchSubSubT>Growth Score:</p>
+                                        <div class="col-md-auto pb-2">
+                                            <p class="searchSubSubT">Growth Score:</p>
                                             <label for="txtGrowthMin">From: </label><input type="number" id="txtGrowthMin" name="txtGrowthMin" placeholder="Min" min="0">
                                             <label for="txtGrowthMax">To: </label><input type="number" id="txtGrowthMax" name="txtGrowthMax" placeholder="Max" min="0">
                                         </div>
