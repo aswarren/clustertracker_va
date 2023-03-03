@@ -129,19 +129,19 @@
                                     </div>
                                     <div class="col-sm-auto col-lg"  style="min-width: 350px;">
                                         <p class="searchSubSubT">Search Columns:</p>
-                                        <select name="colSelect" id="colSelect" multiple class="filter-multi-select" onchange="console.log(this.selectedOptions)">
-                                            <option selected value="cluster">Cluster ID</option>
+                                        <select name="colSelect" id="colSelect" multiple class="filter-multi-select">
+                                            <option selected value="cid">Cluster ID</option>
                                             <option selected value="region">Region</option>
-                                            <option selected value="size">Sample Count</option>
+                                            <option selected value="sampcount">Sample Count</option>
                                             <option selected value="earliest">Earliest Date</option>
                                             <option selected value="latest">Latest Date</option>
                                             <option selected value="clade">Clade</option>
                                             <option selected value="lineage">Lineage</option>
                                             <option selected value="origin">Best Potential Origins</option>
-                                            <option selected value="originIndex">Best Origin Regional Indices</option>
+                                            <option selected value="confidence">Best Origin Regional Indices</option>
                                             <option selected value="growth">Growth Score</option>
-                                            <option selected value="name">Sample Names</option>
-                                            <option selected value="specimenId">Specimen IDs</option>
+                                            <option selected value="samples">Sample Names</option>
+                                            <option selected value="pauis">Specimen IDs</option>
                                         </select>
                                     </div>
                                 </div>
@@ -156,8 +156,10 @@
                                     <div class="row">
                                         <div class="col-md-auto">
                                             <p class=searchSubSubT>Cluster Date:</p>
-                                            <label for="txtDateMin">From: </label><input type="date" id="txtDateMin" name="txtDateMin" placeholder="Min">
-                                            <label for="txtDateMax">To: </label><input type="date" id="txtDateMax" name="txtDateMax" placeholder="Max"><br />
+                                            <label for="txtDateMin">From:</label>
+                                            <input type="date" id="txtDateMin" name="txtDateMin" min="1900-01-01">
+                                            <label for="txtDateMax">To: </label>
+                                            <input type="date" id="txtDateMax" name="txtDateMax" min="1900-01-01"><br />
                                             <input type="checkbox" id="chkValidDates" name="chkValidDates">
                                             <label for="chkValidDates">Exclude clusters with no valid dates</label>
                                         </div>

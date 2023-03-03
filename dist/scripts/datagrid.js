@@ -22,6 +22,20 @@ let filterArgs = { // grid filter arguments
   searchString: '',
   searchBool: 'and',
   searchAdvancedFlag: false,
+  searchCols: {
+    cid: true,
+    region: true,
+    sampcount: true,
+    earliest: true,
+    latest: true,
+    clade: true,
+    lineage: true,
+    origin: true,
+    confidence: true,
+    growth: true,
+    samples: true,
+    pauis: true,
+  },
   gridFilters: {
     minGrowth: '',
     maxGrowth: '',
@@ -33,9 +47,35 @@ let filterArgs = { // grid filter arguments
   onlyValidDates: false,
 };
 
-// attaches events to search and filter elements
+
+// attaches events and methods to search and filter elements
+// attach methods to filter-multi-select and sets placeholder values
+const colSelector = $('#colSelect').filterMultiSelect({
+  placeholderText: 'Please select at least one column',
+});
+$(function() {
+  $('#colSelect').on('optionselected', function(e) {
+    filterArgs.searchCols[e.detail.value] = true;
+  });
+  $('#colSelect').on('optiondeselected', function(e) {
+    filterArgs.searchCols[e.detail.value] = false;
+  });
+});
 // clear Search box on escape
 $('#txtSearch').keyup(function(e) {
+  // clear on Esc
+  if (e.which === 27) {
+    this.value = '';
+  }
+});
+// clear cluster date boxes on escape
+$('#txtDateMin').keyup(function(e) {
+  // clear on Esc
+  if (e.which === 27) {
+    this.value = '';
+  }
+});
+$('#txtDateMax').keyup(function(e) {
   // clear on Esc
   if (e.which === 27) {
     this.value = '';
@@ -348,6 +388,7 @@ function clearSearch() {
   document.getElementById('txtSearch').value = '';
   document.getElementById('boolAnd').checked = true;
   document.getElementById('boolOr').checked = false;
+  colSelector.selectAll();
   document.getElementById('txtGrowthMin').value = '';
   document.getElementById('txtGrowthMax').value = '';
   document.getElementById('txtSizeMin').value = '';
@@ -375,53 +416,73 @@ function clearSearch() {
 
 // triggers search on button click
 function doSearch() {
-  // check advanced options
-  let validVals = true;
-  let searchAdvancedFlag = false;
-  let onlyValidDates = false;
-  const gridFilters = {
-    minGrowth: document.getElementById('txtGrowthMin').value.trim(),
-    maxGrowth: document.getElementById('txtGrowthMax').value.trim(),
-    minDate: document.getElementById('txtDateMin').value.trim(),
-    maxDate: document.getElementById('txtDateMax').value.trim(),
-    minSize: document.getElementById('txtSizeMin').value.trim(),
-    maxSize: document.getElementById('txtSizeMax').value.trim(),
-  };
-  // check to see if all search terms are blank or not
-  for (const key of Object.keys(gridFilters)) {
-    if (gridFilters[key] != '') {
-      searchAdvancedFlag = true;
-      break;
+  // check basic text search
+  isBasicSearchOK = true;
+  const searchString = document.getElementById('txtSearch').value;
+
+  // check to see if at least one column is selected to search on, only if there is text in search box
+  if (searchString != '') {
+    noColsSelected = true;
+    for (const key of Object.keys(filterArgs.searchCols)) {
+      if (filterArgs.searchCols[key]) {
+        noColsSelected = false;
+        break;
+      }
+    }
+    if (noColsSelected) {
+      alert('Search Error: Please select at least one column in the Search Columns box to search on.');
+      isBasicSearchOK = false;
     }
   }
-  // validate advanced search items
-  const validGVs = validateAdvSearch('txtGrowthMin', 'txtGrowthMax', 'Growth Score');
-  const validDates = validateAdvSearch('txtDateMin', 'txtDateMax', 'Cluster Date');
-  const validSize = validateAdvSearch('txtSizeMin', 'txtSizeMax', 'Cluster Size');
-  if (!validGVs || !validDates || !validSize) {
-    validVals = false;
-  }
-  // exclude 'no-valid-date' clusters
-  if (document.getElementById('chkValidDates').checked) {
-    onlyValidDates = true;
-  }
 
-  // basic text search
-  const searchString = document.getElementById('txtSearch').value;
-  // get boolean search criteria from radio buttons
-  let searchBool = 'and';
-  const radios = document.getElementsByName('bool');
-  if (radios[1].checked) {
-    searchBool = 'or';
-  }
+  if (isBasicSearchOK) {
+    // get boolean search criteria from radio buttons
+    let searchBool = 'and';
+    const radios = document.getElementsByName('bool');
+    if (radios[1].checked) {
+      searchBool = 'or';
+    }
 
-  if (basicDataLoaded && sampleDataLoaded && validVals) {
-    filterArgs.searchString = searchString;
-    filterArgs.searchBool = searchBool;
-    filterArgs.searchAdvancedFlag = searchAdvancedFlag;
-    filterArgs.gridFilters = gridFilters;
-    filterArgs.onlyValidDates = onlyValidDates;
-    updateFilter();
+    // check advanced options
+    let validVals = true;
+    let searchAdvancedFlag = false;
+    let onlyValidDates = false;
+    const gridFilters = {
+      minGrowth: document.getElementById('txtGrowthMin').value.trim(),
+      maxGrowth: document.getElementById('txtGrowthMax').value.trim(),
+      minDate: document.getElementById('txtDateMin').value.trim(),
+      maxDate: document.getElementById('txtDateMax').value.trim(),
+      minSize: document.getElementById('txtSizeMin').value.trim(),
+      maxSize: document.getElementById('txtSizeMax').value.trim(),
+    };
+    // check to see if all search terms are blank or not
+    for (const key of Object.keys(gridFilters)) {
+      if (gridFilters[key] != '') {
+        searchAdvancedFlag = true;
+        break;
+      }
+    }
+    // validate advanced search items
+    const validGVs = validateAdvSearch('txtGrowthMin', 'txtGrowthMax', 'Growth Score');
+    const validDates = validateAdvSearch('txtDateMin', 'txtDateMax', 'Cluster Date');
+    const validSize = validateAdvSearch('txtSizeMin', 'txtSizeMax', 'Cluster Size');
+    if (!validGVs || !validDates || !validSize) {
+      validVals = false;
+    }
+    // exclude 'no-valid-date' clusters
+    if (document.getElementById('chkValidDates').checked) {
+      onlyValidDates = true;
+    }
+
+    // update grid filter with new values
+    if (basicDataLoaded && sampleDataLoaded && validVals) {
+      filterArgs.searchString = searchString;
+      filterArgs.searchBool = searchBool;
+      filterArgs.searchAdvancedFlag = searchAdvancedFlag;
+      filterArgs.gridFilters = gridFilters;
+      filterArgs.onlyValidDates = onlyValidDates;
+      updateFilter();
+    }
   }
 }
 function validateAdvSearch(minField, maxField, varName) {
@@ -542,20 +603,35 @@ function searchFilter(item, args) {
 
     for (let i of Object.keys(sStrings)) {
       // for text searching, fields in the table to search
-      const searchFields = item.cid.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-           item.region.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-           item.sampcount.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-           item.earliest.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-           item.latest.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-           item.clade.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-           item.lineage.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-           item.origin.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-           item.confidence.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-           item.growth.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-           item.taxlink.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-           item.investigator.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-           item.samples.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-           item.pauis.toLowerCase().indexOf(sStrings[i]) !== -1;
+
+      searchFields = false;
+      for (const key of Object.keys(filterArgs.searchCols)) {
+        if (filterArgs.searchCols[key]) {
+          if (item[key].toLowerCase().indexOf(sStrings[i]) !== -1) {
+            searchFields = true;
+            break;
+          }
+        }
+      }
+      // for items in searchCols.length
+      //    is the search term in the column in that row (item[searchCol])?
+                //if yes, break and return true
+
+      
+      // const searchFields = item.cid.toLowerCase().indexOf(sStrings[i]) !== -1 ||
+      //      item.region.toLowerCase().indexOf(sStrings[i]) !== -1 ||
+      //      item.sampcount.toLowerCase().indexOf(sStrings[i]) !== -1 ||
+      //      item.earliest.toLowerCase().indexOf(sStrings[i]) !== -1 ||
+      //      item.latest.toLowerCase().indexOf(sStrings[i]) !== -1 ||
+      //      item.clade.toLowerCase().indexOf(sStrings[i]) !== -1 ||
+      //      item.lineage.toLowerCase().indexOf(sStrings[i]) !== -1 ||
+      //      item.origin.toLowerCase().indexOf(sStrings[i]) !== -1 ||
+      //      item.confidence.toLowerCase().indexOf(sStrings[i]) !== -1 ||
+      //      item.growth.toLowerCase().indexOf(sStrings[i]) !== -1 ||
+      //      item.taxlink.toLowerCase().indexOf(sStrings[i]) !== -1 ||
+      //      item.investigator.toLowerCase().indexOf(sStrings[i]) !== -1 ||
+      //      item.samples.toLowerCase().indexOf(sStrings[i]) !== -1 ||
+      //      item.pauis.toLowerCase().indexOf(sStrings[i]) !== -1;
       if (searchFields) {
         foundItemAny = true;
         if (args.searchBool == 'or') {break;}
@@ -581,6 +657,7 @@ function updateFilter() {
     regionString: filterArgs.regionString,
     searchString: filterArgs.searchString,
     searchBool: filterArgs.searchBool,
+    searchCols: filterArgs.searchCols,
     searchAdvancedFlag: filterArgs.searchAdvancedFlag,
     gridFilters: filterArgs.gridFilters,
     onlyValidDates: filterArgs.onlyValidDates,
