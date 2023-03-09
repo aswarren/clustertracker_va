@@ -1,5 +1,8 @@
 # Changelog
 
+## v.0.7.0 (2023-03-09):
+   - Data processing: uses a single Taxonium JSONL file for multi-geographic-level analyses.
+   - UI changes: updates download link to Taxonium, links to Taxonium in the data grid, updates Taxonium config file, and uses new Taxonium backend URL.
 ## v.0.6.9 (2023-01-20):
    - Data processing: fixes bug in reading metadata file when there are blank metadata elements at the end of the line.
 ## v.0.6.8 (2023-01-10):
