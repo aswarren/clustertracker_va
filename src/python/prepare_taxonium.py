@@ -37,10 +37,18 @@ def prepare_taxonium(sample_regions_file, mfile, extension=[''], isWDL = False):
                 sample_regions.append(insert_extension(sample_regions_file, e))
                 cluster_file.append("hardcoded_clusters" + e + ".tsv")
 
-    for j, e in enumerate(extension):
-        cluster_swp_file = "clusterswapped" + e + ".tsv"
+    #assign cluster/region labels
+    header_labels = "\tcluster\tregion"
+    if len(extension) > 1:
+        for i in range(1, len(extension)):
+            header_labels = header_labels + "\tcluster" + str(i + 1) + "\tregion" + str(i + 1)
+
+    #initialize cluster and region dict lists
+    cluster_dicts = []
+    region_dicts = []
+    for index in range(len(extension)):
         sd = {}
-        with open(cluster_file[j]) as inf:
+        with open(cluster_file[index]) as inf:
             for entry in inf:
                 spent = entry.strip().split("\t")
                 if spent[0] == 'cluster_id':
@@ -48,37 +56,35 @@ def prepare_taxonium(sample_regions_file, mfile, extension=[''], isWDL = False):
                 for s in spent[-1].split(","):
                     sd[s] = spent[0] # sd[sample name] = cluster id
         rd = {} 
-        with open(sample_regions[j]) as inf:
+        with open(sample_regions[index]) as inf:
             for entry in inf:
                 spent = entry.strip().split("\t")
                 rd[spent[0]] = spent[1] # rd[sample name] = region
+        cluster_dicts.append(sd)
+        region_dicts.append(rd)
+
+    with open("clusterswapped.tsv","w+") as outf:
+        #clusterswapped is the same as the metadata input
+        #except with the cluster ID field added, and "region" field added
+        #to account for blank values. 
         with open(mfile) as inf:
-            with open(cluster_swp_file,"w+") as outf:
-                #clusterswapped is the same as the metadata input
-                #except with the cluster ID field added, and "region" field added
-                #to account for blank values. 
-                i = 0
-                for entry in inf:
-                    spent = entry.split("\t")
-                    spent[-1] = spent[-1].strip() #remove newline char
-                    if i == 0:
-                        spent.append("cluster")
-                        spent.append("region")
-                        i += 1
-                        print("\t".join(spent),file=outf)
-                        continue
+            line = inf.readline()
+            print(line.strip() + header_labels,file=outf) #add header labels
+            for entry in inf:
+                spent = entry.split("\t") #don't use strip here to preserve trailing tabs
+                spent[-1] = spent[-1].strip() #remove newline char
+                for index in range(len(extension)):
                     #adds cluster id
-                    if spent[0] in sd:
-                        spent.append(sd[spent[0]])
+                    if spent[0] in cluster_dicts[index]:
+                        spent.append(cluster_dicts[index][spent[0]])
                     else:
                         spent.append("N/A")
                     #adds region name
-                    if spent[0] in rd:
-                        spent.append(rd[spent[0]].replace("_", " "))
+                    if spent[0] in region_dicts[index]:
+                        spent.append(region_dicts[index][spent[0]].replace("_", " "))
                     else:
                         spent.append("None")
-                    i += 1
-                    print("\t".join(spent),file=outf)
+                print("\t".join(spent),file=outf)
 
 if __name__ == "__main__":
     from master_backend import parse_setup

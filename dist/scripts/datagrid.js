@@ -59,10 +59,15 @@ function getFNameExtn() {
   return ext;
 }
 function getTaxoniumLink(taxoniumURL, cluster, ext = '') {
+  let metaClusterField = 'meta_cluster';
+  let metaRegionField = 'meta_region';
+  if (map_layer == 1) {
+    metaClusterField += '2';
+    metaRegionField += '2';
+  }
   let link = '<a href="https://taxonium.org/?backend=' + taxoniumURL;
-  link += '&configUrl=https%3A%2F%2Fstorage.googleapis.com%2Fucsc-gi-cdph-bigtree%2Fdisplay_tables%2Ftaxonium-config.json';
-  link += '&xType=x_dist&color=%7B%22field%22:%22meta_region%22%7D';
-  link += '&srch=%5B%7B%22key%22:%22aa1%22,%22type%22:%22meta_cluster%22,%22method%22:%22text_exact%22,%22text%22:%22';
+  link += '&xType=x_dist&color=%7B%22field%22:%22' + metaRegionField +'%22%7D';
+  link += '&srch=%5B%7B%22key%22:%22aa1%22,%22type%22:%22' + metaClusterField + '%22,%22method%22:%22text_exact%22,%22text%22:%22';
   link += cluster;
   link += '%22,%22gene%22:%22S%22,%22position%22:484,%22new_residue%22:%22any%22,%22min_tips%22:0,%22controls%22:true%7D%5D';
   link += '&zoomToSearch=0" target="_blank">View Cluster</a>';
@@ -594,11 +599,6 @@ function initCTGrid(dataHost, taxoniumHost, clusterfile, samplefile) {
   // attach resizer so column widths stay consistent as data is read and loaded
   registerResizer(grid);
 
-  let taxoniumURL = taxoniumHost[0];
-  const extn = getFNameExtn();
-  if (extn != '') {
-    taxoniumURL = taxoniumHost[1];
-  }
-  loadBasicData(dataHost, taxoniumURL, clusterfile);
+  loadBasicData(dataHost, taxoniumHost, clusterfile);
   loadSampleData(dataHost, samplefile);
 }
