@@ -61,7 +61,7 @@ function getFNameExtn() {
 function getTaxoniumLink(taxoniumURL, cluster, ext = '') {
   let metaClusterField = 'meta_cluster';
   let metaRegionField = 'meta_region';
-  if (ext.trim() != '') {
+  if (map_layer == 1) {
     metaClusterField += '2';
     metaRegionField += '2';
   }
