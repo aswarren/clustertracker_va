@@ -68,37 +68,42 @@ $('#txtSearch').keyup(function(e) {
     this.value = '';
   }
 });
+function toggleChkValidDates() {
+  const valMin = document.getElementById('txtDateMin').value.trim();
+  const valMax = document.getElementById('txtDateMax').value.trim();
+  if (valMin != '' && valMax != '') { // both fields have values
+    document.getElementById('chkValidDates').checked = true;
+    document.getElementById('chkValidDates').disabled = true;
+  } else if (valMin == '' && valMax == '') { // both fields are blank
+    document.getElementById('chkValidDates').disabled = false;
+    document.getElementById('chkValidDates').checked = false;
+  } else { // one or the other has a value
+    document.getElementById('chkValidDates').disabled = false;
+    document.getElementById('chkValidDates').checked = true;
+  }
+}
 // clear cluster date boxes on escape
 $('#txtDateMin').keyup(function(e) {
   // clear on Esc
   if (e.which === 27) {
     this.value = '';
+    toggleChkValidDates();
   }
 });
 $('#txtDateMax').keyup(function(e) {
   // clear on Esc
   if (e.which === 27) {
     this.value = '';
+    toggleChkValidDates();
   }
 });
-// force filtering out no-valid-date clusters when searching between dates
+// set option to filter out no-valid-date clusters when filtering by date,
+// and force filtering out no-valid-date clusters when searching between two dates
 $('#txtDateMin').change(function() {
-  const valMax = document.getElementById('txtDateMax').value;
-  if (this.value != '' && valMax != '') {
-    document.getElementById('chkValidDates').checked = true;
-    document.getElementById('chkValidDates').disabled = true;
-  } else {
-    document.getElementById('chkValidDates').disabled = false;
-  }
+  toggleChkValidDates();
 });
 $('#txtDateMax').change(function() {
-  const valMin = document.getElementById('txtDateMin').value;
-  if (this.value != '' && valMin != '') {
-    document.getElementById('chkValidDates').checked = true;
-    document.getElementById('chkValidDates').disabled = true;
-  } else {
-    document.getElementById('chkValidDates').disabled = false;
-  }
+  toggleChkValidDates();
 });
 
 
@@ -249,22 +254,28 @@ function appendData(items, type, taxoniumURL = '') {
 function loadData(dataArr, type, taxoniumURL = '') {
   if (type === 'clusters') {
     if (!sampleDataLoaded) {
+      console.log('initializing grid with basic cluster data');
       initData(dataArr, type, taxoniumURL);
     } else if (!basicDataLoaded) {
       // call update function
+      console.log('adding basic cluster data to grid');
       appendData(dataArr, type, taxoniumURL);
       updateData();
     }
     basicDataLoaded = true;
+    console.log('finished adding basic cluster data to grid');
   } else if (type === 'samples') {
     if (basicDataLoaded) {
       // call update function
+      console.log('adding sample data to grid');
       appendData(dataArr, type);
       updateData();
     } else {
+      console.log('initializing grid with sample data');
       initData(dataArr, type);
     }
     sampleDataLoaded = true;
+    console.log('finished adding sample data to grid');
   }
   setGridView();
 } // end of loadData function
@@ -409,7 +420,7 @@ function clearSearch() {
     maxSize: '',
   };
   filterArgs.onlyValidDates = false;
-  if (basicDataLoaded && sampleDataLoaded) {
+  if (basicDataLoaded || sampleDataLoaded) {
     updateFilter();
   }
 }
@@ -475,7 +486,10 @@ function doSearch() {
     }
 
     // update grid filter with new values
-    if (basicDataLoaded && sampleDataLoaded && validVals) {
+    if (!basicDataLoaded || !sampleDataLoaded) {
+      alert('Warning: Data grid still loading. Please try your search again when the data has finished loading.');
+    }
+    if (validVals) {
       filterArgs.searchString = searchString;
       filterArgs.searchBool = searchBool;
       filterArgs.searchAdvancedFlag = searchAdvancedFlag;
@@ -603,7 +617,6 @@ function searchFilter(item, args) {
 
     for (let i of Object.keys(sStrings)) {
       // for text searching, fields in the table to search
-
       searchFields = false;
       for (const key of Object.keys(filterArgs.searchCols)) {
         if (filterArgs.searchCols[key]) {
@@ -613,25 +626,6 @@ function searchFilter(item, args) {
           }
         }
       }
-      // for items in searchCols.length
-      //    is the search term in the column in that row (item[searchCol])?
-                //if yes, break and return true
-
-      
-      // const searchFields = item.cid.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-      //      item.region.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-      //      item.sampcount.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-      //      item.earliest.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-      //      item.latest.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-      //      item.clade.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-      //      item.lineage.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-      //      item.origin.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-      //      item.confidence.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-      //      item.growth.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-      //      item.taxlink.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-      //      item.investigator.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-      //      item.samples.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-      //      item.pauis.toLowerCase().indexOf(sStrings[i]) !== -1;
       if (searchFields) {
         foundItemAny = true;
         if (args.searchBool == 'or') {break;}

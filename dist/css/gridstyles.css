@@ -146,6 +146,12 @@ td.ctr {
   border: 1px solid gray;
   width: 100px;
 }
+.left-padding-small {
+  padding-left:  4px;
+}
+.subElement {
+  margin-top:  8px;
+}
 #btnSimpleSearch {
   margin-top: 5px;
   margin-bottom:  5px;

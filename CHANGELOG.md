@@ -1,5 +1,7 @@
 # Changelog
 
+## v.0.7.0 (2023-03-06):
+   - UI changes: Adds ability to search on selected columns and/or filter by date range, cluster size, or growth score.
 ## v.0.6.9 (2023-01-20):
    - Data processing: fixes bug in reading metadata file when there are blank metadata elements at the end of the line.
 ## v.0.6.8 (2023-01-10):

@@ -1,10 +1,10 @@
 // attaches events to menu
 function logout() {
-  console.log("logout")
   window.open('?gcp-iap-mode=CLEAR_LOGIN_COOKIE', '_self');
 };
 
-// Search and Filter - toggle collapse box arrows
+// Search and Filter
+// toggle collapse box arrows
 function toggleDropArrow(itemID) {
   const el = document.getElementById(itemID);
   const icon = el.getElementsByTagName('span');
