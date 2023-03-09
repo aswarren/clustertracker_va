@@ -3,10 +3,10 @@
     "source": "INSDC",
     "title": "California Big Tree",
     "customNames": {
-      "cluster": "Cluster ID, CA County Analysis",
-      "cluster2": "Cluster ID, CA State Analysis",
-      "region": "Region, CA County Analysis",
-      "region2": "Region, CA State Analysis",
+      "meta_cluster": "Cluster ID, CA County Analysis",
+      "meta_cluster2": "Cluster ID, CA State Analysis",
+      "meta_region": "Region, CA County Analysis",
+      "meta_region2": "Region, CA State Analysis",
       "num_tips": "Descendant sequences",
       "meta_specimen_id": "Specimen ID",
       "meta_pango_lineage": "PANGO lineage",
@@ -83,5 +83,5 @@
         "None"
       ]
     },
-    "x_accessors": ["x_dist"]
+    "x_accessors": ["x_dist", "x_time"]
   }
