@@ -17,9 +17,94 @@ const workerScript = `
   `;
 let sortcol = ''; // default column to sort on
 let sortdir = -1; // default sort direction (descending)
-let searchString = ''; // string used to search and sort grid
-let regionString = ''; // string to filter grid by region
-let searchBool = 'and'; // boolean search operator ('and' or 'or')
+let filterArgs = { // grid filter arguments
+  regionString: '',
+  searchString: '',
+  searchBool: 'and',
+  searchAdvancedFlag: false,
+  searchCols: {
+    cid: true,
+    region: true,
+    sampcount: true,
+    earliest: true,
+    latest: true,
+    clade: true,
+    lineage: true,
+    origin: true,
+    confidence: true,
+    growth: true,
+    samples: true,
+    pauis: true,
+  },
+  gridFilters: {
+    minGrowth: '',
+    maxGrowth: '',
+    minDate: '',
+    maxDate: '',
+    minSize: '',
+    maxSize: '',
+  },
+  onlyValidDates: false,
+};
+
+
+// attaches events and methods to search and filter elements
+// attach methods to filter-multi-select and sets placeholder values
+const colSelector = $('#colSelect').filterMultiSelect({
+  placeholderText: 'Please select at least one column',
+});
+$(function() {
+  $('#colSelect').on('optionselected', function(e) {
+    filterArgs.searchCols[e.detail.value] = true;
+  });
+  $('#colSelect').on('optiondeselected', function(e) {
+    filterArgs.searchCols[e.detail.value] = false;
+  });
+});
+// clear Search box on escape
+$('#txtSearch').keyup(function(e) {
+  // clear on Esc
+  if (e.which === 27) {
+    this.value = '';
+  }
+});
+function toggleChkValidDates() {
+  const valMin = document.getElementById('txtDateMin').value.trim();
+  const valMax = document.getElementById('txtDateMax').value.trim();
+  if (valMin != '' && valMax != '') { // both fields have values
+    document.getElementById('chkValidDates').checked = true;
+    document.getElementById('chkValidDates').disabled = true;
+  } else if (valMin == '' && valMax == '') { // both fields are blank
+    document.getElementById('chkValidDates').disabled = false;
+    document.getElementById('chkValidDates').checked = false;
+  } else { // one or the other has a value
+    document.getElementById('chkValidDates').disabled = false;
+    document.getElementById('chkValidDates').checked = true;
+  }
+}
+// clear cluster date boxes on escape
+$('#txtDateMin').keyup(function(e) {
+  // clear on Esc
+  if (e.which === 27) {
+    this.value = '';
+    toggleChkValidDates();
+  }
+});
+$('#txtDateMax').keyup(function(e) {
+  // clear on Esc
+  if (e.which === 27) {
+    this.value = '';
+    toggleChkValidDates();
+  }
+});
+// set option to filter out no-valid-date clusters when filtering by date,
+// and force filtering out no-valid-date clusters when searching between two dates
+$('#txtDateMin').change(function() {
+  toggleChkValidDates();
+});
+$('#txtDateMax').change(function() {
+  toggleChkValidDates();
+});
 
 
 // == functions for attaching data to grid ==
@@ -174,22 +259,28 @@ function appendData(items, type, taxoniumURL = '') {
 function loadData(dataArr, type, taxoniumURL = '') {
   if (type === 'clusters') {
     if (!sampleDataLoaded) {
+      console.log('initializing grid with basic cluster data');
       initData(dataArr, type, taxoniumURL);
     } else if (!basicDataLoaded) {
       // call update function
+      console.log('adding basic cluster data to grid');
       appendData(dataArr, type, taxoniumURL);
       updateData();
     }
     basicDataLoaded = true;
+    console.log('finished adding basic cluster data to grid');
   } else if (type === 'samples') {
     if (basicDataLoaded) {
       // call update function
+      console.log('adding sample data to grid');
       appendData(dataArr, type);
       updateData();
     } else {
+      console.log('initializing grid with sample data');
       initData(dataArr, type);
     }
     sampleDataLoaded = true;
+    console.log('finished adding sample data to grid');
   }
   setGridView();
 } // end of loadData function
@@ -309,39 +400,217 @@ function registerResizer(grid) {
 }
 
 // == grid filtering and sorting ==
-function clearFilter() {
+function clearSearch() {
   document.getElementById('txtSearch').value = '';
-  searchString = '';
-  if (basicDataLoaded && sampleDataLoaded) {
+  document.getElementById('boolAnd').checked = true;
+  document.getElementById('boolOr').checked = false;
+  colSelector.selectAll();
+  document.getElementById('txtGrowthMin').value = '';
+  document.getElementById('txtGrowthMax').value = '';
+  document.getElementById('txtSizeMin').value = '';
+  document.getElementById('txtSizeMax').value = '';
+  document.getElementById('txtDateMin').value = '';
+  document.getElementById('txtDateMax').value = '';
+  document.getElementById('chkValidDates').checked = false;
+  document.getElementById('chkValidDates').disabled = false;
+  filterArgs.searchString = '';
+  filterArgs.searchBool = 'and';
+  filterArgs.searchAdvancedFlag = false;
+  filterArgs.gridFilters = {
+    minGrowth: '',
+    maxGrowth: '',
+    minDate: '',
+    maxDate: '',
+    minSize: '',
+    maxSize: '',
+  };
+  filterArgs.onlyValidDates = false;
+  if (basicDataLoaded || sampleDataLoaded) {
     updateFilter();
   }
 }
-// triggers simple search on button click
-function doSimpleSearch() {
-  searchString = document.getElementById('txtSearch').value;
-  // get boolean search criteria from radio buttons
-  const radios = document.getElementsByName('bool');
-  for (let i = 0, length = radios.length; i < length; i++) {
-    if (radios[i].checked) {
-      searchBool = radios[i].value;
-      break;
+
+// triggers search on button click
+function doSearch() {
+  // check basic text search
+  isBasicSearchOK = true;
+  const searchString = document.getElementById('txtSearch').value;
+
+  // check to see if at least one column is selected to search on, only if there is text in search box
+  if (searchString != '') {
+    noColsSelected = true;
+    for (const key of Object.keys(filterArgs.searchCols)) {
+      if (filterArgs.searchCols[key]) {
+        noColsSelected = false;
+        break;
+      }
+    }
+    if (noColsSelected) {
+      alert('Search Error: Please select at least one column in the Search Columns box to search on.');
+      isBasicSearchOK = false;
     }
   }
-  if (basicDataLoaded && sampleDataLoaded) {
-    updateFilter();
+
+  if (isBasicSearchOK) {
+    // get boolean search criteria from radio buttons
+    let searchBool = 'and';
+    const radios = document.getElementsByName('bool');
+    if (radios[1].checked) {
+      searchBool = 'or';
+    }
+
+    // check advanced options
+    let validVals = true;
+    let searchAdvancedFlag = false;
+    let onlyValidDates = false;
+    const gridFilters = {
+      minGrowth: document.getElementById('txtGrowthMin').value.trim(),
+      maxGrowth: document.getElementById('txtGrowthMax').value.trim(),
+      minDate: document.getElementById('txtDateMin').value.trim(),
+      maxDate: document.getElementById('txtDateMax').value.trim(),
+      minSize: document.getElementById('txtSizeMin').value.trim(),
+      maxSize: document.getElementById('txtSizeMax').value.trim(),
+    };
+    // check to see if all search terms are blank or not
+    for (const key of Object.keys(gridFilters)) {
+      if (gridFilters[key] != '') {
+        searchAdvancedFlag = true;
+        break;
+      }
+    }
+    // validate advanced search items
+    const validGVs = validateAdvSearch('txtGrowthMin', 'txtGrowthMax', 'Growth Score');
+    const validDates = validateAdvSearch('txtDateMin', 'txtDateMax', 'Cluster Date');
+    const validSize = validateAdvSearch('txtSizeMin', 'txtSizeMax', 'Cluster Size');
+    if (!validGVs || !validDates || !validSize) {
+      validVals = false;
+    }
+    // exclude 'no-valid-date' clusters
+    if (document.getElementById('chkValidDates').checked) {
+      onlyValidDates = true;
+    }
+
+    // update grid filter with new values
+    if (!basicDataLoaded || !sampleDataLoaded) {
+      alert('Warning: Data grid still loading. Please try your search again when the data has finished loading.');
+    }
+    if (validVals) {
+      filterArgs.searchString = searchString;
+      filterArgs.searchBool = searchBool;
+      filterArgs.searchAdvancedFlag = searchAdvancedFlag;
+      filterArgs.gridFilters = gridFilters;
+      filterArgs.onlyValidDates = onlyValidDates;
+      updateFilter();
+    }
   }
+}
+function validateAdvSearch(minField, maxField, varName) {
+  let minVal = document.getElementById(minField).value.trim();
+  let maxVal = document.getElementById(maxField).value.trim();
+  const strWarn = 'Advanced Filter Error: ';
+  // first, check valid entry ranges
+  if (varName == 'Cluster Date') {
+    // check date format
+    if (minVal != '' && minVal.search(/\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])/) < 0) {
+      alert(strWarn + 'Please enter a valid date for the minimum ' + varName + '.');
+      return false;
+    } else {
+      minVal = minVal.replace(/\-/g, '');
+    }
+    if (maxVal != '' && maxVal.search(/\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])/) < 0) {
+      alert(strWarn + 'Please enter a valid date for the maximum ' + varName + '.');
+      return false;
+    } else {
+      maxVal = maxVal.replace(/\-/g, '');
+    }
+  } else {
+    if (Number.isNaN(minVal)) {
+      alert(strWarn + 'Please enter a valid value for the minimum ' + varName + '.');
+      return false;
+    }
+    if (Number.isNaN(maxVal)) {
+      alert(strWarn + 'Please enter a valid value for the maximum ' + varName + '.');
+      return false;
+    }
+    if (varName == 'Growth Score') {
+      if (Number(minVal) < 0) {
+        alert(strWarn + 'The minimum ' + varName + ' must be 0 or larger.');
+        return false;
+      }
+    } else if (varName == 'Cluster Size') {
+      if (minVal.trim() != '' && Number(minVal) < 1) {
+        alert(strWarn + 'The minimum ' + varName + ' must be 1 or larger.');
+        return false;
+      }
+      if (!Number.isInteger(Number(minVal)) || !Number.isInteger(Number(maxVal))) {
+        alert(strWarn + varName + ' values must be an integer.');
+        return false;
+      }
+    }
+  }
+  // next check min > max
+  if (maxVal != '' && Number(minVal) > Number(maxVal)) {
+    alert(strWarn + 'The minimum ' + varName + ' exceeds the maximum value.');
+    return false;
+  }
+  return true;
 }
 // sets which data to search on
 function searchFilter(item, args) {
+  // filter out any 'no-valid-date' clusters
+  if (args.onlyValidDates) {
+    if (item['earliest'] == 'no-valid-date') {
+      return false;
+    }
+  }
   // show items if no region and no search string
-  if (args.searchString === '' && args.regionString === '') {
+  if (args.searchString === '' && args.regionString === '' && !args.searchAdvancedFlag) {
     return true;
   }
 
   // handle filtering by region before tackling search items
   // filter out items not in the region
-  if (args.regionString !== '' && item.region.indexOf(regionString) === -1) {
+  if (args.regionString !== '' && item.region.indexOf(args.regionString) === -1) {
     return false;
+  }
+
+  // next, filter on advanced search criteria
+  if (args.searchAdvancedFlag) {
+    if (args.gridFilters.minGrowth != '') {
+      if (parseFloat(item['growth']) < parseFloat(args.gridFilters.minGrowth)) {
+        return false;
+      }
+    }
+    if (args.gridFilters.maxGrowth != '') {
+      if (parseFloat(item['growth']) > parseFloat(args.gridFilters.maxGrowth)) {
+        return false;
+      }
+    }
+    if (args.gridFilters.minSize != '') {
+      if (parseInt(item['sampcount']) < parseInt(args.gridFilters.minSize)) {
+        return false;
+      }
+    }
+    if (args.gridFilters.maxSize != '') {
+      if (parseInt(item['sampcount']) > parseInt(args.gridFilters.maxSize)) {
+        return false;
+      }
+    }
+    if (args.gridFilters.minDate != '') {
+      if (parseInt(item['earliest'].replace(/\-/g, '')) < parseInt(args.gridFilters.minDate.replace(/\-/g, ''))) {
+        return false;
+      }
+    }
+    if (args.gridFilters.maxDate != '') {
+      if (parseInt(item['latest'].replace(/\-/g, '')) > parseInt(args.gridFilters.maxDate.replace(/\-/g, ''))) {
+        return false;
+      }
+    }
+    if (args.gridFilters.minDate != '' & args.gridFilters.maxDate != '') {
+      if (item['earliest'] == 'no-valid-date') {
+        return false;
+      }
+    }
   }
 
   // now, check for search items
@@ -353,31 +622,26 @@ function searchFilter(item, args) {
 
     for (let i of Object.keys(sStrings)) {
       // for text searching, fields in the table to search
-      const searchFields = item.cid.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-           item.region.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-           item.sampcount.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-           item.earliest.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-           item.latest.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-           item.clade.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-           item.lineage.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-           item.origin.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-           item.confidence.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-           item.growth.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-           item.taxlink.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-           item.investigator.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-           item.samples.toLowerCase().indexOf(sStrings[i]) !== -1 ||
-           item.pauis.toLowerCase().indexOf(sStrings[i]) !== -1;
+      searchFields = false;
+      for (const key of Object.keys(filterArgs.searchCols)) {
+        if (filterArgs.searchCols[key]) {
+          if (item[key].toLowerCase().indexOf(sStrings[i]) !== -1) {
+            searchFields = true;
+            break;
+          }
+        }
+      }
       if (searchFields) {
         foundItemAny = true;
-        if (searchBool == 'or') {break;}
+        if (args.searchBool == 'or') {break;}
       } else {
         foundItemAll = false;
-        if (searchBool == 'and') {break;}
+        if (args.searchBool == 'and') {break;}
       }
     }
-    if ((searchBool == 'or') && foundItemAny) {
+    if ((args.searchBool == 'or') && foundItemAny) {
       return true;
-    } else if ((searchBool == 'and') && foundItemAll) {
+    } else if ((args.searchBool == 'and') && foundItemAll) {
       return true;
     } else {
       return false;
@@ -389,17 +653,22 @@ function searchFilter(item, args) {
 }
 function updateFilter() {
   dataView.setFilterArgs({
-    regionString,
-    searchString,
+    regionString: filterArgs.regionString,
+    searchString: filterArgs.searchString,
+    searchBool: filterArgs.searchBool,
+    searchCols: filterArgs.searchCols,
+    searchAdvancedFlag: filterArgs.searchAdvancedFlag,
+    gridFilters: filterArgs.gridFilters,
+    onlyValidDates: filterArgs.onlyValidDates,
   });
   dataView.refresh();
 }
 // function to show/hide data by region
 function showRegion(region) {
   if (region === 'default') {
-    regionString = '';
+    filterArgs.regionString = '';
   } else {
-    regionString = region;
+    filterArgs.regionString = region;
   }
   if (basicDataLoaded) {
     updateFilter();
@@ -423,7 +692,7 @@ function sorterDates(a, b) {
       retVal = 1; // put 'no-valid-dates' after dates
     } else if (y == 'no-valid-date') {
       retVal = -1; // put dates before 'no-valid-dates'
-    } else { 
+    } else {
       // comparing two date strings
       retVal = sortdir * (x > y ? 1 : -1);
     }
@@ -562,22 +831,16 @@ function setGridView() {
     }
   });
 
-  // wire up the search textbox to apply the filter to the model
-  $('#txtSearch').keyup(function(e) {
-    // clear on Esc
-    if (e.which === 27) {
-      this.value = '';
-    }
-    searchString = this.value;
-  });
-
   // initialize the model after all the events have been hooked up
   dataView.beginUpdate();
   dataView.setItems(data);
   dataView.setFilterArgs({
-    regionString,
-    searchString,
-    searchBool,
+    regionString: '',
+    searchString: '',
+    searchBool: 'and',
+    searchAdvancedFlag: false,
+    gridFilters: {},
+    onlyValidDates: false,
   });
   dataView.setFilter(searchFilter);
   dataView.endUpdate();
@@ -591,9 +854,8 @@ function initCTGrid(dataHost, taxoniumHost, clusterfile, samplefile) {
   data = [];
   sortcol = '';
   sortdir = -1;
-  searchString = '';
   regionString = '';
-  document.getElementById('txtSearch').value = '';
+  clearSearch();
   // create basic grid object while waiting for data to load
   grid = new Slick.Grid('#myGrid', tempData(), setCols(), gridOpts());
   // attach resizer so column widths stay consistent as data is read and loaded

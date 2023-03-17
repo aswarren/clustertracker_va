@@ -1,84 +1,62 @@
-/* Custom styles */
-/*
-DePaul IHS
-*/
-
-@font-face {
-    font-family: 'GibsonSemiBold';
-    src: url('/css/fonts/gibson-semibold-webfont.eot');
-    src: url('/css/fonts/gibson-semibold-webfont.eot?#iefix') format('embedded-opentype'),
-         url('/css/fonts/gibson-semibold-webfont.woff') format('woff'),
-         url('/css/fonts/gibson-semibold-webfont.ttf') format('truetype'),
-         url('/css/fonts/gibson-semibold-webfont.svg#GibsonSemiBold') format('svg');
-    font-weight: normal;
-    font-style: normal;
-}
-@font-face {
-    font-family: 'GibsonBold';
-    src: url('/css/fonts/gibson-bold-webfont.eot');
-    src: url('/css/fonts/gibson-bold-webfont.eot?#iefix') format('embedded-opentype'),
-         url('/css/fonts/gibson-bold-webfont.woff') format('woff'),
-         url('/css/fonts/gibson-bold-webfont.ttf') format('truetype'),
-         url('/css/fonts/gibson-bold-webfont.svg#GibsonBold') format('svg');
-    font-weight: normal;
-    font-style: normal;
-}
-@font-face {
-    font-family: 'ColaborateThinRegular';
-    src: url('/css/fonts/ColabThi-webfont.eot');
-    src: url('/css/fonts/ColabThi-webfont.eot?#iefix') format('embedded-opentype'),
-         url('/css/fonts/ColabThi-webfont.woff') format('woff'),
-         url('/css/fonts/ColabThi-webfont.ttf') format('truetype'),
-         url('/css/fonts/ColabThi-webfont.svg#ColaborateThinRegular') format('svg');
-    font-weight: normal;
-    font-style: normal;
-}
-@font-face {
-    font-family: 'ColaborateRegRegular';
-    src: url('https://www.housingstudies.org/static/css/fonts/ColabReg-webfont.eot');
-    src: url('https://www.housingstudies.org/static/css/fonts/ColabReg-webfont.eot?#iefix') format('embedded-opentype'),
-         url('https://www.housingstudies.org/static/css/fonts/ColabReg-webfont.woff') format('woff'),
-         url('https://www.housingstudies.org/static/css/fonts/ColabReg-webfont.ttf') format('truetype'),
-         url('https://www.housingstudies.org/static/css/fonts/ColabReg-webfont.svg#ColaborateRegRegular') format('svg');
-    font-weight: normal;
-    font-style: normal;
-
-}
-@font-face {
-    font-family: 'AlegreyaBold';
-    src: url('https://www.housingstudies.org/static/css/fonts/Alegreya-Bold-webfont.eot');
-    src: url('https://www.housingstudies.org/static/css/fonts/Alegreya-Bold-webfont.eot?#iefix') format('embedded-opentype'),
-         url('https://www.housingstudies.org/static/css/fonts/Alegreya-Bold-webfont.woff') format('woff'),
-         url('https://www.housingstudies.org/static/css/fonts/Alegreya-Bold-webfont.ttf') format('truetype'),
-         url('https://www.housingstudies.org/static/css/fonts/Alegreya-Bold-webfont.svg#AlegreyaBold') format('svg');
-    font-weight: normal;
-    font-style: normal;
-}
-
-    
+/** General Styles **/
 body { 
-  font: 18px/1.3em 'ColaborateThinRegular', sans-serif;
+  margin: 8px;
+  font: 18px/1.3em "Lato", sans-serif;
 }
 
 h1 {
-  font: 32px/1em 'GibsonBold', serif;
+  font: 32px/1em "Montserrat", sans-serif;
   text-transform: uppercase;
   color: #827E7E;
   margin: 0 5px 0.67em 0;
 }
+h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
 
-h2 {
-  font: 22px/1em 'GibsonBold', serif;
-  text-transform: uppercase;
-  color: #827E7E;
+button {
+  font: 13px/1.3em "Montserrat", sans-serif;
+  border-radius: 4px;
+  background-color: rgb(239, 239, 239);
+  border: 1px solid rgb(118,118,118);
+}
+label {
+  margin: 0px;
+  padding-right: 2px;
 }
 
-#logo {
-  margin-top: 20px;
+div.show {display:block;}
+div.hide {
+  display: none;
 }
 
-#logo img { width: 170px; }
+/** Buttons for the map **/
+.mapButton {position: relative; display: inline-block; width: 150px}
+.dropbtn:disabled, .timel:disabled {
+  color: rgba(172, 172, 172);
+  border: 1px solid rgb(202, 202, 202);
+}
+.dropdown-content {
+  display: none; 
+  position: absolute; 
+  z-index: 2000; 
+  width: 100%; 
+  background-color:#f1f1f1;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+} 
+.timel {display: block; width: 100%; text-align: center;}
+.btn_selected {
+    background: #cccccc;
+    border-width: 2px;
+}
+#dropcolor { 
+    position: absolute;
+    right: 164px;
+}
+#droploc { 
+    position: absolute;
+    right: 8px;
+}
 
+/** Map Info box and Legend **/
 .info {
   padding: 6px 8px;
   font: 14px/16px Arial, Helvetica, sans-serif;
@@ -90,8 +68,8 @@ h2 {
 .info h4 {
   margin: 0 0 5px;
   color: #777;
+  font: 14px/16px "Lato", sans-serif;
 }
-
 .legend {
   text-align: left;
   line-height: 18px;
@@ -105,24 +83,22 @@ h2 {
   opacity: 0.7;
 }
 
+
+/** misc text styles **/
 .definition {
   border-bottom: 1px dotted black;
 }
-
-.btn_selected {
-    background: #cccccc;
+#downloads {
+  margin-top: 18px;
+}
+.tableNote {
+  font-family: arial;
+  font-size: 8pt;
+  line-height: normal;
+  margin-top: 1em;
 }
 
-#dropcolor { 
-    position: absolute;
-    right: 164px;
-}
-
-#droploc { 
-    position: absolute;
-    right: 8px;
-}
-
+/** data update in progress status box **/
 #status_msg {
   font-family: Arial, Helvetica, sans-serif;
   font-size: .8em;
@@ -138,7 +114,6 @@ h2 {
   background: #fff;
   border: 1px solid #757575;
 }
-
 .status_head {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 1em;
@@ -148,18 +123,15 @@ h2 {
   padding: 5px 10px;
   border-bottom: 1px solid #757575;
 }
-
 .msg {
   padding: 10px;
 }
-
 .warning .status_head {
   background: #fff899;
 }
 .notice .status_head {
   background: #c0e8b3;
 }
-
 .status_btn {
     margin-top: 5px;
     margin-bottom: 10px;
@@ -168,46 +140,21 @@ h2 {
     font-weight: bold;
 }
 
-div.hide {
-  display: none;
-}
 
-#downloads {
-  margin-top: 18px;
-}
-
-.tableNote {
-  font-family: arial;
-  font-size: 8pt;
-  line-height: normal;
-}
-
-#btnMenuDiv {
-  width: 24px;
-  float: right;
-}
-#btnMenu {
-  cursor: pointer;
+/** hamburger menu **/
+.menuDiv {
   color: gray;
-  margin: 0;
-  vertical-align: top;
-}
-#btnMenu:hover {
-  background-color: #F5F5F5;
   cursor: pointer;
+  font-size: .8em;
 }
-.material-symbols-outlined {
-  vertical-align: middle;
+.menuDiv:hover {
+  background-color: #e9ecef;
 }
-.ui-menu { 
-  width: 150px;
+.mnuItem {
   color: gray;
   font-family: Arial, Helvetica, sans-serif;
   font-size: .8em;
 }
-#menuContainer {
-  position: absolute;
-  top: 30px;
-  right: 8px;
-  z-index: 2000;
+.material-symbols-outlined {
+  vertical-align: middle;
 }
