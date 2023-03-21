@@ -9,7 +9,7 @@
     "compile:js": "tsc",
     "copy:html": "cpx 'src/**.{html,css}' dist",
     "bundle": "rollup -c",
-    "minify": "uglifyjs dist/filter-multi-select-bundle.js --output dist/filter-multi-select-bundle.min.js --source-map dist/filter-multi-select-bundle.min.js.map --source-map-url filter-multi-select-bundle.min.js.map --in-source-map dist/filter-multi-select-bundle.js.map"
+    "minify": "uglifyjs dist/filter-multi-select-bundle.js -o dist/filter-multi-select-bundle.min.js -c"
   },
   "author": {
     "name": "Andrew Wagner"
@@ -27,6 +27,6 @@
     "rollup": "^2.34.0",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-sourcemaps": "^0.6.3",
-    "uglify": "^0.1.5"
+    "uglify-js": "^2.1.11"
   }
 }
