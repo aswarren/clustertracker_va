@@ -283,6 +283,10 @@ function loadData(dataArr, type, taxoniumURL = '') {
     console.log('finished adding sample data to grid');
   }
   setGridView();
+  // enable custom tool tips
+  $(document).ready(function() {
+    $('[data-toggle="tooltip"]').tooltip();
+  });
 } // end of loadData function
 async function loadBasicData(dataHost, taxoniumURL, file) {
   const workerBlob = new Blob([workerScript], {type: 'application/javascript'});
@@ -329,20 +333,20 @@ function gridOpts() {
 // sets the number of columns and their parameters
 function setCols() {
   const cols = [
-    {id: 'cid', name: `<span title='${tooltipText[0]}'>Cluster ID</span>`, field: 'cid', minWidth: 150, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
-    {id: 'region', name: `<span title='${tooltipText[1]}'>Region</span>`, field: 'region', minWidth: 100, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
-    {id: 'sampcount', name: `<span title='${tooltipText[2]}'>Sample Count</span>`, field: 'sampcount', minWidth: 50, sortable: true, sorter: sorterNumeric, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
-    {id: 'earliest', name: `<span title='${tooltipText[3]}'>Earliest Date</span>`, field: 'earliest', minWidth: 70, sortable: true, sorter: sorterDates, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
-    {id: 'latest', name: `<span title='${tooltipText[4]}'>Latest Date</span>`, field: 'latest', minWidth: 70, sortable: true, sorter: sorterDates, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
-    {id: 'clade', name: `<span title='${tooltipText[5]}'>Clade</span>`, field: 'clade', minWidth: 80, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
-    {id: 'lineage', name: `<span title='${tooltipText[6]}'>Lineage</span>`, field: 'lineage', minWidth: 80, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
-    {id: 'origin', name: `<span title='${tooltipText[7]}'>Best Potential Origins</span>`, field: 'origin', minWidth: 100, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
-    {id: 'confidence', name: `<span title='${tooltipText[8]}'>Best Origin Regional Indices</span>`, field: 'confidence', minWidth: 60, sortable: true, sorter: sorterNumeric, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
-    {id: 'growth', name: `<span title='${tooltipText[9]}'>Growth Score</span>`, field: 'growth', minWidth: 70, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
-    {id: 'taxlink', name: `<span title='${tooltipText[10]}'>View in Taxonium</span>`, field: 'taxlink', minWidth: 70, formatter: linkFormatter, sortable: true, sorter: sorterStringCompare},
-    {id: 'investigator', name: `<span title='${tooltipText[11]}'>View in Big Tree Investigator</span>`, field: 'investigator', minWidth: 120, formatter: linkFormatter, sortable: true, sorter: sorterStringCompare},
-    {id: 'samplecol', name: `<span title='${tooltipText[12]}'>Samples</span>`, field: 'samplecol', minWidth: 100, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
-    {id: 'pauicol', name: `<span title='${tooltipText[13]}'>Specimen IDs</span>`, field: 'pauicol', minWidth: 100, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'cid', name: `<span data-toggle='tooltip' title='${tooltipText[0]}'>Cluster ID</span>`, field: 'cid', minWidth: 150, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'region', name: `<span data-toggle='tooltip' title='${tooltipText[1]}'>Region</span>`, field: 'region', minWidth: 100, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'sampcount', name: `<span data-toggle='tooltip' title='${tooltipText[2]}'>Sample Count</span>`, field: 'sampcount', minWidth: 50, sortable: true, sorter: sorterNumeric, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'earliest', name: `<span data-toggle='tooltip' title='${tooltipText[3]}'>Earliest Date</span>`, field: 'earliest', minWidth: 70, sortable: true, sorter: sorterDates, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'latest', name: `<span data-toggle='tooltip' title='${tooltipText[4]}'>Latest Date</span>`, field: 'latest', minWidth: 70, sortable: true, sorter: sorterDates, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'clade', name: `<span data-toggle='tooltip' title='${tooltipText[5]}'>Clade</span>`, field: 'clade', minWidth: 80, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'lineage', name: `<span data-toggle='tooltip' title='${tooltipText[6]}'>Lineage</span>`, field: 'lineage', minWidth: 80, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'origin', name: `<span data-toggle='tooltip' title='${tooltipText[7]}'>Best Potential Origins</span>`, field: 'origin', minWidth: 100, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'confidence', name: `<span data-toggle='tooltip' title='${tooltipText[8]}'>Best Origin Regional Indices</span>`, field: 'confidence', minWidth: 60, sortable: true, sorter: sorterNumeric, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'growth', name: `<span data-toggle='tooltip' title='${tooltipText[9]}'>Growth Score</span>`, field: 'growth', minWidth: 70, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'taxlink', name: `<span data-toggle='tooltip' title='${tooltipText[10]}'>View in Taxonium</span>`, field: 'taxlink', minWidth: 70, formatter: linkFormatter, sortable: true, sorter: sorterStringCompare},
+    {id: 'investigator', name: `<span data-toggle='tooltip' title='${tooltipText[11]}'>View in Big Tree Investigator</span>`, field: 'investigator', minWidth: 120, formatter: linkFormatter, sortable: true, sorter: sorterStringCompare},
+    {id: 'samplecol', name: `<span data-toggle='tooltip' title='${tooltipText[12]}'>Samples</span>`, field: 'samplecol', minWidth: 100, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'pauicol', name: `<span data-toggle='tooltip' title='${tooltipText[13]}'>Specimen IDs</span>`, field: 'pauicol', minWidth: 100, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
   ];
   return cols;
 }

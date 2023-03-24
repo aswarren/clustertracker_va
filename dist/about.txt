@@ -1,6 +1,6 @@
 This favicon was generated using the following font:
 
-- Font Title: Kalam
-- Font Author: Copyright (c) 2014 Indian Type Foundry (info@indiantypefoundry.com)
-- Font Source: http://fonts.gstatic.com/s/kalam/v11/YA9dr0Wd4kDdMuhWMibDszkB.ttf
-- Font License: SIL Open Font License, 1.1 (http://scripts.sil.org/OFL))
+- Font Title: Roboto
+- Font Author: Copyright 2011 Google Inc. All Rights Reserved.
+- Font Source: http://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Me5WZLCzYlKw.ttf
+- Font License: Apache License, version 2.0 (http://www.apache.org/licenses/LICENSE-2.0.html))
