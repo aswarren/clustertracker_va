@@ -4,6 +4,7 @@
     "jquery": "^3.6.0",
     "jquery-ui": "~1.13.2",
     "leaflet": "^1.8.0",
+    "leaflet-gesture-handling": "^1.2.2",
     "pako": "^2.0.4",
     "slickgrid": "~3.0.2",
     "sortablejs": "^1.15.0"

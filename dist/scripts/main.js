@@ -1,4 +1,4 @@
-const map = L.map('mapid', {'tap': false}).setView(L.latLng(mapCenter), mapInitialZoom);
+const map = L.map('mapid', {'tap': false, 'gestureHandling': true}).setView(L.latLng(mapCenter), mapInitialZoom);
 // set max zoomed out extent via bounds and minZoom
 const southWest = L.latLng(-90, -179);
 const northEast = L.latLng(90, 0);
