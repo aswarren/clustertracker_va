@@ -341,7 +341,7 @@ function setCols() {
     {id: 'clade', name: `<span data-toggle='tooltip' title='${tooltipText[5]}'>Clade</span>`, field: 'clade', minWidth: 80, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
     {id: 'lineage', name: `<span data-toggle='tooltip' title='${tooltipText[6]}'>Lineage</span>`, field: 'lineage', minWidth: 80, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
     {id: 'origin', name: `<span data-toggle='tooltip' title='${tooltipText[7]}'>Best Potential Origins</span>`, field: 'origin', minWidth: 100, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
-    {id: 'confidence', name: `<span data-toggle='tooltip' title='${tooltipText[8]}'>Best Origin Regional Indices</span>`, field: 'confidence', minWidth: 60, sortable: true, sorter: sorterNumeric, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
+    {id: 'confidence', name: `<span data-toggle='tooltip' title='${tooltipText[8]}'>Best Origin Regional Indices</span>`, field: 'confidence', minWidth: 75, sortable: true, sorter: sorterNumeric, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
     {id: 'growth', name: `<span data-toggle='tooltip' title='${tooltipText[9]}'>Growth Score</span>`, field: 'growth', minWidth: 70, sortable: true, sorter: sorterStringCompare, customTooltip: {useRegularTooltip: true}, formatter: tooltipFormatter},
     {id: 'taxlink', name: `<span data-toggle='tooltip' title='${tooltipText[10]}'>View in Taxonium</span>`, field: 'taxlink', minWidth: 70, formatter: linkFormatter, sortable: true, sorter: sorterStringCompare},
     {id: 'investigator', name: `<span data-toggle='tooltip' title='${tooltipText[11]}'>View in Big Tree Investigator</span>`, field: 'investigator', minWidth: 120, formatter: linkFormatter, sortable: true, sorter: sorterStringCompare},
@@ -398,7 +398,7 @@ function registerResizer(grid) {
     container: '#grdContainer',
     bottomPadding: 10,
   },
-  {height: 570},
+  {height: 580},
   );
   grid.registerPlugin(resizer);
 }
@@ -801,7 +801,7 @@ function setGridView() {
         const origins = txt.split(',');
         txt = grid.getDataItem(p.row).confidence;
         const conf = txt.split(',');
-        txt = '<table class="grdInfoTable"><tr><th>Origin</th><th>Regional Index</th></tr>';
+        txt = '<table class="grdInfoTable"><tr><th>Potential Origin</th><th>Regional Index</th></tr>';
         for (let i = 0; i < origins.length; i++) {
           txt += '<tr><td>' + origins[i] + '</td><td class="ctr">' + conf[i] + '</td></tr>';
         }

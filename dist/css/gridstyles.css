@@ -1,37 +1,55 @@
 @import url('../lib/slickgrid/slick-default-theme.min.css');
 #myGrid {
   background: white;
-  outline: 0;
-  border: 1px solid gray;
+  border-top: 1px solid #C0C0C0;
+  border-left: 1px solid #C0C0C0;
+  border-right: 1px solid #C0C0C0;
+  border-top-right-radius: 0.25rem;
+  border-top-left-radius: 0.25rem;
+  background-clip: border-box;
 }
 #myGrid, #pager {
-  /*font-family: arial; */
   font-size: 8pt;
   line-height: normal;
+}
+#pager {
+  padding-right: 5px;
+  padding-top: 4px;
+  padding-left: 5px;
+  border: 1px solid #C0C0C0;
+  border-bottom-right-radius: 0.25rem;
+  border-bottom-left-radius: 0.25rem;
+  background-clip: border-box;
+}
+.slick-pager {
+  background: none;
+  border: none;
 }
 /* grid header styles */
 #myGrid .slick-header-column {
   font-size: 12px;
   height: 48px;
-  background: #006aad;
-  color: #fff;
-  border-color: #fff;
+  background: none;
+  background-color: white;
+}
+.slick-header-columns {
+    background: none;
 }
 .slick-column-name { white-space: normal; }
-/*.slick-header-column.ui-state-default { height: 45px; } */
-.slick-sort-indicator-asc {
+.slick-header.ui-state-default {
+    border: none;
+}
+/*.slick-sort-indicator-asc {
     background: url(/lib/slickgrid/images/sort-asc-gray.gif);
 }
 .slick-sort-indicator-desc {
     background: url(/lib/slickgrid/images/sort-desc-gray.gif);
-}
+}*/
 .slick-sort-indicator {
   position: absolute;
   bottom: 5px;
   right: 7px;
 }
-
-
 
 /* cell copy color */
 .slick-cell.copied {
@@ -49,47 +67,56 @@
   color: #333;
   text-decoration: underline;
 }
-/*.ui-widget-content a:hover {
-  text-decoration: underline;
-}*/
 .ui-widget-content a:visted {
   color: #333;
 }
 
 /* sample IDs popup */
+button.ui-button.ui-corner-all.ui-widget.ui-button-icon-only.ui-dialog-titlebar-close {
+  border: none;
+  background-color: #fff;
+}
+button.ui-button.ui-corner-all.ui-widget.ui-button-icon-only.ui-dialog-titlebar-close:hover {
+  background: #ededed;
+}
 div.ui-dialog {
   line-height: normal;
   font-size: 10pt;
+  z-index: 3000;
 }
 .ui-dialog-titlebar {
-  background-color: #006aad !important;
-  color: rgb(255, 255, 255) !important;
+  background-color: #fff !important;
+  color: #006aad !important;
+  border-top: none;
+  border-right: none;
+  border-left: none;
+  border-bottom: 1px solid rgba(0,0,0,.125);
+  border-bottom-right-radius: 0px;
+  border-bottom-left-radius: 0px;
 }
 .grdInfoTable {
-  /* font-size: 13pt; */
   line-height: normal;
   border-collapse: collapse;
 }
 .grdInfoTable td, .grdInfoTable th {
   padding: 2px 8px 2px 2px;
   text-align: left;
-  border-bottom: 1px solid #ddd;;
+  border-bottom: 1px solid #ddd;
+  border-left: none;
+  border-right: none;
 }
 .grdInfoTable th {font-weight: 600;}
 td.ctr {
   text-align: center;
 }
 
-
-
-
 /* Search and Filter Styles */
 #searchCardHead {
-  background-color: #006aad !important;
-  color: rgb(255, 255, 255) !important;
+  color: #006aad !important;
+  background-color: #fff !important;
+  font-size: 1.2em;
 }
 #searchbox {
-  /* font-family: arial; */
   font-size: 10pt;
   line-height: normal;
 }
@@ -101,17 +128,16 @@ td.ctr {
 #filterTitle {
   border-top: 2px solid #DCDCDC;
   margin-top: 15px;
+  color: #006aad;
 }
 .searchSubT {
-  /* font-family: Verdana,Arial,sans-serif; */
   font-size: 1.1em;
   font-weight: 600;
-  color: gray;
+  color: #006aad;
   margin-bottom: 0px;
   margin-top: 5px;
 }
 .searchSubSubT {
-  /* font-family: Verdana,Arial,sans-serif; */
   font-size: 1em;
   font-weight: 600;
   color: gray;
