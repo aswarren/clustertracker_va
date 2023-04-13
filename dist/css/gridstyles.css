@@ -1,21 +1,55 @@
 @import url('../lib/slickgrid/slick-default-theme.min.css');
-
-#myGrid, #pager, div.ui-dialog {
-  font-family: arial;
+#myGrid {
+  background: white;
+  border-top: 1px solid #C0C0C0;
+  border-left: 1px solid #C0C0C0;
+  border-right: 1px solid #C0C0C0;
+  border-top-right-radius: 0.25rem;
+  border-top-left-radius: 0.25rem;
+  background-clip: border-box;
+}
+#myGrid, #pager {
   font-size: 8pt;
   line-height: normal;
 }
-div.ui-dialog {line-height: normal;}
-
-#myGrid {
-  background: white;
-  outline: 0;
-  border: 1px solid gray;
+#pager {
+  padding-right: 5px;
+  padding-top: 4px;
+  padding-left: 5px;
+  border: 1px solid #C0C0C0;
+  border-bottom-right-radius: 0.25rem;
+  border-bottom-left-radius: 0.25rem;
+  background-clip: border-box;
 }
-
-/* header height */
+.slick-pager {
+  background: none;
+  border: none;
+}
+/* grid header styles */
+#myGrid .slick-header-column {
+  font-size: 12px;
+  height: 48px;
+  background: none;
+  background-color: white;
+}
+.slick-header-columns {
+    background: none;
+}
 .slick-column-name { white-space: normal; }
-.slick-header-column.ui-state-default { height: 45px; }
+.slick-header.ui-state-default {
+    border: none;
+}
+/*.slick-sort-indicator-asc {
+    background: url(/lib/slickgrid/images/sort-asc-gray.gif);
+}
+.slick-sort-indicator-desc {
+    background: url(/lib/slickgrid/images/sort-desc-gray.gif);
+}*/
+.slick-sort-indicator {
+  position: absolute;
+  bottom: 5px;
+  right: 7px;
+}
 
 /* cell copy color */
 .slick-cell.copied {
@@ -24,88 +58,66 @@ div.ui-dialog {line-height: normal;}
   -webkit-transition: 0.5s background;
 }
 
+/* grid link color */
+.ui-widget-content a {
+  color: #333;
+  text-decoration: underline;
+}
+.ui-widget-content a:link {
+  color: #333;
+  text-decoration: underline;
+}
+.ui-widget-content a:visted {
+  color: #333;
+}
+
 /* sample IDs popup */
-#sample-popup.ui-dialog-content {
- width: 300px;
- overflow: auto;
+button.ui-button.ui-corner-all.ui-widget.ui-button-icon-only.ui-dialog-titlebar-close {
+  border: none;
+  background-color: #fff;
+}
+button.ui-button.ui-corner-all.ui-widget.ui-button-icon-only.ui-dialog-titlebar-close:hover {
+  background: #ededed;
+}
+div.ui-dialog {
+  line-height: normal;
+  font-size: 10pt;
+  z-index: 3000;
+}
+.ui-dialog-titlebar {
+  background-color: #fff !important;
+  color: #006aad !important;
+  border-top: none;
+  border-right: none;
+  border-left: none;
+  border-bottom: 1px solid rgba(0,0,0,.125);
+  border-bottom-right-radius: 0px;
+  border-bottom-left-radius: 0px;
 }
 .grdInfoTable {
-  font-family: arial;
-  font-size: 8pt;
   line-height: normal;
   border-collapse: collapse;
 }
 .grdInfoTable td, .grdInfoTable th {
   padding: 2px 8px 2px 2px;
   text-align: left;
-  border-bottom: 1px solid #ddd;;
+  border-bottom: 1px solid #ddd;
+  border-left: none;
+  border-right: none;
 }
+.grdInfoTable th {font-weight: 600;}
 td.ctr {
   text-align: center;
 }
 
-
-.options-panel li {
-  /background: url("../lib/slickgrid/images/arrow_right_spearmint.png") no-repeat center left;
-  padding: 0 0 0 14px;
-
-  list-style: none;
-  margin: 0;
-}
-
-
-.grid-header {
-  border: 1px solid gray;
-  border-bottom: 0;
-  border-top: 0;
-  background: url('../lib/slickgrid/images/header-bg.gif') repeat-x center top;
-  color: black;
-  height: 24px;
-  line-height: 24px;
-}
-
-.grid-header label {
-  display: inline-block;
-  font-weight: bold;
-  margin: auto auto auto 6px;
-}
-
-.grid-header .ui-icon {
-  margin: 4px 4px auto 6px;
-  background-color: transparent;
-  border-color: transparent;
-}
-
-.grid-header .ui-icon.ui-state-hover {
-  background-color: white;
-}
-
-.grid-header #txtSearch {
-  margin: 0 4px 0 4px;
-  padding: 2px 2px;
-  -moz-border-radius: 2px;
-  -webkit-border-radius: 2px;
-  border: 1px solid silver;
-}
-
-.options-panel {
-  -moz-border-radius: 6px;
-  -webkit-border-radius: 6px;
-  border: 1px solid silver;
-  background: #f0f0f0;
-  padding: 4px;
-  margin-bottom: 20px;
-  width: 320px;
-  position: absolute;
-  top: 0px;
-  left: 650px;
-}
-
-
 /* Search and Filter Styles */
+#searchCardHead {
+  color: #006aad !important;
+  background-color: #fff !important;
+  font-size: 1.2em;
+}
 #searchbox {
-  font-family: arial;
-  font-size: 9pt;
+  font-size: 10pt;
   line-height: normal;
 }
 #txtSearch {
@@ -116,17 +128,16 @@ td.ctr {
 #filterTitle {
   border-top: 2px solid #DCDCDC;
   margin-top: 15px;
+  color: #006aad;
 }
 .searchSubT {
-  font-family: Verdana,Arial,sans-serif;
   font-size: 1.1em;
   font-weight: 600;
-  color: gray;
+  color: #006aad;
   margin-bottom: 0px;
   margin-top: 5px;
 }
 .searchSubSubT {
-  font-family: Verdana,Arial,sans-serif;
   font-size: 1em;
   font-weight: 600;
   color: gray;
@@ -163,6 +174,7 @@ td.ctr {
 .filter-multi-select > .viewbar > .selected-items > .item {
   height: 1.5em;
   border-radius: 0.7em;
+  background-color: #006aad;
 }
 .filter-multi-select > .dropdown-menu {
   font-size: 0.75rem;

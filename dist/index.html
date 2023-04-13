@@ -4,8 +4,6 @@
         <title>CA Big Tree Cluster Tracker</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,1,0" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -18,9 +16,10 @@
         <link rel="stylesheet" href="lib/slickgrid/slick.grid.min.css" type="text/css"/>
         <link rel="stylesheet" href="lib/slickgrid/controls/slick.pager.min.css" type="text/css"/>
         <link rel="stylesheet" href="lib/leafletjs/leaflet.css" type="text/css"/>
+        <link rel="stylesheet" href="lib/leaflet-gesture-handling/leaflet-gesture-handling.min.css" type="text/css"/>
         <link rel="stylesheet" href="lib/filter-multi-select/filter_multi_select.css" type="text/css"/>
-        <link rel="stylesheet" href="css/gridstyles.css" type="text/css"/>
         <link rel="stylesheet" href="css/custom.css" type="text/css"/>
+        <link rel="stylesheet" href="css/gridstyles.css" type="text/css"/>
         <script src="scripts/ui_interactions.js"></script>
         <script>
             /* Data and Map Settings */
@@ -47,168 +46,329 @@
     <body>
 
         <div id="status_msg" class="warning" onclick="hideMsg()"></div>
-        <div class="container-fluid px-0">
-            <div class="row no-gutters">
-                <div class="col">
+
+        <!-- banner and menu -->
+        <div id="bannerHead" class="container-fluid px-0">
+            <div class="row no-gutters align-items-center">
+                <div class="col pl-3">
                     <h1>California Big Tree Cluster Tracker </h1>
                 </div>
-                <div class="col-auto">
+                <div class="col-auto pr-3">
                     <div class="dropdown">
-                        <div class="menuDiv" data-toggle="dropdown" title="Show/hide menu">
-                            <span class="material-symbols-outlined">menu</span>
+                        <div class="menuDiv" data-toggle="dropdown">
+                            <span class="material-symbols-outlined" title="Show/Hide Menu" data-toggle="tooltip" data-placement="left">menu</span>
                         </div>
                         <div class="dropdown-menu dropdown-menu-right">
-                            <div id="logout" class="dropdown-item mnuItem pl-2 pr-2" title="Switch between authorized accounts" onclick="logout();">
+                            <div id="logout" class="dropdown-item mnuItem pl-3 pr-3 pt-2 pb-2" onclick="logout();">
                                 <span class="material-symbols-outlined">switch_account</span>
                                 Switch Login
+                            </div>
+                            <div class="dropdown-item mnuItem pl-3 pr-3 pt-2 pb-2" data-toggle="modal" data-target="#instructions">
+                                <span class="material-symbols-outlined">description</span>
+                                View Instructions
+                            </div>
+                            <div id="faq" class="dropdown-item mnuItem pl-3 pr-3 pt-2 pb-2" onclick="openLink('https://pathogengenomics.ucsc.edu/tools/cluster-tracker')">
+                                <span class="material-symbols-outlined">unknown_document</span>
+                                FAQ
+                            </div>
+                            <div id="glossary" class="dropdown-item mnuItem pl-3 pr-3 pt-2 pb-2" onclick="openLink('https://pathogengenomics.ucsc.edu/tools/cluster-tracker/glossary')">
+                                <span class="material-symbols-outlined">list_alt</span>
+                                Glossary
+                            </div>
+                            <div id="support" class="dropdown-item mnuItem pl-3 pr-3 pt-2 pb-2" data-toggle="modal" data-target="#getSupport">
+                                <span class="material-symbols-outlined">live_help</span>
+                                Get Support
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="mapButton" id="drop_SC">
-            <button onclick="swap_countystate()" class="dropbtn" id="btn_SC">Show CA State Introductions</button>
-        </div>
-        <div class="mapButton" id="dropcolor">
-            <button onclick="changeScale()" class="dropbtn" id="colorbtn" disabled>Show Raw Cluster Count</button>
-        </div>
-        <div class="mapButton" id="droploc">
-            <button onclick="showList()" class="dropbtn">Choose Map Display Time Period</button>
-            <div id="myDropdown" class="dropdown-content">
-                <button id="btn_time_0" class="timel btn_selected" onclick="hideMapTimeBtns();changeMap(0);">Whole Pandemic</p>
-                <button id="btn_time_12" class="timel" onclick="hideMapTimeBtns();changeMap(12);">Last 12 Months</p>
-                <button id="btn_time_6" class="timel" onclick="hideMapTimeBtns();changeMap(6);">Last 6 Months</p>
-                <button id="btn_time_3" class="timel" onclick="hideMapTimeBtns();changeMap(3);">Last 3 Months</p>
-            </div>
-        </div>
-        <div id="display" title="This map displays the count of inferred unique families of the virus in each region by default. When a region is selected, it instead displays a scaled estimate of the count of viral introductions to the selected region from each other region.">
-            <div id="mapid"></div>
-            <style>
-                #mapid {
-                    height: 400px;
-                }
-            </style>
-        </div>
-        <div id="maintext">
-            <p>The California Big Tree Cluster Tracker combines sequence data from the <a title="Repository containing daily-updated comprehensive global phylogenetic trees for SARS-CoV-2" target="_blank" href="https://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/">global public SARS-CoV-2 phylogenetic tree</a> and sequences in California’s central repository in Terra. The Cluster Tracker applies a <a title="Wiki page describing the heuristic calculation." target="_blank" href="https://usher-wiki.readthedocs.io/en/latest/matUtils.html#introduce">heuristic</a> to identify groups of sequences in a given region that may have recently arrived from another region. These groups may reflect cases of an infected traveler entering a region, followed by local spread. Note that biases might affect these results: relative local sequencing effort, the rate sequences arrive in repositories, and accuracy of reconstructed evolutionary relationships. You can view each <span class="definition" title="The set of sequences within a region that are inferred to result from a single introduction via travel.">cluster</span> in <a title="link to California Big Tree Investigator" href="https://investigator.big-tree.ucsc.edu/" target="_blank">CA Big Tree Investigator</a> or <a title="Github repository for the Taxonium browser tree viewer" href="https://github.com/theosanderson/taxonium" target="_blank">Taxonium</a> and perform your own analysis with UCSC’s <a title="Github repository for UShER" href="https://github.com/yatisht/usher" target="_blank">UShER</a> after downloading the output files from the link below the table.
-            </p>
-        </div>
 
-        <!-- Search and Filter -->
-        <div id="searchbox" class="container-fluid pb-2 pl-0 pr-0">
-            <div class="card">
-                <div id="searchCardHead" class="card-header pl-0 pt-1 pb-1" data-toggle="collapse" data-target="#collapseSection" onclick="toggleDropArrow(this.id);">
-                    <span class="material-symbols-outlined arrow down">arrow_drop_down</span>Search
+        <!-- Intro, Map, Search & Filter, Cluster Metrics Table, Downloads -->
+        <div id="main">
+            <!-- Intro text -->
+            <div id="maintext">
+                <div class="inset">
+                    <p class="pullquote">We define a cluster as the set of sequences within a region that are inferred to result from a single introduction via travel.</p>
                 </div>
-                <div id="collapseSection" class="collapse show">
-                    <div class="card-body pt-1 pb-3" id="searchContent">
-                        <p class="searchSubT">Simple Text Search</p>
-                        <div class="row"><!-- start of main flexcol row -->
-                            <div class="col"><!-- main flexcol row has 2 column -->
-                                <div class="row">
-                                    <div class="col-3" style="min-width: 350px;">
-                                        <input type="text" id="txtSearch" placeholder="Enter search terms...">
-                                        <p class="searchNote">
-                                            Separate multiple search terms with a comma. Do not use spaces between search terms.
-                                        </p>
-                                    </div>
-                                    <div class="col-auto">
-                                        <p class="searchSubSubT">Boolean Search Options:</p>
-                                        <div>
-                                            <input type="radio" checked="checked" name="bool" value="and" id="boolAnd">
-                                            <label for="boolAnd">AND (contains ALL search terms)</label>
-                                        </div>
-                                        <div>
-                                            <input type="radio" name="bool" value="or" id="boolOr">
-                                            <label for="boolOr">OR (contains ANY search term)</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-auto col-lg"  style="min-width: 350px;">
-                                        <p class="searchSubSubT">Search Columns:</p>
-                                        <select name="colSelect" id="colSelect" multiple class="filter-multi-select">
-                                            <option selected value="cid">Cluster ID</option>
-                                            <option selected value="region">Region</option>
-                                            <option selected value="sampcount">Sample Count</option>
-                                            <option selected value="earliest">Earliest Date</option>
-                                            <option selected value="latest">Latest Date</option>
-                                            <option selected value="clade">Clade</option>
-                                            <option selected value="lineage">Lineage</option>
-                                            <option selected value="origin">Best Potential Origins</option>
-                                            <option selected value="confidence">Best Origin Regional Indices</option>
-                                            <option selected value="growth">Growth Score</option>
-                                            <option selected value="samples">Sample Names</option>
-                                            <option selected value="pauis">Specimen IDs</option>
-                                        </select>
-                                    </div>
+                <p class="cardTitle">Welcome</p>
+                <p>The California Big Tree Cluster Tracker combines sequence data from the <a data-toggle="tooltip" title="Repository containing daily-updated comprehensive global phylogenetic trees for SARS-CoV-2" target="_blank" href="https://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/">global public SARS-CoV-2 phylogenetic tree</a> and sequences in California’s central repository in Terra.
+                <span id="collapseAbout" class="collapse hide">
+                    The Cluster Tracker applies a <a data-toggle="tooltip" title="Wiki page describing the heuristic calculation." target="_blank" href="https://usher-wiki.readthedocs.io/en/latest/matUtils.html#introduce">heuristic</a> to identify groups of sequences in a given region that may have recently arrived from another region. These groups may reflect cases of an infected traveler entering a region, followed by local spread. Note that biases might affect these results: relative local sequencing effort, the rate sequences arrive in repositories, and accuracy of reconstructed evolutionary relationships. <br></br>You can view each cluster in <a data-toggle="tooltip" title="link to California Big Tree Investigator" href="https://investigator.big-tree.ucsc.edu/" target="_blank">CA Big Tree Investigator</a> or <a data-toggle="tooltip" title="Github repository for the Taxonium browser tree viewer" href="https://github.com/theosanderson/taxonium" target="_blank">Taxonium</a> and perform your own analysis with UCSC’s <a data-toggle="tooltip" title="Github repository for UShER" href="https://github.com/yatisht/usher" target="_blank">UShER</a> after downloading the output files from the link below the table. 
+                </span>
+                <button id="btnShow" data-toggle="collapse" data-target="#collapseAbout" onclick="toggleBtnShow();">Show More
+                    <span class="material-symbols-outlined" data-toggle="collapse" data-target="#collapseAbout">expand_more</span>
+                </button>
+                </p>
+            </div> <!-- end Intro text -->
+
+            <div class="cardPanel"> <!-- contains map, search, and data table -->
+                <div class="container-fluid mapBar">
+                    <div class="row">
+                        <div class="col">
+                            <button onclick="swap_countystate()" class="dropbtn mapButton" id="btn_SC">Show CA State Introductions</button>
+                        </div>
+                        <div class="col-auto pl-0 pr-0">
+                            <button onclick="changeScale()" class="dropbtn mapButton" id="colorbtn" disabled>Show Raw Cluster Count</button>
+                        </div>
+                        <div class="col-auto">
+                            <button class="dropbtn mapButton" data-toggle="dropdown" id="btnTimePeriod">Map Display Time Period <span class="material-symbols-outlined">arrow_drop_down</span></button>
+                            <div class="dropdown-content dropdown-menu dropdown-menu-right">
+                                <div class="dropdown-item pl-1" onclick="changeMap(0);">
+                                    <span id="chk_time_0" class="material-symbols-outlined checkSpan">check</span>
+                                    Whole Pandemic
                                 </div>
-                                <div class="row">
-                                    <div class="col">
-                                        <div id="filterTitle" class="searchSubT col pl-0" data-toggle="collapse" data-target="#filterOps" onclick="toggleDropArrow(this.id);">
-                                            <span class="material-symbols-outlined arrow right">arrow_right</span>Advanced Filter Options
-                                        </div>
-                                    </div>
+                                <div class="dropdown-item pl-1" onclick="changeMap(12);">
+                                    <span id="chk_time_12" class="material-symbols-outlined checkSpan"></span>
+                                    Last 12 Months
                                 </div>
-                                <div id="filterOps" class="collapse">
-                                    <div class="row">
-                                        <div class="col-md-auto">
-                                            <p class="searchSubSubT">Cluster Date:</p>
-                                            <label for="txtDateMin">From:</label>
-                                            <input type="date" id="txtDateMin" name="txtDateMin" min="1900-01-01">
-                                            <label for="txtDateMax" class="left-padding-small">To: </label>
-                                            <input type="date" id="txtDateMax" name="txtDateMax" min="1900-01-01">
-                                            <div class="subElement">
-                                                <input type="checkbox" id="chkValidDates" name="chkValidDates">
-                                                <label for="chkValidDates">Exclude clusters with no valid dates</label>
+                                <div class="dropdown-item pl-1" onclick="changeMap(6);">
+                                    <span id="chk_time_6" class="material-symbols-outlined checkSpan"></span>
+                                    Last 6 Months
+                                </div>
+                                <div class="dropdown-item pl-1" onclick="changeMap(3);">
+                                    <span id="chk_time_3" class="material-symbols-outlined checkSpan"></span>
+                                    Last 3 Months
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="mapInfo" data-toggle="tooltip" data-trigger="hover" title="This map displays the count of inferred unique families of the virus in each region by default. When a region is selected, it instead displays a scaled estimate of the count of viral introductions to the selected region from each other region.">
+                    <span class="material-symbols-outlined info-icon-ctr">
+                    info
+                    </span>
+                </div>
+                <div id="mapid" style="height: 400px;"></div>
+                <br>
+
+                <!-- Search and Filter -->
+                <div id="searchbox" class="container-fluid pb-2 pl-0 pr-0">
+                    <div class="card">
+                        <div id="searchCardHead" class="card-header pl-0 pt-1 pb-1" data-toggle="collapse" data-target="#collapseSection" onclick="toggleDropArrow(this.id);">
+                            <span class="material-symbols-outlined arrow down">arrow_drop_down</span>Search Cluster Metrics
+                        </div>
+                        <div id="collapseSection" class="collapse show">
+                            <div class="card-body pt-1 pb-3" id="searchContent">
+                                <p class="searchSubT">Simple Text Search</p>
+                                <div class="row"><!-- start of main flexcol row -->
+                                    <div class="col"><!-- main flexcol row has 2 column -->
+                                        <div class="row">
+                                            <div class="col-3" style="min-width: 350px;">
+                                                <input type="text" id="txtSearch" placeholder="Enter search terms...">
+                                                <p class="searchNote">
+                                                    Separate multiple search terms with a comma. Do not use spaces between search terms.
+                                                </p>
+                                            </div>
+                                            <div class="col-auto">
+                                                <p class="searchSubSubT">Boolean Search Options:</p>
+                                                <div>
+                                                    <input type="radio" checked="checked" name="bool" value="and" id="boolAnd">
+                                                    <label for="boolAnd">AND (contains ALL search terms)</label>
+                                                </div>
+                                                <div>
+                                                    <input type="radio" name="bool" value="or" id="boolOr">
+                                                    <label for="boolOr">OR (contains ANY search term)</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-auto col-lg"  style="min-width: 350px;">
+                                                <p class="searchSubSubT">Search Columns:</p>
+                                                <select name="colSelect" id="colSelect" multiple class="filter-multi-select">
+                                                    <option selected value="cid">Cluster ID</option>
+                                                    <option selected value="region">Region</option>
+                                                    <option selected value="sampcount">Sample Count</option>
+                                                    <option selected value="earliest">Earliest Date</option>
+                                                    <option selected value="latest">Latest Date</option>
+                                                    <option selected value="clade">Clade</option>
+                                                    <option selected value="lineage">Lineage</option>
+                                                    <option selected value="origin">Best Potential Origins</option>
+                                                    <option selected value="confidence">Best Origin Regional Indices</option>
+                                                    <option selected value="growth">Growth Score</option>
+                                                    <option selected value="samples">Sample Names</option>
+                                                    <option selected value="pauis">Specimen IDs</option>
+                                                </select>
                                             </div>
                                         </div>
-                                        <div class="col-md-auto">
-                                            <p class="searchSubSubT">Cluster Size:</p>
-                                            <label for="txtSizeMin">From: </label>
-                                            <input type="number" id="txtSizeMin" name="txtSizeMin" placeholder="Min" min="1">
-                                            <label for="txtSizeMin" class="left-padding-small">To: </label>
-                                            <input type="number" id="txtSizeMax" name="txtSizeMax" placeholder="Max" min="1">
+                                        <div class="row">
+                                            <div class="col">
+                                                <div id="filterTitle" class="searchSubT col pl-0" data-toggle="collapse" data-target="#filterOps" onclick="toggleDropArrow(this.id);">
+                                                    <span class="material-symbols-outlined arrow right">arrow_right</span>Advanced Filter Options
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="col-md-auto pb-2">
-                                            <p class="searchSubSubT">Growth Score:</p>
-                                            <label for="txtGrowthMin">From: </label>
-                                            <input type="number" id="txtGrowthMin" name="txtGrowthMin" placeholder="Min" min="0" step="0.1">
-                                            <label for="txtGrowthMax" class="left-padding-small">To: </label>
-                                            <input type="number" id="txtGrowthMax" name="txtGrowthMax" placeholder="Max" min="0" step="0.1">
+                                        <div id="filterOps" class="collapse">
+                                            <div class="row">
+                                                <div class="col-md-auto">
+                                                    <p class="searchSubSubT">Cluster Date:</p>
+                                                    <label for="txtDateMin">From:</label>
+                                                    <input type="date" id="txtDateMin" name="txtDateMin" min="1900-01-01">
+                                                    <label for="txtDateMax" class="left-padding-small">To: </label>
+                                                    <input type="date" id="txtDateMax" name="txtDateMax" min="1900-01-01">
+                                                    <div class="subElement">
+                                                        <input type="checkbox" id="chkValidDates" name="chkValidDates">
+                                                        <label for="chkValidDates">Exclude clusters with no valid dates</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-auto">
+                                                    <p class="searchSubSubT">Cluster Size:</p>
+                                                    <label for="txtSizeMin">From: </label>
+                                                    <input type="number" id="txtSizeMin" name="txtSizeMin" placeholder="Min" min="1">
+                                                    <label for="txtSizeMin" class="left-padding-small">To: </label>
+                                                    <input type="number" id="txtSizeMax" name="txtSizeMax" placeholder="Max" min="1">
+                                                </div>
+                                                <div class="col-md-auto pb-2">
+                                                    <p class="searchSubSubT">Growth Score:</p>
+                                                    <label for="txtGrowthMin">From: </label>
+                                                    <input type="number" id="txtGrowthMin" name="txtGrowthMin" placeholder="Min" min="0" step="0.1">
+                                                    <label for="txtGrowthMax" class="left-padding-small">To: </label>
+                                                    <input type="number" id="txtGrowthMax" name="txtGrowthMax" placeholder="Max" min="0" step="0.1">
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-1 col-md-1 col-lg-auto" style="min-width: 90px;">
-                                <button onclick="doSearch();" id="btnSimpleSearch">Search</button>
-                                <button onclick="clearSearch();" id="btnClearSearch">Clear</button>
-                            </div>
-                        </div><!-- end of main flexcol row -->
-                    </div> <!-- end search option content -->
-                </div> <!-- end collapseSection -->
-            </div> <!-- end card class -->
-        </div><!-- end search and filter container -->
+                                    <div class="col-1 text-center" style="min-width: 120px;">
+                                        <button onclick="doSearch();" id="btnSimpleSearch">Search</button>
+                                        <button onclick="clearSearch();" id="btnClearSearch">Clear</button>
+                                    </div>
+                                </div><!-- end of main flexcol row -->
+                            </div> <!-- end search option content -->
+                        </div> <!-- end collapseSection -->
+                    </div> <!-- end card class -->
+                </div><!-- end search and filter container -->
 
-        <div id="grdContainer">
-            <div id="myGrid" style="width:100%;height:570px;"></div>
-            <div id="pager"></div>
-            <div>
-                <p class="tableNote">* = Interpret with caution. Value may not be meaningful due to small cluster size, or cluster dates were not able to be parsed.</p>
+                <div id="grdContainer">
+                    <div id="myGrid" style="width:100%;height:570px;"></div>
+                    <div id="pager"></div>
+                    <div>
+                        <p class="tableNote">* = Interpret with caution. Value may not be meaningful due to small cluster size, or cluster dates were not able to be parsed.</p>
+                    </div>
+                </div>
+            </div> <!-- end card div to contain map, search, and data table-->
+
+            <!-- Downloads container -->
+            <div id="downloads" class="cardPanel">
+                <p class="cardTitle">Downloads</p>
+                <table>
+                    <tr>
+                        <th>File</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a href="https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/hardcoded_clusters.tsv">hardcoded_clusters.tsv</a>
+                        </td>
+                        <td>
+                            Tab-separated file containing information for all calculated introductions. Separates clusters in California into county-based regions.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a href="https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/hardcoded_clusters_us.tsv">hardcoded_clusters_us.tsv</a>
+                        </td>
+                        <td>
+                            Tab-separated file containing information for all calculated introductions. Merges clusters in California into a single region.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a href="https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/cview.jsonl.gz">cview.jsonl.gz</a>
+                        </td>
+                        <td>
+                            Contains the full phylogenetic tree for the California Big Tree in a format (JSONL) suitable for viewing in the <a href="https://taxonium.org/" target="_blank">Taxonium</a> web-based or desktop-based application.
+                        </td>
+                    </tr>
+                </table>
             </div>
         </div>
 
-        <div id="downloads">
-            Download full output file from the <a href = "https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/hardcoded_clusters.tsv", download = "sarscov2_clusters_CA_counties.tsv">California-county based analysis</a> or the <a href = "https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/hardcoded_clusters_us.tsv", download = "sarscov2_clusters_CA_state.tsv">California-state based analysis</a>.<br>
-            Download the <a href = "https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/cview.jsonl.gz", download = "cluster_taxonium.jsonl.gz">Taxonium JSONL file</a> for viewing.
-            <p>Please post an issue at <a title="The github repository for this site." href="https://github.com/pathogen-genomics/introduction-website" target="_blank">the github</a> or email us at help-pathogengenomics@ucsc.edu if you have questions or feedback.</p>
+        <!-- Content for menu popups -->
+        <div class="modal" id="instructions" tabindex="-1" aria-labelledby="instructionsLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="instructionsLabel">Instructions</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <p>Cluster Tracker is a geo-genetic sample prioritization and investigation tool. Briefly, the core issue this seeks to resolve is the difficulty of evaluating the importance and spread of thousands of unique lineages across California. The key innovation of Cluster Tracker is that it can be used to identify new introductions into a given area (either California County-level or US State-level geographic regions). When a given cluster has been introduced recently to a region and it grows quickly, this may be worthy of additional detailed investigation.</p>
+                <p>To identify a cluster of interest:</p>
+                <ol>
+                    <li>Select a county of interest from the map. The selected region will be highlighted in purple.</li>
+                    <li>Hover over the other counties to view the number of introductions from that county. To clear selection re-click the county of interest (purple region).</li>
+                    <li>View cluster metrics in your county of interest in the table below the map.</li>
+                    <ul>
+                        <li>Hover over text in the table header to display column definitions.</li>
+                        <li>Use the search bar to search across all columns by default or select specifc columns for metrics of interest (samples, specimen_ids, lineage, etc.).</li>
+                        <li>Use the advance search options to narrow down the list of clusters.</li>
+                            <ul>
+                                <li>In the search box, you can use a comma separated list with “and” and “or” boolean options. Do not put spaces inbetween the list items. Using the Escape key will clear the text in the search box.</li>
+                                <li>Select a date range to filter on sample collection dates</li>
+                                <li>Select a Cluster Size range.</li>
+                                <li>Select a Growth Score range.</li>
+                            </ul>
+                        <li>Double click on the samples or specimen ID cell to see the full list.</li>
+                        <li>Sort on multiple columns by clicking one column then shift clicking another.</li>
+                        <li>Shift drag or press arrow keys to highlight cells to copy and paste. (You can use the Escape key to un-hilight previouly highlighted cells.)</li>
+                    </ul>
+                    <li>Once you identify a cluster of interest, you can click to view that cluster in Taxonium or view the samples in the CA Big Tree Investigator.</li>
+                    <ul>
+                        <li>The CA Big Tree investigator (formerly known as “PAUI-Mapper” and “PHI-Join”) is a tool for rapidly identifying the set of subtrees that contain a user-specified set of samples and overlaying sample PHI information. Such sets will likely be the group of samples included in a detailed epidemiological investigation in a given region. However, we emphasize that there are many possible applications of the Big Tree Investigator platform. Once we finish establishing the link to the state’s CCRS database, this tool will seamlessly extract PHI/PII in a secure manner and format these sample data to be compatible with the Big Tree visualizations. Additionally, users can supply detailed metadata that is not contained within CCRS (e.g Epidemiological investigation notes), and our tool will correctly format this for overlay onto the tree and will produce a text-based table that joins the PHI, genome sequence information and user-supplied metadata for downstream statistical analyses.</li>
+                        <li>Taxonium is tool to explore large phylogenetic trees. Clicking the View Cluster links in the metric table will open the Taxonium viewer highlight a particular cluster's sequences in the California Big Tree. The California Big Tree includes sequences from the global public tree, plus those in CovidNet, and are annoted with metadata, where available, including collection date, clade, lineage, county, and Specimen ID. In Taxonium you can search the tree and color sequences using several criteria, and switch the horizontal axis from mutation distance to time. Taxonium also includes the Treenome Browser which allows you to view each genome's mutations alongside the tree. For more details on using Taxonium, please see the <a href="https://docs.taxonium.org/en/latest/" target="_blank">Taxonium documentation</a>.</li>
+                    </ul>
+                </ol>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal" id="getSupport" tabindex="-1" aria-labelledby="getSupportLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="getSupportLabel">Support</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <p>
+                    Many issues with the Cluster Tracker app can be resolved by clearing the browser cache. Use the following links to find directions for each browser:
+                    <ul>
+                        <li><a href="https://www.google.com/chrome/tips/#shortcuts" target="_blank">Chrome</a></li>
+                        <li><a href="https://support.microsoft.com/en-us/microsoft-edge/view-and-delete-browser-history-in-microsoft-edge-00cf7943-a9e1-975a-a33d-ac10ce454ca4" target="_blank">Microsoft Edge</a></li>
+                        <li><a href="https://support.apple.com/en-us/HT201265" target="_blank">Safari</a></li>
+                        <li><a href="https://support.mozilla.org/en-US/kb/how-clear-firefox-cache" target="_blank">Firefox</a></li>
+                    </ul> 
+                </p>
+                <p>You can always email us at 
+                    <a href="mailto:help-pathogengenomics@ucsc.edu" target="_blank" rel="noreferrer">help-pathogengenomics@ucsc.edu</a>
+                    or post an issue in <a href="https://github.com/pathogen-genomics/introduction-website" target="_blank">our Github repository</a>
+                    if you need assistance or want to provide feedback.
+                </p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
         </div>
         
         <script src="lib/leafletjs/leaflet.js"></script>
+        <script src="lib/leaflet-gesture-handling/leaflet-gesture-handling.min.js"></script>
         <script src="scripts/check_status.js"></script>
         <script src="https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/regions.js" id="script-region"></script>
         <script src="https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/regions_us.js" id="script-region_us"></script>
         <script src="scripts/main.js" id="script-main"></script>
         <script type="text/javascript">
+            // enable custom tool tips
+            $(document).ready(function() {
+                $('[data-toggle="tooltip"]').tooltip();
+            });
            //checks data update status and triggers alert if needed
            readStatus();
         </script>

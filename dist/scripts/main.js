@@ -1,4 +1,4 @@
-const map = L.map('mapid', {'tap': false}).setView(L.latLng(mapCenter), mapInitialZoom);
+const map = L.map('mapid', {'tap': false, 'gestureHandling': true}).setView(L.latLng(mapCenter), mapInitialZoom);
 // set max zoomed out extent via bounds and minZoom
 const southWest = L.latLng(-90, -179);
 const northEast = L.latLng(90, 0);
@@ -6,17 +6,17 @@ const bounds = L.latLngBounds(southWest, northEast);
 map.setMaxBounds(bounds);
 map.options.minZoom = 2;
 
-var global_state = "default";
-var global_time = "";
-var global_state_id = "00";
-var map_colors = ['#800026','#BD0026','#E31A1C','#FC4E2A','#FD8D3C','#FEB24C','#FED976','#FFEDA0'];
-var color_scale = "log";
-var map_layer = 0; //0=county data, 1=state data
-var alldata =[introData, introData_us];
-var max_basecount = [0,0];
+let global_state = 'default';
+let global_time = '';
+let global_state_id = '00';
+let map_colors = ['#800026', '#BD0026', '#E31A1C', '#FC4E2A', '#FD8D3C', '#FEB24C', '#FED976', '#FFEDA0'];
+let color_scale = 'log';
+let map_layer = 0; //0=county data, 1=state data
+let alldata =[introData, introData_us];
+let max_basecount = [0,0];
 for (j = 0; j < 2; j++) {
     for (i = 0; i < alldata[j].features.length; i++) {
-        let bc = alldata[j].features[i]["properties"]["intros"]["basecount"];
+        let bc = alldata[j].features[i]['properties']['intros']['basecount'];
         if (bc > max_basecount[j]) {
             max_basecount[j] = bc;
         }
@@ -25,10 +25,10 @@ for (j = 0; j < 2; j++) {
 
 
 function maxClusterCt(region_id,timel,map_layer) {
-    var maxn = 0;
-    let item = timel + "raw" + region_id;
+    let maxn = 0;
+    let item = timel + 'raw' + region_id;
     for (i = 0; i < alldata[map_layer].features.length; i++) {
-        let c = alldata[map_layer].features[i]["properties"]["intros"][item];
+        let c = alldata[map_layer].features[i]['properties']['intros'][item];
         if (c > maxn) {
             maxn = c;
         }
@@ -81,36 +81,40 @@ function getColorIntro(d) {
 }
 
 function setTimeLabels(sel) {
+    const el1 = document.getElementById('chk_time_0');
+    const el2 = document.getElementById('chk_time_12');
+    const el3 = document.getElementById('chk_time_6');
+    const el4 = document.getElementById('chk_time_3');
     if (sel == 0) {
         //whole pandemic
-        document.getElementById("btn_time_0").classList.add("btn_selected");
-        document.getElementById("btn_time_12").classList.remove("btn_selected");
-        document.getElementById("btn_time_6").classList.remove("btn_selected");
-        document.getElementById("btn_time_3").classList.remove("btn_selected");
+        el1.innerHTML = 'check';
+        el2.innerHTML = '';
+        el3.innerHTML = '';
+        el4.innerHTML = '';
     } else if (sel == 12) {
         //last 12 months
-        document.getElementById("btn_time_0").classList.remove("btn_selected");
-        document.getElementById("btn_time_12").classList.add("btn_selected");
-        document.getElementById("btn_time_6").classList.remove("btn_selected");
-        document.getElementById("btn_time_3").classList.remove("btn_selected");
+        el1.innerHTML = '';
+        el2.innerHTML = 'check';
+        el3.innerHTML = '';
+        el4.innerHTML = '';
     } else if (sel == 6) {
         //last 6 months
-        document.getElementById("btn_time_0").classList.remove("btn_selected");
-        document.getElementById("btn_time_12").classList.remove("btn_selected");
-        document.getElementById("btn_time_6").classList.add("btn_selected");
-        document.getElementById("btn_time_3").classList.remove("btn_selected");
+        el1.innerHTML = '';
+        el2.innerHTML = '';
+        el3.innerHTML = 'check';
+        el4.innerHTML = '';
     } else if (sel == 3) {
         //last 3 months
-        document.getElementById("btn_time_0").classList.remove("btn_selected");
-        document.getElementById("btn_time_12").classList.remove("btn_selected");
-        document.getElementById("btn_time_6").classList.remove("btn_selected");
-        document.getElementById("btn_time_3").classList.add("btn_selected");
+        el1.innerHTML = '';
+        el2.innerHTML = '';
+        el3.innerHTML = '';
+        el4.innerHTML = 'check';
     }
 }
 
 function style(feature) {
     return {
-        fillColor: getColorBase(feature.properties.intros[global_time + "basecount"], map_layer),
+        fillColor: getColorBase(feature.properties.intros[global_time + 'basecount'], map_layer),
         weight: 2,
         opacity: 1,
         color: 'white',
@@ -146,11 +150,11 @@ info.onAdd = function (map) {
 // method to update the info panel control based on feature properties passed
 info.update = function (props) {
     deftext = ' - Hover over a county or state';
-    if (global_state == "default") {
+    if (global_state == 'default') {
         // total number of clusters
         str = '<h4># Clusters '
         if (props) {
-            countval = props.intros[global_time + "basecount"];
+            countval = props.intros[global_time + 'basecount'];
             str += ' in <b>' + props.name + '</b><br />' + countval;
         } else {
             str += deftext;
@@ -159,7 +163,7 @@ info.update = function (props) {
         // number of introductions into region from another region
         str = '<h4># Introductions to ' + global_state 
         if (props) {
-            keyval = global_time + "raw" + global_state_id;
+            keyval = global_time + 'raw' + global_state_id;
             if (keyval in props.intros){
                 countval = props.intros[keyval];
             } else {
@@ -205,12 +209,12 @@ function resetView(e) {
     geojson[map_layer].eachLayer(function (layer) {
         geojson[map_layer].resetStyle(layer);
     });
-    global_state = "default";
-    global_state_id = "00";
-    var btn = document.getElementById("colorbtn");
+    global_state = 'default';
+    global_state_id = '00';
+    var btn = document.getElementById('colorbtn');
     btn.disabled = true;
-    btn.innerText = "Show Raw Cluster Count";
-    color_scale = "log";
+    btn.innerText = 'Show Raw Cluster Count';
+    color_scale = 'log';
     legend.update(global_state);
     showRegion(global_state);
 }
@@ -219,14 +223,14 @@ function changeMap(time) {
     setTimeLabels(time);
     if (time == 0) {
         //reset to default
-        global_time = "";
+        global_time = '';
     } else {
-        global_time = time + "_";
+        global_time = time + '_';
     }
-    if (global_state != "default") {
+    if (global_state != 'default') {
         geojson[map_layer].eachLayer(function (layer) {
             if (layer.feature.id == global_state_id) {
-                layer.setStyle({fillColor: "#1a0080"});
+                layer.setStyle({fillColor: '#1a0080'});
             } else {
                 colorIntros();
             }
@@ -243,27 +247,27 @@ function zoomToFeature(e) {
 function changeView(e) {
     //code to change the displayed heatmaps to the matching intro index
     var clicklayer = e.target;
-    if (e.target.options.fillColor == "#1a0080") {
+    if (e.target.options.fillColor == '#1a0080') {
         resetView(e);
     } else {
         global_state = e.target.feature.properties.name;
         global_state_id = e.target.feature.id;
-        clicklayer.setStyle({fillColor: "#1a0080"});
+        clicklayer.setStyle({fillColor: '#1a0080'});
         colorIntros();
-        document.getElementById("colorbtn").disabled = false;
+        document.getElementById('colorbtn').disabled = false;
         legend.update(global_state);
         showRegion(global_state);
     }
 }
 
 function colorIntros() {
-    if (color_scale == "raw") {
+    if (color_scale == 'raw') {
         //find max number of clusters
         let maxn = maxClusterCt(global_state_id,global_time,map_layer);
         //set colors
         geojson[map_layer].eachLayer(function (layer) {
             if (layer.feature.id != global_state_id) {
-                layer.setStyle({fillColor: getColorIntroN(layer.feature.properties.intros[global_time + "raw" + global_state_id],maxn)});
+                layer.setStyle({fillColor: getColorIntroN(layer.feature.properties.intros[global_time + 'raw' + global_state_id],maxn)});
             }
         });
     } else {
@@ -279,29 +283,31 @@ function colorIntros() {
 }
 
 function changeScale() {
-    var btn = document.getElementById("colorbtn");
-    if (color_scale == "log") {
-        color_scale = "raw";
-        btn.innerText = "Show Log Fold Enrichment";
+    var btn = document.getElementById('colorbtn');
+    if (color_scale == 'log') {
+        color_scale = 'raw';
+        btn.innerText = 'Show Log Fold Enrichment';
         colorIntros();
     } else {
-        color_scale = "log";
-        btn.innerText = "Show Raw Cluster Count";
+        color_scale = 'log';
+        btn.innerText = 'Show Raw Cluster Count';
         colorIntros();
     }
 }
 
 function swap_countystate() {
-    var btn = document.getElementById("btn_SC");
-    color_scale = "log";
-    global_state = "default";
-    if (btn.innerText == "Show CA State Introductions") {
-        btn.innerText = "Show CA County Introductions";
+    var btn = document.getElementById('btn_SC');
+    color_scale = 'log';
+    global_state = 'default';
+    global_time = '';
+    setTimeLabels(0);
+    if (btn.innerHTML == 'Show CA State Introductions') {
+        btn.innerHTML = 'Show CA County Introductions';
         map.removeLayer(geojson[0]);
         map.addLayer(geojson[1]);
         map_layer = 1;
     } else {
-        btn.innerText = "Show CA State Introductions";
+        btn.innerHTML = 'Show CA State Introductions';
         map.removeLayer(geojson[1]);
         map.addLayer(geojson[0]);
         map_layer = 0;
@@ -311,7 +317,7 @@ function swap_countystate() {
     let df = cDataFile;
     let ds = cSampleFile;
     if (map_layer == 1) {
-        const ext = "_us";
+        const ext = '_us';
         let pos = cDataFile.length - 8;
         df = cDataFile.substring(0, pos) + ext + cDataFile.substring(pos);
         pos = cSampleFile.length - 8;
@@ -401,8 +407,8 @@ const legend_log = '<strong>Introductions</strong><br>'+
 // method to update the legend control based on feature properties passed
 legend.update = function (props) {
     var ltext = '';
-    if (props != "default") {
-        if (color_scale == "raw") {
+    if (props != 'default') {
+        if (color_scale == 'raw') {
             //show number of clusters
             let maxn = maxClusterCt(global_state_id,global_time,map_layer);
             ltext = '<strong>Number of<br>Introductions</strong><br>';

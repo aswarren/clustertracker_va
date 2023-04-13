@@ -1,5 +1,9 @@
 # Changelog
 
+## v.0.9.0 (2023-04-13):
+   - UI Changes: New Material Design-inspired style and UCSC-inspired color palette.
+   - UI Changes: Adds Google Maps gesture handling (disables zooming in/out on scroll).
+   - UI Changes: Adds help documentation.
 ## v.0.8.0 (2023-03-09):
    - UI changes: Adds ability to search on selected columns and/or filter by date range, cluster size, or growth score.
 ## v.0.7.0 (2023-03-09):
