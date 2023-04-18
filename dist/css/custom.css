@@ -15,17 +15,17 @@ body {
 h2,h3,h4,h5,h6 {font-family: "Roboto", "Helvetica", "Arial", sans-serif}
 
 /* re-set styles for links */
-#maintext a, #downloads a {
+#maintext a:not(.pullquoteLink), #downloads a, #instructions a {
   color: #007bff;
   text-decoration: underline;
 }
-#maintext a:hover, #downloads a:hover {
+#maintext a:hover:not(.pullquoteLink), #downloads a:hover, #instructions a:hover {
   color: #0056b3;
 }
-#maintext a:visited, #downloads a:visited {
+#maintext a:visited:not(.pullquoteLink), #downloads a:visited, #instructions a:visited {
   color: purple;
 }
-#maintext a:active, #downloads a:active {
+#maintext a:active:not(.pullquoteLink), #downloads a:active, #instructions a:active {
   color: red;
 }
 
@@ -150,6 +150,10 @@ h1 {
   font-size: 0.8rem;
   font-style: italic;
   margin: 0;
+}
+a.pullquoteLink {
+  color: #006aad;
+  text-decoration: none;
 }
 
 /* Map, toolbar, and map Info icon styles */

@@ -90,7 +90,7 @@
             <!-- Intro text -->
             <div id="maintext">
                 <div class="inset">
-                    <p class="pullquote">We define a cluster as the set of sequences within a region that are inferred to result from a single introduction via travel.</p>
+                    <p class="pullquote"><a href="https://pathogengenomics.ucsc.edu/tools/cluster-tracker/glossary" target="_blank" class="pullquoteLink">We define a cluster as the set of sequences within a region that are inferred to result from a single introduction via travel.</a></p>
                 </div>
                 <p class="cardTitle">Welcome</p>
                 <p>The California Big Tree Cluster Tracker combines sequence data from the <a data-toggle="tooltip" title="Repository containing daily-updated comprehensive global phylogenetic trees for SARS-CoV-2" target="_blank" href="https://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/">global public SARS-CoV-2 phylogenetic tree</a> and sequences in California’s central repository in Terra.
@@ -293,30 +293,30 @@
                 </button>
               </div>
               <div class="modal-body">
-                <p>Cluster Tracker is a geo-genetic sample prioritization and investigation tool. Briefly, the core issue this seeks to resolve is the difficulty of evaluating the importance and spread of thousands of unique lineages across California. The key innovation of Cluster Tracker is that it can be used to identify new introductions into a given area (either California County-level or US State-level geographic regions). When a given cluster has been introduced recently to a region and it grows quickly, this may be worthy of additional detailed investigation.</p>
-                <p>To identify a cluster of interest:</p>
+                <p>Cluster Tracker is a geo-genetic sample prioritization and investigation tool. Complex algorithms expose viral evolution to identify new introductions from outside of a focal region, allowing epidemiologists potentially to see ahead of concerning events, when a new viral variant of interest has successfully spread into their region. See our <a href="https://pathogengenomics.ucsc.edu/tools/cluster-tracker/glossary" target="_blank">Glossary</a>, <a href="https://pathogengenomics.ucsc.edu/tools/cluster-tracker" target="_blank">FAQ,</a> and <a href="https://pathogengenomics.ucsc.edu/tools/cluster-tracker/background" target="_blank">Background</a> pages for more information.</p>
+                <p>To identify clusters of interest:</p>
                 <ol>
-                    <li>Select a county of interest from the map. The selected region will be highlighted in purple.</li>
-                    <li>Hover over the other counties to view the number of introductions from that county. To clear selection re-click the county of interest (purple region).</li>
-                    <li>View cluster metrics in your county of interest in the table below the map.</li>
+                    <li>Click a county or state of interest in the map. The selected focal region will turn purple.</li>
+                    <li>Hover over the other counties or states to view the number of introductions from that county. To clear a selected region, re-click the purple focal region.</li>
+                    <li>Cluster metrics are displayed in the table below the map.</li>
                     <ul>
                         <li>Hover over text in the table header to display column definitions.</li>
-                        <li>Use the search bar to search across all columns by default or select specifc columns for metrics of interest (samples, specimen_ids, lineage, etc.).</li>
-                        <li>Use the advance search options to narrow down the list of clusters.</li>
+                        <li>Use the search bar to search across all columns by default or select specific columns for metrics of interest (samples, specimen IDs, lineage, etc.).</li>
+                        <li>Use the advanced search options to narrow down the list of clusters.</li>
                             <ul>
-                                <li>In the search box, you can use a comma separated list with “and” and “or” boolean options. Do not put spaces inbetween the list items. Using the Escape key will clear the text in the search box.</li>
-                                <li>Select a date range to filter on sample collection dates</li>
+                                <li>In the search box, you can use a comma separated list with “AND” and “OR” boolean options. Do not put spaces in between the list items. The Escape key will clear search box text.</li>
+                                <li>Select a Cluster Date range to filter on sample collection dates</li>
                                 <li>Select a Cluster Size range.</li>
                                 <li>Select a Growth Score range.</li>
                             </ul>
-                        <li>Double click on the samples or specimen ID cell to see the full list.</li>
-                        <li>Sort on multiple columns by clicking one column then shift clicking another.</li>
-                        <li>Shift drag or press arrow keys to highlight cells to copy and paste. (You can use the Escape key to un-hilight previouly highlighted cells.)</li>
+                        <li>Double click on any Samples or Specimen ID cell to see the full list of contents.</li>
+                        <li>Sort on multiple columns by clicking one column and then shift clicking another.</li>
+                        <li>Shift drag or shift press arrow keys to highlight cells to copy and paste. The Escape key will un-highlight previously highlighted cells.</li>
                     </ul>
-                    <li>Once you identify a cluster of interest, you can click to view that cluster in Taxonium or view the samples in the CA Big Tree Investigator.</li>
+                    <li>Once you identify a cluster of interest, you can click "View Cluster" to view that cluster in Taxonium or view the samples in the CA Big Tree Investigator.</li>
                     <ul>
                         <li>The CA Big Tree investigator (formerly known as “PAUI-Mapper” and “PHI-Join”) is a tool for rapidly identifying the set of subtrees that contain a user-specified set of samples and overlaying sample PHI information. Such sets will likely be the group of samples included in a detailed epidemiological investigation in a given region. However, we emphasize that there are many possible applications of the Big Tree Investigator platform. Once we finish establishing the link to the state’s CCRS database, this tool will seamlessly extract PHI/PII in a secure manner and format these sample data to be compatible with the Big Tree visualizations. Additionally, users can supply detailed metadata that is not contained within CCRS (e.g Epidemiological investigation notes), and our tool will correctly format this for overlay onto the tree and will produce a text-based table that joins the PHI, genome sequence information and user-supplied metadata for downstream statistical analyses.</li>
-                        <li>Taxonium is tool to explore large phylogenetic trees. Clicking the View Cluster links in the metric table will open the Taxonium viewer highlight a particular cluster's sequences in the California Big Tree. The California Big Tree includes sequences from the global public tree, plus those in CovidNet, and are annoted with metadata, where available, including collection date, clade, lineage, county, and Specimen ID. In Taxonium you can search the tree and color sequences using several criteria, and switch the horizontal axis from mutation distance to time. Taxonium also includes the Treenome Browser which allows you to view each genome's mutations alongside the tree. For more details on using Taxonium, please see the <a href="https://docs.taxonium.org/en/latest/" target="_blank">Taxonium documentation</a>.</li>
+                        <li>Taxonium is a tool to explore large phylogenetic trees. Clicking the View Cluster links in the metric table will open the Taxonium viewer and highlight a particular cluster's sequences in the California Big Tree. The California Big Tree includes sequences from the global public tree, plus those in CovidNet, and are annotated with metadata, where available, including collection date, clade, lineage, county, and Specimen ID. In Taxonium you can search the tree and color sequences using several criteria, and switch the horizontal axis from mutation distance to time. Taxonium also includes the Treenome Browser which allows you to view each genome's mutations alongside the tree. For more details on using Taxonium, please see the <a href="https://docs.taxonium.org/en/latest/" target="_blank">Taxonium documentation</a>.</li>
                     </ul>
                 </ol>
               </div>
