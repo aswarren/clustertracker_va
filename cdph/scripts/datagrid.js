@@ -181,7 +181,7 @@ function clusterObjs(items, taxoniumURL, ext = '') {
     'lineage': items[6],
     'origin': items[7].replace(/_/g, ' '),
     'confidence': items[8].toString(),
-    'growth': items[9],
+    'growth': items[9].toString(),
     'taxlink': getTaxoniumLink(taxoniumURL, items[0], ext),
     'investigator': items[10],
   };
