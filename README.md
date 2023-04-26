@@ -18,7 +18,7 @@ Code to generate a webpage displaying SARS-CoV-2 clusters and introductions infe
 
 ## Screenshot and Features
 
-<img width="900" style="border: 1px solid gray;" alt="CA Big Tree Cluster Tracker 2022-09-16 screen shot" src="https://user-images.githubusercontent.com/67020823/190701837-753e7891-71df-434d-91cd-7b90bf2aa46c.png">
+<img width="900" style="border: 1px solid gray;" alt="CA Big Tree Cluster Tracker screen shot" src="https://user-images.githubusercontent.com/67020823/234706279-a62680b5-ee23-48cf-b275-788a3238bba7.png">
 
 #### Features
 
