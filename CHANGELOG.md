@@ -1,5 +1,10 @@
 # Changelog
 
+## v.0.9.1 (2023-04-26):
+   - Update example with latest UI styles.
+   - Simplify GitHub project structure.
+   - Clean up python scripts.
+   - Revise readme files.
 ## v.0.9.0 (2023-04-13):
    - UI Changes: New Material Design-inspired style and UCSC-inspired color palette.
    - UI Changes: Adds Google Maps gesture handling (disables zooming in/out on scroll).
