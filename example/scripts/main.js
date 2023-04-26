@@ -1,23 +1,30 @@
-var map = L.map('mapid', {'tap':false}).setView([37.8, -96], 4);
-var global_state = "default";
-var global_time = "";
-var global_state_id = "00";
-// var host = "raw.githubusercontent.com/jmcbroome/introduction-website/main/"
-var map_colors = ['#800026','#BD0026','#E31A1C','#FC4E2A','#FD8D3C','#FEB24C','#FED976','#FFEDA0'];
-var color_scale = "log";
-var max_basecount = 0;
+const map = L.map('mapid', {'tap': false, 'gestureHandling': true}).setView(L.latLng(mapCenter), mapInitialZoom);
+// set max zoomed out extent via bounds and minZoom
+const southWest = L.latLng(-90, -179);
+const northEast = L.latLng(90, 0);
+const bounds = L.latLngBounds(southWest, northEast);
+map.setMaxBounds(bounds);
+map.options.minZoom = 2;
+
+let global_state = 'default';
+let global_time = '';
+let global_state_id = '00';
+let map_colors = ['#800026', '#BD0026', '#E31A1C', '#FC4E2A', '#FD8D3C', '#FEB24C', '#FED976', '#FFEDA0'];
+let color_scale = 'log';
+let max_basecount = 0;
 for (i = 0; i < introData.features.length; i++) {
-    let bc = introData.features[i]["properties"]["intros"]["basecount"];
+    let bc = introData.features[i]['properties']['intros']['basecount'];
     if (bc > max_basecount) {
         max_basecount = bc;
     }
 }
 
+
 function maxClusterCt(region_id,timel) {
-    var maxn = 0;
-    let item = timel + "raw" + region_id;
+    let maxn = 0;
+    let item = timel + 'raw' + region_id;
     for (i = 0; i < introData.features.length; i++) {
-        let c = introData.features[i]["properties"]["intros"][item];
+        let c = introData.features[i]['properties']['intros'][item];
         if (c > maxn) {
             maxn = c;
         }
@@ -70,36 +77,40 @@ function getColorIntro(d) {
 }
 
 function setTimeLabels(sel) {
+    const el1 = document.getElementById('chk_time_0');
+    const el2 = document.getElementById('chk_time_12');
+    const el3 = document.getElementById('chk_time_6');
+    const el4 = document.getElementById('chk_time_3');
     if (sel == 0) {
         //whole pandemic
-        document.getElementById("btn_time_0").classList.add("btn_selected");
-        document.getElementById("btn_time_12").classList.remove("btn_selected");
-        document.getElementById("btn_time_6").classList.remove("btn_selected");
-        document.getElementById("btn_time_3").classList.remove("btn_selected");
+        el1.innerHTML = 'check';
+        el2.innerHTML = '';
+        el3.innerHTML = '';
+        el4.innerHTML = '';
     } else if (sel == 12) {
         //last 12 months
-        document.getElementById("btn_time_0").classList.remove("btn_selected");
-        document.getElementById("btn_time_12").classList.add("btn_selected");
-        document.getElementById("btn_time_6").classList.remove("btn_selected");
-        document.getElementById("btn_time_3").classList.remove("btn_selected");
+        el1.innerHTML = '';
+        el2.innerHTML = 'check';
+        el3.innerHTML = '';
+        el4.innerHTML = '';
     } else if (sel == 6) {
         //last 6 months
-        document.getElementById("btn_time_0").classList.remove("btn_selected");
-        document.getElementById("btn_time_12").classList.remove("btn_selected");
-        document.getElementById("btn_time_6").classList.add("btn_selected");
-        document.getElementById("btn_time_3").classList.remove("btn_selected");
+        el1.innerHTML = '';
+        el2.innerHTML = '';
+        el3.innerHTML = 'check';
+        el4.innerHTML = '';
     } else if (sel == 3) {
         //last 3 months
-        document.getElementById("btn_time_0").classList.remove("btn_selected");
-        document.getElementById("btn_time_12").classList.remove("btn_selected");
-        document.getElementById("btn_time_6").classList.remove("btn_selected");
-        document.getElementById("btn_time_3").classList.add("btn_selected");
+        el1.innerHTML = '';
+        el2.innerHTML = '';
+        el3.innerHTML = '';
+        el4.innerHTML = 'check';
     }
 }
 
 function style(feature) {
     return {
-        fillColor: getColorBase(feature.properties.intros[global_time + "basecount"]),
+        fillColor: getColorBase(feature.properties.intros[global_time + 'basecount']),
         weight: 2,
         opacity: 1,
         color: 'white',
@@ -108,7 +119,8 @@ function style(feature) {
     };
 }
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar', attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?', {attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
 
 var geojson;
 geojson = L.geoJson(introData, {
@@ -127,26 +139,32 @@ info.onAdd = function (map) {
 
 // method to update the info panel control based on feature properties passed
 info.update = function (props) {
-    // this._div.innerHTML = '<h4>US Population Density</h4>' +  (props ?
-    //     '<b>' + props.name + '</b><br />' + props.density + ' people / mi<sup>2</sup>'
-    //     : 'Hover over a state');
-    if (global_state == "default") {
-        this._div.innerHTML = '<h4># Clusters in ' + (props ? '<b>' + props.name + '</b><br />' + props.intros[global_time + "basecount"] : 'Hover over a state');
-    } else {
-        str = '<h4># Introductions to ' + global_state + ' from ';
+    deftext = ' - Hover over a state';
+    if (global_state == 'default') {
+        // total number of clusters
+        str = '<h4># Clusters '
         if (props) {
-            keyval = global_time + "raw" + global_state_id;
+            countval = props.intros[global_time + 'basecount'];
+            str += ' in <b>' + props.name + '</b><br />' + countval;
+        } else {
+            str += deftext;
+        }
+    } else {
+        // number of introductions into region from another region
+        str = '<h4># Introductions to ' + global_state 
+        if (props) {
+            keyval = global_time + 'raw' + global_state_id;
             if (keyval in props.intros){
                 countval = props.intros[keyval];
             } else {
                 countval = 0;
             }
-            str += '<b>' + props.name + '</b><br />' + countval;
+            str += ' from <b>' + props.name + '</b><br />' + countval;
         } else {
-            str += 'Hover over a state';
+            str += deftext;
         }
-        this._div.innerHTML = str;
     }
+    this._div.innerHTML = str;
 };
 
 function highlightFeature(e) {
@@ -181,12 +199,12 @@ function resetView(e) {
     geojson.eachLayer(function (layer) {
         geojson.resetStyle(layer);
     });
-    global_state = "default";
-    global_state_id = "00";
-    var btn = document.getElementById("colorbtn");
+    global_state = 'default';
+    global_state_id = '00';
+    var btn = document.getElementById('colorbtn');
     btn.disabled = true;
-    btn.innerText = "Show Raw Cluster Count";
-    color_scale = "log";
+    btn.innerText = 'Show Raw Cluster Count';
+    color_scale = 'log';
     legend.update(global_state);
     showRegion(global_state);
 }
@@ -195,14 +213,14 @@ function changeMap(time) {
     setTimeLabels(time);
     if (time == 0) {
         //reset to default
-        global_time = "";
+        global_time = '';
     } else {
-        global_time = time + "_";
+        global_time = time + '_';
     }
-    if (global_state != "default") {
+    if (global_state != 'default') {
         geojson.eachLayer(function (layer) {
             if (layer.feature.id == global_state_id) {
-                layer.setStyle({fillColor: "#1a0080"});
+                layer.setStyle({fillColor: '#1a0080'});
             } else {
                 colorIntros();
             }
@@ -219,27 +237,27 @@ function zoomToFeature(e) {
 function changeView(e) {
     //code to change the displayed heatmaps to the matching intro index
     var clicklayer = e.target;
-    if (e.target.options.fillColor == "#1a0080") {
+    if (e.target.options.fillColor == '#1a0080') {
         resetView(e);
     } else {
         global_state = e.target.feature.properties.name;
         global_state_id = e.target.feature.id;
-        clicklayer.setStyle({fillColor: "#1a0080"});
+        clicklayer.setStyle({fillColor: '#1a0080'});
         colorIntros();
-        document.getElementById("colorbtn").disabled = false;
+        document.getElementById('colorbtn').disabled = false;
         legend.update(global_state);
         showRegion(global_state);
     }
 }
 
 function colorIntros() {
-    if (color_scale == "raw") {
+    if (color_scale == 'raw') {
         //find max number of clusters
         let maxn = maxClusterCt(global_state_id,global_time);
         //set colors
         geojson.eachLayer(function (layer) {
             if (layer.feature.id != global_state_id) {
-                layer.setStyle({fillColor: getColorIntroN(layer.feature.properties.intros[global_time + "raw" + global_state_id],maxn)});
+                layer.setStyle({fillColor: getColorIntroN(layer.feature.properties.intros[global_time + 'raw' + global_state_id],maxn)});
             }
         });
     } else {
@@ -253,18 +271,18 @@ function colorIntros() {
     // update legend
     legend.update(global_state);
 }
+
 function changeScale() {
-    var btn = document.getElementById("colorbtn");
-    if (color_scale == "log") {
-        color_scale = "raw";
-        btn.innerText = "Show Log Fold Enrichment";
+    var btn = document.getElementById('colorbtn');
+    if (color_scale == 'log') {
+        color_scale = 'raw';
+        btn.innerText = 'Show Log Fold Enrichment';
         colorIntros();
     } else {
-        color_scale = "log";
-        btn.innerText = "Show Raw Cluster Count";
+        color_scale = 'log';
+        btn.innerText = 'Show Raw Cluster Count';
         colorIntros();
     }
-    initCTGrid(host, df, ds);
 }
 
 var legend = L.control({position: 'bottomleft'});
@@ -348,8 +366,8 @@ const legend_log = '<strong>Introductions</strong><br>'+
 // method to update the legend control based on feature properties passed
 legend.update = function (props) {
     var ltext = '';
-    if (props != "default") {
-        if (color_scale == "raw") {
+    if (props != 'default') {
+        if (color_scale == 'raw') {
             //show number of clusters
             let maxn = maxClusterCt(global_state_id,global_time);
             ltext = '<strong>Number of<br>Introductions</strong><br>';

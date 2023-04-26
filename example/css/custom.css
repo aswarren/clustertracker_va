@@ -1,86 +1,223 @@
-/* Custom styles */
-/*
-DePaul IHS
-*/
-
-@font-face {
-    font-family: 'GibsonSemiBold';
-    src: url('/css/fonts/gibson-semibold-webfont.eot');
-    src: url('/css/fonts/gibson-semibold-webfont.eot?#iefix') format('embedded-opentype'),
-         url('/css/fonts/gibson-semibold-webfont.woff') format('woff'),
-         url('/css/fonts/gibson-semibold-webfont.ttf') format('truetype'),
-         url('/css/fonts/gibson-semibold-webfont.svg#GibsonSemiBold') format('svg');
-    font-weight: normal;
-    font-style: normal;
-}
-@font-face {
-    font-family: 'GibsonBold';
-    src: url('/css/fonts/gibson-bold-webfont.eot');
-    src: url('/css/fonts/gibson-bold-webfont.eot?#iefix') format('embedded-opentype'),
-         url('/css/fonts/gibson-bold-webfont.woff') format('woff'),
-         url('/css/fonts/gibson-bold-webfont.ttf') format('truetype'),
-         url('/css/fonts/gibson-bold-webfont.svg#GibsonBold') format('svg');
-    font-weight: normal;
-    font-style: normal;
-}
-@font-face {
-    font-family: 'ColaborateThinRegular';
-    src: url('/css/fonts/ColabThi-webfont.eot');
-    src: url('/css/fonts/ColabThi-webfont.eot?#iefix') format('embedded-opentype'),
-         url('/css/fonts/ColabThi-webfont.woff') format('woff'),
-         url('/css/fonts/ColabThi-webfont.ttf') format('truetype'),
-         url('/css/fonts/ColabThi-webfont.svg#ColaborateThinRegular') format('svg');
-    font-weight: normal;
-    font-style: normal;
-}
-@font-face {
-    font-family: 'ColaborateRegRegular';
-    src: url('https://www.housingstudies.org/static/css/fonts/ColabReg-webfont.eot');
-    src: url('https://www.housingstudies.org/static/css/fonts/ColabReg-webfont.eot?#iefix') format('embedded-opentype'),
-         url('https://www.housingstudies.org/static/css/fonts/ColabReg-webfont.woff') format('woff'),
-         url('https://www.housingstudies.org/static/css/fonts/ColabReg-webfont.ttf') format('truetype'),
-         url('https://www.housingstudies.org/static/css/fonts/ColabReg-webfont.svg#ColaborateRegRegular') format('svg');
-    font-weight: normal;
-    font-style: normal;
-
-}
-@font-face {
-    font-family: 'AlegreyaBold';
-    src: url('https://www.housingstudies.org/static/css/fonts/Alegreya-Bold-webfont.eot');
-    src: url('https://www.housingstudies.org/static/css/fonts/Alegreya-Bold-webfont.eot?#iefix') format('embedded-opentype'),
-         url('https://www.housingstudies.org/static/css/fonts/Alegreya-Bold-webfont.woff') format('woff'),
-         url('https://www.housingstudies.org/static/css/fonts/Alegreya-Bold-webfont.ttf') format('truetype'),
-         url('https://www.housingstudies.org/static/css/fonts/Alegreya-Bold-webfont.svg#AlegreyaBold') format('svg');
-    font-weight: normal;
-    font-style: normal;
-}
-
-    
+/* General Styles */
 body { 
-  font: 18px/1.3em 'ColaborateThinRegular', sans-serif;
+  margin: 0px;
+  color: rgba(0, 0, 0, 0.87);
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.5;
+  letter-spacing: 0.00938em;
+  background-color: rgb(255, 255, 255);
+}
+#main {
+  margin: 24px;
+}
+h2,h3,h4,h5,h6 {font-family: "Roboto", "Helvetica", "Arial", sans-serif}
+
+/* re-set styles for links */
+#maintext a:not(.pullquoteLink), #downloads a, #instructions a {
+  color: #007bff;
+  text-decoration: underline;
+}
+#maintext a:hover:not(.pullquoteLink), #downloads a:hover, #instructions a:hover {
+  color: #0056b3;
+}
+#maintext a:visited:not(.pullquoteLink), #downloads a:visited, #instructions a:visited {
+  color: purple;
+}
+#maintext a:active:not(.pullquoteLink), #downloads a:active, #instructions a:active {
+  color: red;
 }
 
+/* hover tooltips */
+.tooltip-inner {
+    background-color: #616161;
+}
+.tooltip.bs-tooltip-right .arrow:before {
+    border-right-color: #616161 !important;
+}
+.tooltip.bs-tooltip-left .arrow:before {
+    border-left-color: #616161 !important;
+}
+.tooltip.bs-tooltip-bottom .arrow:before {
+    border-bottom-color: #616161 !important;
+}
+.tooltip.bs-tooltip-top .arrow:before {
+    border-top-color: #616161 !important;
+}
+#mapInfo > .tooltip-inner {
+    background-color: red;
+}
+
+/* styles for a simple 'card' with rounded corners and gray border and blue header */
+.cardPanel {
+  background-clip: border-box;
+  border: 1px solid rgba(0,0,0,.125);
+  border-radius: 8px;
+  padding: 1.25rem;
+  clear: both;
+}
+.cardTitle {
+  color: #006aad;
+  font-size: 1.2em;;
+}
+
+/* primary button stles */
+#btnSimpleSearch, #btnClearSearch {
+  color: #fff;
+  background-color: #006aad;
+  padding: 6px 16px;
+  font-size: 0.875rem;
+  min-width: 90px;
+  border: none;
+  box-sizing: border-box;
+  box-shadow: 0px 3px 1px -2px rgb(0 0 0 / 20%), 0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%);
+  transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,border 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  font-weight: 500;
+  line-height: 1.75;
+  border-radius: 4px;
+  letter-spacing: 0.02857em;
+  text-transform: uppercase;
+}
+#btnSimpleSearch:active, #btnClearSearch:active {
+  box-shadow: 0px 5px 5px -3px rgb(0 0 0 / 20%), 0px 8px 10px 1px rgb(0 0 0 / 14%), 0px 3px 14px 2px rgb(0 0 0 / 12%);
+}
+#btnSimpleSearch:hover, #btnClearSearch:hover {
+  background-color: rgb(0, 74, 121);
+}
+
+/* header styles */
+#bannerHead {
+  min-height: 56px;
+  padding: 8px;
+  margin-bottom: 10px;
+  box-shadow: rgb(0 0 0 / 20%) 0px 2px 4px -1px, rgb(0 0 0 / 14%) 0px 4px 5px 0px, rgb(0 0 0 / 12%) 0px 1px 10px 0px;
+  background-color: #006aad !important;
+  color: rgb(255, 255, 255) !important;
+}
 h1 {
-  font: 32px/1em 'GibsonBold', serif;
+  font-size: 1.25rem;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  font-weight: 500;
+  line-height: 1.6;
+  letter-spacing: 0.0075em;
+  margin: 0px;
+  padding-left: 12px;
+}
+/* hamburger menu */
+.menuDiv {
+  cursor: pointer;
+  font-size: .8em;
+  padding: 12px;
+  border-radius: 50%;
+}
+.menuDiv:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+.mnuItem, .mnuItem a {
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  font-size: .9em;
+  cursor: pointer;
+  text-decoration: none;
+  color: #212529;
+}
+.mnuItem span.material-symbols-outlined {
+  color: #707070;
+}
+
+/* Intro/About/Welcome text Styles */
+#maintext button {
+  border-radius: 5px;
+  border: none;
+  background-color: #fff;
+  padding: 0px 3px 0px 8px;
+  font-size: .8em;
+  text-decoration: underline;
+  color: #007bff;
+}
+#maintext button:hover {
+  color: #0056b3;
+}
+
+/* Map, toolbar, and map Info icon styles */
+#mapid {
+  border: 1px solid rgba(0,0,0,.125);
+  margin-top: -34px;
+  background-clip: border-box;
+  border-bottom-left-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+}
+.mapBar {
+  padding: 5px;
+  border-top: 1px solid rgba(0,0,0,.125);
+  border-left: 1px solid rgba(0,0,0,.125);
+  border-right: 1px solid rgba(0,0,0,.125);
+  border-top-right-radius: 0.25rem;
+  border-top-left-radius: 0.25rem;
+  background-clip: border-box;
+}
+/* map info icon */
+#mapInfo {
+  position: relative;
+  top:  84px;
+  left: 12px;
+  z-index: 1000;
+  border: 2px solid rgba(0,0,0,0.2);
+  border-radius: 4px;
+  color: #46535c;
+  width: 34px;
+  height: 34px;
+  background-color: #fff;
+  background-clip: padding-box;
+  padding: 3px;
+}
+#mapInfo:hover {
+  background-color: #f4f4f4;
+}
+span.material-symbols-outlined.icon-ctr {
+    vertical-align: baseline;
+}
+/* Buttons for the map */
+.mapButton {
+  padding: 6px 16px;
+  font-size: 0.875rem;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  font-weight: 500;
+  line-height: 1.75;
+  border-radius: 4px;
+  letter-spacing: 0.02857em;
   text-transform: uppercase;
-  color: #827E7E;
+  margin: 6px;
 }
-
-h2 {
-  font: 22px/1em 'GibsonBold', serif;
-  text-transform: uppercase;
-  color: #827E7E;
+button.mapButton:disabled {
+  border: 1px solid rgba(60,64,67,.12);
+  color: rgba(60,64,67,.38);
+  background-color: #fff;
 }
-
-#logo {
-  margin-top: 20px;
+.mapButton:not(:disabled) {
+  border: 1px solid rgb(218,220,224);
+  color: #006aad;
+  background-color: #fff;
 }
+.mapButton:not(:disabled):hover {
+  border: 1px solid rgb(218,220,224);
+  color: #006aad;
+  background-color: #F9F9F9;
+}
+#btnTimePeriod {
+  padding-right: 8px;
+}
+span.checkSpan {width: 24px;}
 
-#logo img { width: 170px; }
 
+/* Leaflet Map Info box and Legend */
+.leaflet-top {
+  z-index: 900; /* decreases default z-index of controls at top of map */ 
+}
 .info {
   padding: 6px 8px;
-  font: 14px/16px Arial, Helvetica, sans-serif;
+  font-size: 14px;
   background: white;
   background: rgba(255,255,255,0.8);
   box-shadow: 0 0 15px rgba(0,0,0,0.2);
@@ -89,8 +226,9 @@ h2 {
 .info h4 {
   margin: 0 0 5px;
   color: #777;
+  font-size: 14px;
+  line-height: 16px;
 }
-
 .legend {
   text-align: left;
   line-height: 18px;
@@ -104,30 +242,38 @@ h2 {
   opacity: 0.7;
 }
 
-.definition {
-  border-bottom: 1px dotted black;
+/* misc text styles */
+div.show {display:block;}
+div.hide {
+  display: none;
 }
-
-.btn_selected {
-    background: #cccccc;
+.material-symbols-outlined {
+  vertical-align: middle;
 }
-
-#dropcolor { 
-    position: absolute;
-    right: 164px;
+label {
+  margin: 0px;
+  padding-right: 2px;
 }
-
-#droploc { 
-    position: absolute;
-    right: 8px;
-}
-
 #downloads {
   margin-top: 18px;
 }
-
+#downloads table {
+  border: 1px solid rgba(0,0,0,.125);
+  border-collapse:collapse;
+}
+#downloads th, td {
+  padding: 6px;
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.87);
+  border: 1px solid rgba(0,0,0,.125);
+  line-height: normal;
+}
+#downloads td {
+  font-size: .9em;
+}
 .tableNote {
   font-family: arial;
   font-size: 8pt;
   line-height: normal;
+  margin-top: 1em;
 }

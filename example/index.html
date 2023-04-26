@@ -1,100 +1,349 @@
-<html>
-<title>Cluster-Tracker</title>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="icon" type="image/x-icon" href="favicon.ico">
-<link rel="manifest" href="/site.webmanifest">
-<link rel="stylesheet" href="lib/slickgrid/slick.grid.min.css" type="text/css"/>
-<link rel="stylesheet" href="lib/jquery-ui/jquery-ui.min.css" type="text/css"/>
-<link rel="stylesheet" href="lib/slickgrid/controls/slick.pager.min.css" type="text/css"/>
-<link rel="stylesheet" href="lib/leafletjs/leaflet.css" type="text/css"/>
-<link rel="stylesheet" href="css/gridstyles.css" type="text/css"/>
-<link rel="stylesheet" href="css/custom.css" type="text/css"/>
-<style>
-body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
-.w3-bar,h1,button {font-family: "Montserrat", sans-serif}
-.fa-anchor,.fa-coffee {font-size:200px}
-.dropdown {position: relative; display: inline-block; width: 150px}
-.dropdown-content {display: none; position: absolute; z-index: 2000; width: 100%; background-color:#f1f1f1; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2)} 
-.timel {display: block; width: 100%; text-align: center;}
-.show {display:block;}
-</style>
-    <body>
-        <h1> Cluster-Tracker </h1>
-        <script>
-            host = "data/";
-            cDataFile = 'cluster_data.json.gz';
-            cSampleFile = 'sample_data.json.gz';
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Cluster Tracker</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,1,0" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="icon" type="image/x-icon" href="favicon.ico">
+        <link rel="manifest" href="/site.webmanifest" crossorigin="use-credentials">
 
-            function showList() {
-                document.getElementById("myDropdown").classList.toggle("show");
-            }
-            window.onclick = function(event) {
-                if (!event.target.matches('.dropbtn')) {
-                    var dropdowns = document.getElementsByClassName("dropdown-content");
-                    var i;
-                    for (i = 0; i < dropdowns.length; i++) {
-                        var openDropdown = dropdowns[i];
-                        if (openDropdown.classList.contains('show')) {
-                            openDropdown.classList.remove('show');
-                        }
-                    }
-                }
-            }
+        <link rel="stylesheet" href="lib/bootstrap/bootstrap.min.css">
+        <link rel="stylesheet" href="lib/jquery-ui/jquery-ui.min.css" type="text/css"/>
+        <link rel="stylesheet" href="lib/slickgrid/slick.grid.min.css" type="text/css"/>
+        <link rel="stylesheet" href="lib/slickgrid/controls/slick.pager.min.css" type="text/css"/>
+        <link rel="stylesheet" href="lib/leafletjs/leaflet.css" type="text/css"/>
+        <link rel="stylesheet" href="lib/leaflet-gesture-handling/leaflet-gesture-handling.min.css" type="text/css"/>
+        <link rel="stylesheet" href="lib/filter-multi-select/filter_multi_select.css" type="text/css"/>
+        <link rel="stylesheet" href="css/custom.css" type="text/css"/>
+        <link rel="stylesheet" href="css/gridstyles.css" type="text/css"/>
+        <script src="scripts/ui_interactions.js"></script>
+        <script>
+            /* Data and Map Settings */
+            /* Data storage location */
+            const dataHost = 'https://clustertracker.gi.ucsc.edu/data/';
+            /* URL for Taxonium File or Custom Backend */
+            /* Taxonium file: */
+            /* taxoniumHost = 'protoUrl=' + dataHost + 'cview.jsonl.gz'; */
+            /* Taxonium backend: */
+            const taxoniumHost = 'backend=https%3A%2F%2Fpublic-taxonium.big-tree.ucsc.edu';
+            /* Initial Cluster Data and Sample Data files */
+            const cDataFile = 'cluster_data.json.gz';
+            const cSampleFile = 'sample_data.json.gz';
+            /* Leaflet map settings: map center coordinates and initial Zoom level */
+            const mapCenter = [37.8, -96];
+            const mapInitialZoom = 4;
         </script>
-        <div class="dropdown" id="droploc">
-            <button onclick="showList()" class="dropbtn">Choose Map Display Time Period</button>
-            <div id="myDropdown" class="dropdown-content">
-                <button id="btn_time_0" class="timel btn_selected" onclick="changeMap(0)">Whole Pandemic</p>
-                <button id="btn_time_12" class="timel" onclick="changeMap(12)">Last 12 Months</p>
-                <button id="btn_time_6" class="timel" onclick="changeMap(6)">Last 6 Months</p>
-                <button id="btn_time_3" class="timel" onclick="changeMap(3)">Last 3 Months</p>
+        <!-- load js for search and filter tools -->
+        <script src="lib/jquery/jquery.min.js"></script>
+        <script src="lib/bootstrap/bootstrap.bundle.min.js"></script>
+        <script src="lib/jquery-ui/jquery-ui.min.js"></script>
+        <script src="lib/filter-multi-select/filter-multi-select-bundle.min.js"></script>
+
+    </head>
+    <body>
+
+        <!-- banner and menu -->
+        <div id="bannerHead" class="container-fluid px-0">
+            <div class="row no-gutters align-items-center">
+                <div class="col pl-3">
+                    <h1>Cluster Tracker </h1>
+                </div>
+                <div class="col-auto pr-3">
+                    <div class="dropdown">
+                        <div class="menuDiv" data-toggle="dropdown">
+                            <span class="material-symbols-outlined" title="Show/Hide Menu" data-toggle="tooltip" data-placement="left">menu</span>
+                        </div>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <div class="dropdown-item mnuItem pl-3 pr-3 pt-2 pb-2" data-toggle="modal" data-target="#instructions">
+                                <span class="material-symbols-outlined">description</span>
+                                View Instructions
+                            </div>
+                            <div id="faq" class="dropdown-item mnuItem pl-3 pr-3 pt-2 pb-2" onclick="openLink('https://pathogengenomics.ucsc.edu/tools/cluster-tracker')">
+                                <span class="material-symbols-outlined">unknown_document</span>
+                                FAQ
+                            </div>
+                            <div id="glossary" class="dropdown-item mnuItem pl-3 pr-3 pt-2 pb-2" onclick="openLink('https://pathogengenomics.ucsc.edu/tools/cluster-tracker/glossary')">
+                                <span class="material-symbols-outlined">list_alt</span>
+                                Glossary
+                            </div>
+                            <div id="support" class="dropdown-item mnuItem pl-3 pr-3 pt-2 pb-2" data-toggle="modal" data-target="#getSupport">
+                                <span class="material-symbols-outlined">live_help</span>
+                                Get Support
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="dropdown" id="dropcolor">
-            <button onclick="changeScale()" class="dropbtn" id="colorbtn" disabled>Show Raw Cluster Count</button>
-        </div>
-        <div id="display" title="This map displays the count of inferred unique families of the virus in each state by default. When a state is selected, it instead displays a scaled estimate of the count of viral introductions to the selected state from each other state.">
-            <div id="mapid"></div>
-            <style>
-                #mapid {
-                    height: 400px;
-                }
-            </style>
-        </div>
-        <div id="maintext">
-            <p>We apply a <a title="Wiki page describing the heuristic calculation." target="_blank" href="https://usher-wiki.readthedocs.io/en/latest/matUtils.html#introduce">heuristic</a> 
-                 to the <a title="Repository containing daily-updated comprehensive global phylogenetic trees for SARS-CoV-2" target="_blank" href="http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/">global public SARS-CoV-2 phylogenetic tree</a>
+
+        <!-- Intro, Map, Search & Filter, Cluster Metrics Table, Downloads -->
+        <div id="main">
+            <!-- Intro text -->
+            <div id="maintext">
+                <p class="cardTitle">Welcome</p>
+                <p>We apply a <a data-toggle="tooltip" title="Wiki page describing the heuristic calculation." target="_blank" href="https://usher-wiki.readthedocs.io/en/latest/matUtils.html#introduce">heuristic</a> to the <a data-toggle="tooltip" title="Repository containing daily-updated comprehensive global phylogenetic trees for SARS-CoV-2" target="_blank" href="http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/">global public SARS-CoV-2 phylogenetic tree</a>
                 to identify groups of sequences from an area that may have recently migrated from outside the region. These may reflect cases of an infected traveler
                 entering a region, followed by local spread.  Many biases might affect these results including relative local sequencing effort, timeliness of data deposition into public sequence repositories, and accuracy of phylogenetic reconstruction. 
-                You can view each <span class="definition" title="The set of sequences within a region that are inferred to result from a single introduction via travel.">cluster</span> in <a title="Github repository for the Taxonium browser tree viewer" href="https://github.com/theosanderson/taxonium" target="_blank">Taxonium</a> and perform your own analysis with <a title="Github repository for our underlying tools" href="https://github.com/yatisht/usher" target="_blank">our toolkit and database.</a>
-            </p>
-        </div>
-        <div id="searchbox">
-            Search: 
-            <input type=text id="txtSearch" style="width:150px;">
-        </div>
+                You can view each cluster in <a data-toggle="tooltip" title="Github repository for the Taxonium browser tree viewer" href="https://github.com/theosanderson/taxonium" target="_blank">Theo Sanderson's Taxonium</a> and perform your own analysis with <a data-toggle="tooltip" title="Github repository for our underlying tools" href="https://github.com/yatisht/usher" target="_blank">our toolkit and database.</a>
+                </p>
+            </div> <!-- end Intro text -->
 
-        <div id="grdContainer">
-            <div id="myGrid" style="width:100%;height:570px;"></div>
-            <div id="pager"></div>
-            <div>
-                <p class="tableNote">* = Interpret with caution. Value may not be meaningful due to small cluster size, or cluster dates were not able to be parsed.</p>
+            <div class="cardPanel"> <!-- contains map, search, and data table -->
+                <div class="container-fluid mapBar">
+                    <div class="row">
+                        <div class="col">
+                            <button onclick="changeScale()" class="dropbtn mapButton" id="colorbtn" disabled>Show Raw Cluster Count</button>
+                        </div>
+                        <div class="col-auto">
+                            <button class="dropbtn mapButton" data-toggle="dropdown" id="btnTimePeriod">Map Display Time Period <span class="material-symbols-outlined">arrow_drop_down</span></button>
+                            <div class="dropdown-content dropdown-menu dropdown-menu-right">
+                                <div class="dropdown-item pl-1" onclick="changeMap(0);">
+                                    <span id="chk_time_0" class="material-symbols-outlined checkSpan">check</span>
+                                    Whole Pandemic
+                                </div>
+                                <div class="dropdown-item pl-1" onclick="changeMap(12);">
+                                    <span id="chk_time_12" class="material-symbols-outlined checkSpan"></span>
+                                    Last 12 Months
+                                </div>
+                                <div class="dropdown-item pl-1" onclick="changeMap(6);">
+                                    <span id="chk_time_6" class="material-symbols-outlined checkSpan"></span>
+                                    Last 6 Months
+                                </div>
+                                <div class="dropdown-item pl-1" onclick="changeMap(3);">
+                                    <span id="chk_time_3" class="material-symbols-outlined checkSpan"></span>
+                                    Last 3 Months
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="mapInfo" data-toggle="tooltip" data-trigger="hover" title="This map displays the count of inferred unique families of the virus in each region by default. When a region is selected, it instead displays a scaled estimate of the count of viral introductions to the selected region from each other region.">
+                    <span class="material-symbols-outlined info-icon-ctr">
+                    info
+                    </span>
+                </div>
+                <div id="mapid" style="height: 400px;"></div>
+                <br>
+
+                <!-- Search and Filter -->
+                <div id="searchbox" class="container-fluid pb-2 pl-0 pr-0">
+                    <div class="card">
+                        <div id="searchCardHead" class="card-header pl-0 pt-1 pb-1" data-toggle="collapse" data-target="#collapseSection" onclick="toggleDropArrow(this.id);">
+                            <span class="material-symbols-outlined arrow down">arrow_drop_down</span>Search Cluster Metrics
+                        </div>
+                        <div id="collapseSection" class="collapse show">
+                            <div class="card-body pt-1 pb-3" id="searchContent">
+                                <p class="searchSubT">Simple Text Search</p>
+                                <div class="row"><!-- start of main flexcol row -->
+                                    <div class="col"><!-- main flexcol row has 2 column -->
+                                        <div class="row">
+                                            <div class="col-3" style="min-width: 350px;">
+                                                <input type="text" id="txtSearch" placeholder="Enter search terms...">
+                                                <p class="searchNote">
+                                                    Separate multiple search terms with a comma. Do not use spaces between search terms.
+                                                </p>
+                                            </div>
+                                            <div class="col-auto">
+                                                <p class="searchSubSubT">Boolean Search Options:</p>
+                                                <div>
+                                                    <input type="radio" checked="checked" name="bool" value="and" id="boolAnd">
+                                                    <label for="boolAnd">AND (contains ALL search terms)</label>
+                                                </div>
+                                                <div>
+                                                    <input type="radio" name="bool" value="or" id="boolOr">
+                                                    <label for="boolOr">OR (contains ANY search term)</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-auto col-lg"  style="min-width: 350px;">
+                                                <p class="searchSubSubT">Search Columns:</p>
+                                                <select name="colSelect" id="colSelect" multiple class="filter-multi-select">
+                                                    <option selected value="cid">Cluster ID</option>
+                                                    <option selected value="region">Region</option>
+                                                    <option selected value="sampcount">Sample Count</option>
+                                                    <option selected value="earliest">Earliest Date</option>
+                                                    <option selected value="latest">Latest Date</option>
+                                                    <option selected value="clade">Clade</option>
+                                                    <option selected value="lineage">Lineage</option>
+                                                    <option selected value="origin">Best Potential Origins</option>
+                                                    <option selected value="confidence">Best Origin Regional Indices</option>
+                                                    <option selected value="growth">Growth Score</option>
+                                                    <option selected value="samples">Sample Names</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col">
+                                                <div id="filterTitle" class="searchSubT col pl-0" data-toggle="collapse" data-target="#filterOps" onclick="toggleDropArrow(this.id);">
+                                                    <span class="material-symbols-outlined arrow right">arrow_right</span>Advanced Filter Options
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="filterOps" class="collapse">
+                                            <div class="row">
+                                                <div class="col-md-auto">
+                                                    <p class="searchSubSubT">Cluster Date:</p>
+                                                    <label for="txtDateMin">From:</label>
+                                                    <input type="date" id="txtDateMin" name="txtDateMin" min="1900-01-01">
+                                                    <label for="txtDateMax" class="left-padding-small">To: </label>
+                                                    <input type="date" id="txtDateMax" name="txtDateMax" min="1900-01-01">
+                                                    <div class="subElement">
+                                                        <input type="checkbox" id="chkValidDates" name="chkValidDates">
+                                                        <label for="chkValidDates">Exclude clusters with no valid dates</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-auto">
+                                                    <p class="searchSubSubT">Cluster Size:</p>
+                                                    <label for="txtSizeMin">From: </label>
+                                                    <input type="number" id="txtSizeMin" name="txtSizeMin" placeholder="Min" min="1">
+                                                    <label for="txtSizeMin" class="left-padding-small">To: </label>
+                                                    <input type="number" id="txtSizeMax" name="txtSizeMax" placeholder="Max" min="1">
+                                                </div>
+                                                <div class="col-md-auto pb-2">
+                                                    <p class="searchSubSubT">Growth Score:</p>
+                                                    <label for="txtGrowthMin">From: </label>
+                                                    <input type="number" id="txtGrowthMin" name="txtGrowthMin" placeholder="Min" min="0" step="0.1">
+                                                    <label for="txtGrowthMax" class="left-padding-small">To: </label>
+                                                    <input type="number" id="txtGrowthMax" name="txtGrowthMax" placeholder="Max" min="0" step="0.1">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-1 text-center" style="min-width: 120px;">
+                                        <button onclick="doSearch();" id="btnSimpleSearch">Search</button>
+                                        <button onclick="clearSearch();" id="btnClearSearch">Clear</button>
+                                    </div>
+                                </div><!-- end of main flexcol row -->
+                            </div> <!-- end search option content -->
+                        </div> <!-- end collapseSection -->
+                    </div> <!-- end card class -->
+                </div><!-- end search and filter container -->
+
+                <div id="grdContainer">
+                    <div id="myGrid" style="width:100%;height:570px;"></div>
+                    <div id="pager"></div>
+                    <div>
+                        <p class="tableNote">* = Interpret with caution. Value may not be meaningful due to small cluster size, or cluster dates were not able to be parsed.</p>
+                    </div>
+                </div>
+            </div> <!-- end card div to contain map, search, and data table-->
+
+            <!-- Downloads container -->
+            <div id="downloads" class="cardPanel">
+                <p class="cardTitle">Downloads</p>
+                <table>
+                    <tr>
+                        <th>File</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a href="https://clustertracker.gi.ucsc.edu/data/hardcoded_clusters.tsv">hardcoded_clusters.tsv</a>
+                        </td>
+                        <td>
+                            Tab-separated file containing information for all calculated introductions.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a href="https://clustertracker.gi.ucsc.edu/data/cview.jsonl.gz">cview.jsonl.gz</a>
+                        </td>
+                        <td>
+                            Contains the global phylogenetic tree annotated with cluster information and select metadata fields in a format (JSONL) suitable for viewing in the <a href="https://taxonium.org/" target="_blank">Taxonium</a> web-based or desktop-based application.
+                        </td>
+                    </tr>
+                </table>
             </div>
         </div>
 
-
+        <!-- Content for menu popups -->
+        <div class="modal" id="instructions" tabindex="-1" aria-labelledby="instructionsLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="instructionsLabel">Instructions</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <p>Cluster Tracker is a geo-genetic sample prioritization and investigation tool. Complex algorithms expose viral evolution to identify new introductions from outside of a focal region, allowing epidemiologists potentially to see ahead of concerning events, when a new viral variant of interest has successfully spread into their region. See our <a href="https://pathogengenomics.ucsc.edu/tools/cluster-tracker/glossary" target="_blank">Glossary</a>, <a href="https://pathogengenomics.ucsc.edu/tools/cluster-tracker" target="_blank">FAQ,</a> and <a href="https://pathogengenomics.ucsc.edu/tools/cluster-tracker/background" target="_blank">Background</a> pages for more information.</p>
+                <p>To identify clusters of interest:</p>
+                <ol>
+                    <li>Click a region of interest in the map. The selected focal region will turn purple.</li>
+                    <li>Hover over the other states to view the number of introductions from that county. To clear a selected region, re-click the purple focal region.</li>
+                    <li>Cluster metrics are displayed in the table below the map.</li>
+                    <ul>
+                        <li>Hover over text in the table header to display column definitions.</li>
+                        <li>Use the search bar to search across all columns by default or select specific columns for metrics of interest (samples, specimen IDs, lineage, etc.).</li>
+                        <li>Use the advanced search options to narrow down the list of clusters.</li>
+                            <ul>
+                                <li>In the search box, you can use a comma separated list with “AND” and “OR” boolean options. Do not put spaces in between the list items. The Escape key will clear search box text.</li>
+                                <li>Select a Cluster Date range to filter on sample collection dates</li>
+                                <li>Select a Cluster Size range.</li>
+                                <li>Select a Growth Score range.</li>
+                            </ul>
+                        <li>Double click on any Samples cell to see the full list of contents.</li>
+                        <li>Sort on multiple columns by clicking one column and then shift clicking another.</li>
+                        <li>Shift drag or shift press arrow keys to highlight cells to copy and paste. The Escape key will un-highlight previously highlighted cells.</li>
+                    </ul>
+                    <li>Once you identify a cluster of interest, you can click "View Cluster" to view that cluster in Taxonium.</li>
+                    <ul>
+                        <li>Taxonium is a tool to explore large phylogenetic trees. Clicking the View Cluster links in the metric table will open the Taxonium viewer and highlight a particular cluster's sequences in a phylogenetic tree. Sequences are annotated with metadata, where available, including collection date, clade, and lineage. In Taxonium you can search the tree and color sequences using several criteria, and switch the horizontal axis from mutation distance to time. Taxonium also includes the Treenome Browser which allows you to view each genome's mutations alongside the tree. For more details on using Taxonium, please see the <a href="https://docs.taxonium.org/en/latest/" target="_blank">Taxonium documentation</a>.</li>
+                    </ul>
+                </ol>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal" id="getSupport" tabindex="-1" aria-labelledby="getSupportLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="getSupportLabel">Support</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <p>
+                    Many issues with the Cluster Tracker app can be resolved by clearing the browser cache. Use the following links to find directions for each browser:
+                    <ul>
+                        <li><a href="https://www.google.com/chrome/tips/#shortcuts" target="_blank">Chrome</a></li>
+                        <li><a href="https://support.microsoft.com/en-us/microsoft-edge/view-and-delete-browser-history-in-microsoft-edge-00cf7943-a9e1-975a-a33d-ac10ce454ca4" target="_blank">Microsoft Edge</a></li>
+                        <li><a href="https://support.apple.com/en-us/HT201265" target="_blank">Safari</a></li>
+                        <li><a href="https://support.mozilla.org/en-US/kb/how-clear-firefox-cache" target="_blank">Firefox</a></li>
+                    </ul> 
+                </p>
+                <p>You can always email us at 
+                    <a href="mailto:help-pathogengenomics@ucsc.edu" target="_blank" rel="noreferrer">help-pathogengenomics@ucsc.edu</a>
+                    or post an issue in <a href="https://github.com/pathogen-genomics/introduction-website" target="_blank">our Github repository</a>
+                    if you need assistance or want to provide feedback.
+                </p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
         <script src="lib/leafletjs/leaflet.js"></script>
-        <script src="data/regions.js"></script>
-        <script src="src/main.js"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-        <script>!window.jQuery && document.write('<script src="lib/jquery/jquery.min.js"><\/script>')</script>
-        <script src="lib/jquery-ui/jquery-ui.min.js"></script>
+        <script src="lib/leaflet-gesture-handling/leaflet-gesture-handling.min.js"></script>
+        <script src="https://clustertracker.gi.ucsc.edu/data/regions.js" id="script-region"></script>
+        <script src="scripts/main.js" id="script-main"></script>
+        <script type="text/javascript">
+            // enable custom tool tips
+            $(document).ready(function() {
+                $('[data-toggle="tooltip"]').tooltip();
+            });
+        </script>
         <!-- SlickGrid: dependencies -->
         <script src="lib/sortablejs/Sortable.min.js"></script>
         <!-- SlickGrid: core js-->
@@ -113,15 +362,11 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
         <!-- Slick Grid: tool tip -->
         <script src="lib/slickgrid/plugins/slick.customtooltip.min.js"></script>
         <!-- Gets data and loads into Slick Grid table -->
-        <script src="src/datagrid.js"></script>
+        <script src="scripts/datagrid.js"></script>
         <script>
-            initCTGrid(host, cDataFile, cSampleFile);
+            // itialize grid
+            initCTGrid(dataHost, taxoniumHost, cDataFile, cSampleFile);
         </script>
 
-        <div id="downloads">
-            <a href = "data/hardcoded_clusters.tsv", download = "sarscov2_clusters.tsv">Download full output file.</a>
-            <a href = "data/cview.jsonl.gz", download = "cluster_taxonium.jsonl.gz">Download the Taxonium JSONL file for viewing.</a>
-            <p>Please post an issue at <a title="The github repository for this site." href="https://github.com/pathogen-genomics/introduction-website" target="_blank">the github</a> or email us at help-pathogengenomics@ucsc.edu if you have questions or feedback.</p>
-        </div>
     </body>
 </html>
