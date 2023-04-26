@@ -32,9 +32,7 @@
 #
 #------------------------------------------------------------------------------------------
 
-import subprocess, sys, re, os
-#set path to directory
-sys.path.insert(1, os.path.join(os.path.abspath(__file__ + "/../../../"), "src/python/"))
+import subprocess, re
 from master_backend import primary_pipeline, parse_setup
 from utils import validate_geojson
 from process_metadata import process_metadata

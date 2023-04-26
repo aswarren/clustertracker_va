@@ -26,10 +26,6 @@
 #-------------------------------------------------------------
 
 import re, csv
-import sys, os #comment out for WDL
-#set path to directory 
-sys.path.insert(1, os.path.join(os.path.abspath(__file__ + "/../../../"), "src/python/")) #comment out for WDL
-
 
 def process_metadata(lexiconfile, mfile, mfile_merge, extension=["_us"], isWDL = False):
     #== for WDL ===
