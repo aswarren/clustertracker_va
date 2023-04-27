@@ -61,24 +61,31 @@ Use the following set of input files to create a basic implementation of Cluster
 
 ### Quickstart Instructions
 1. Clone this repository into your workspace of choice. (Note that "cdph" is the default branch for this repository; "main" is reserved for J. McBroome's original Cluster Tracker.)
-2. Acquire the input data files and store in a directory that can be accesed from your workspace. (You can put these files in the "example/data" directory to simplify the data processing, if desired.)
+2. Acquire the input data files and store in a directory that can be accesed from your workspace. Unzip the protobuf file and metadata file, if you downloaded the gzipped versions. (You can put these files in the "example/data" directory to simplify the data processing, if desired.)
 3. Navigate to the "example/data" directory of this cloned repo, and run "prepare_us_states.py" with the files obtained above, a la the below.
 
 ```
 cd example/data
-python3 prepare_county_data.py -i path/to/CA/Big/Tree/protobuf.pb -m path/to/metadata-file.tsv -H web/accessible/link/to/index/directory -a path/to/hu1.gb -j us-states.geo.json -l state_lexicon.txt -x “genbank_accession,country,date,name,pangolin_lineage”
+python3 prepare_us_states.py -i path/to/public-latest.all.masked.pb -m path/to/public-latest.metadata.tsv -a path/to/hu1.gb -j us-states.geo.json -l state_lexicon.txt -r 0 -x “date,country,name,Nextstrain_clade_usher,pango_lineage_usher”
 ```
 
-4. You can then view your results with a Python server initiated in the example directory.
+4. Copy the following files to a web-accessible folder: cluster_data.json.gz, sample_data.json.gz, cview.jsonl.gz, regions.js, hardcoded_clusters.tsv
+5. Modify the index.html file (located in the "example/www" directory):
+  * In the header:
+    * Change the "dataHost" variable to the URL of your web-accessible directory from step 4.
+    * If you are using your own Taxonium backend, change the "taxoniumHost" variable to the URL of your backend server. Be sure to prepend the URL with "backend=" and use URL escape codes to replace non-alphanumeric characters. (You may wish to set up your own Taxonium backend if the final phylogentic tree is very large. See the [documention](https://docs.taxonium.org/en/latest/advanced.html#deploying-your-own-taxonium-backend) in Taxonium for how to deploy your own backend.)
+  * In the Downloads section, change the URL of the two download files ("hardcoded_clusters.tsv" and "cview.jsonl.gz") to the location from step 4.
+  * At the bottom of the file, change the URL of the "regions.js" file to the location from step 4.
+6. You can then view your results with a Python server initiated in the "example/www" directory.
 
 ```
-cd ..
+cd ../www
 python3 -m http.server
 ```
 
 ## Customizing Cluster Tracker
 
-**Software Requirements:** You will need to have the [UShER software suite](https://usher-wiki.readthedocs.io/en/latest/Installation.html) (version 0.5.0 or later) and [TaxoniumTools](https://docs.taxonium.org/en/latest/taxoniumtools.html) installed and available on your path. You should have python 3 installed on your computer. Verify that the python "dateutil" package is included as some versions of python may be missing the dateutil standard package; it can be installed if needed via conda.
+**Software Requirements:** You will need to have the [UShER software suite](https://usher-wiki.readthedocs.io/en/latest/Installation.html) (version 0.6.2 or later) and [TaxoniumTools](https://docs.taxonium.org/en/latest/taxoniumtools.html) installed and available on your path. You should have python 3 installed on your computer. Verify that the python "dateutil" package is included as some versions of python may be missing the dateutil standard package; it can be installed if needed via conda.
 
 **Input File Requirements:**
 
@@ -93,7 +100,7 @@ USA/WV-QDX-1284/2020|MW065351.1|2020-03-17	West Virginia
 ```
 * You will need what we're calling a "lexicon" file to ensure compatibility between region names- this is an unheaded csv containing in the first column the base name of each region to be used by the map, and comma separated after that, each other name for that region across your other files. An example is provided under [example/data/state_lexicon.txt](https://github.com/pathogen-genomics/introduction-website/blob/cdph/example/data/state_lexicon.txt).
 
-**Additional Considerations:** Our web site takes advantage of the ability of the [Taxonium](https://taxonium.org/) phylogenetic tree visualization tool to display data hosted from any publicly available web location. Currently, to view clusters in Taxonium using the link on the website table requires you to put the final output file (cview.jsonl.gz) in a publicly available web location. You can work around this by uploading the cview.jsonl.gz file that is output by the pipeline directly to Taxonium, then search for your cluster of interest from the website table using the search box on the resulting display. 
+**Additional Considerations:** The example in this directory takes advantage of the ability of the [Taxonium](https://taxonium.org/) phylogenetic tree visualization tool to display data hosted from any publicly available web location. If you want to link clusters in the data table to Taxonium directly, you to should put the Taxonium-formatted tree (cview.jsonl.gz) in a publicly available web location. Note that adding metadata fields to the tree can cause the file to become quite large, especially if you want to display the full global tree. In this case, you may want to think about [deploying your own Taxonium backend](https://docs.taxonium.org/en/latest/advanced.html#deploying-your-own-taxonium-backend). You can also use the desktop version of Taxonium, or if the tree isn't too large, upload the "cview.jsonl.gz" file using the "Choose Files" button at taxonium.org. From there, you can then grab the Cluster ID from the web app and search for it using Taxonium's search panel (select "Cluster" from the drop-down list). 
 
 **General Steps**
 
@@ -136,15 +143,15 @@ Outputs:
 python3 -m http.server
 ```
 
-**Customizations to the Cluster Table Below the Map:** Cluster Tracker uses the highly-customizeable [SlickGrid](http://slickgrid.net/) JS library to display cluster information below the map. Customizations to the table can be achieved by modifying scripts/datagrid.js; you may wish to consult the SlickGrid documentation for details. 
+**Customizations to the Cluster Table Below the Map:** Cluster Tracker uses the highly-customizeable [SlickGrid](http://slickgrid.net/) JS library to display cluster information below the map. Customizations to the table can be achieved by modifying www/scripts/datagrid.js; you may wish to consult the SlickGrid documentation for details. 
 
 Our version for CDPH includes additional fields in the cluster table that are not automatically generated from matUtils introduce. To do likewise, you will need to modify the datagrid.js file to insert additional columns of data (the setCols function specifies column parameters) and modify how the data is read and assignd to the SlickGrid DataView object. 
 
-**Customizing the Map--Basics:** We use [Leaflet.js](https://leafletjs.com/) for our mapping app, and largely built upon their [Interactive Choropleth Map example](https://leafletjs.com/examples/choropleth/). The scripts/main.js file is where you will find all the Leaflet map functions. Some common basic modifications you may wish to make:
-* The map center and extent is set via the Leaflet [setView](https://github.com/pathogen-genomics/introduction-website/blob/756310ec0d81e575aa5348a9949d499bcdc733a4/src/js/main.js#L1) method in main.js.
-* The color scale is set using the [map_colors parameter](https://github.com/pathogen-genomics/introduction-website/blob/ec47a523eafcefa031e5d1f47cfff8ca87e8e590/src/js/main.js#L6) variable the [legend_log](https://github.com/pathogen-genomics/introduction-website/blob/ec47a523eafcefa031e5d1f47cfff8ca87e8e590/src/js/main.js#L385-L395) variable in main.js.
-* Color scale cut points can be modified in the [getColor* methods](https://github.com/pathogen-genomics/introduction-website/blob/ec47a523eafcefa031e5d1f47cfff8ca87e8e590/src/js/main.js#L28-L70) and in the [getBinVals and getLegendBins methods](https://github.com/pathogen-genomics/introduction-website/blob/ec47a523eafcefa031e5d1f47cfff8ca87e8e590/src/js/main.js#L328-L379) in main.js
+**Customizing the Map--Basics:** We use [Leaflet.js](https://leafletjs.com/) for our mapping app, and largely built upon their [Interactive Choropleth Map example](https://leafletjs.com/examples/choropleth/). The www/scripts/main.js file is where you will find all the Leaflet map functions. Some common basic modifications you may wish to make:
+* The map center, initial zoom level, and extent is set via the Leaflet setView method. In the header of "index.html" are two global variables: "mapCenter" stores the latitude and longitude coordinates to center the map on, and "mapInitialZoom" sets the inital zoom level. To change the maximum extent, modify the latitude and longitude coordinates of the "southWest" and "northEast" variables in main.js; these two variables represent the southwest and northeast boundaries of the map, respectively.
+* The color scale is set using the "map_colors" variable in main.js.
+* Color scale cut points can be modified in the getColor* methods and in the getBinVals and getLegendBins methods in main.js.
 
-**Customizing the Map--Advanced:** Additional map customizations can be found in our customization for CDPH, located in the dist folder. Of interest, we developed a toggle that can switch between a county-based view of introducions and a larger state-based view of introductions. This can be achieved by using Leaflet's Layer method.
+**Customizing the Map--Advanced:** Additional map customizations can be found in our customization for CDPH, located in the "cdph" folder. Of interest, we developed a toggle that can switch between a county-based view of introducions and a larger state-based view of introductions. This can be achieved by using Leaflet's Layer method.
 
 **Additional Notes:** Modern browsers tend to cache files to make loading the website quicker. If your data files will be updated with regularity you may want to consider setting up your server so that it prevents cacheing.

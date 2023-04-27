@@ -57,18 +57,25 @@ Use the following set of input files to create a basic implementation of Cluster
 
 ### Quickstart Instructions
 1. Clone this repository into your workspace of choice. (Note that "cdph" is the default branch for this repository; "main" is reserved for J. McBroome's original Cluster Tracker.)
-2. Acquire the input data files and store in a directory that can be accesed from your workspace. (You can put these files in the "example/data" directory to simplify the data processing, if desired.)
+2. Acquire the input data files and store in a directory that can be accesed from your workspace. Unzip the protobuf file and metadata file, if you downloaded the gzipped versions. (You can put these files in the "example/data" directory to simplify the data processing, if desired.)
 3. Navigate to the "example/data" directory of this cloned repo, and run "prepare_us_states.py" with the files obtained above, a la the below.
 
 ```
 cd example/data
-python3 prepare_county_data.py -i path/to/CA/Big/Tree/protobuf.pb -m path/to/metadata-file.tsv -H web/accessible/link/to/index/directory -a path/to/hu1.gb -j us-states.geo.json -l state_lexicon.txt -x “genbank_accession,country,date,name,pangolin_lineage”
+python3 prepare_us_states.py -i path/to/public-latest.all.masked.pb -m path/to/public-latest.metadata.tsv -a path/to/hu1.gb -j us-states.geo.json -l state_lexicon.txt -r 0 -x “date,country,name,Nextstrain_clade_usher,pango_lineage_usher”
 ```
 
-4. You can then view your results with a Python server initiated in the example directory.
+4. Copy the following files to a web-accessible folder: cluster_data.json.gz, sample_data.json.gz, cview.jsonl.gz, regions.js, hardcoded_clusters.tsv
+5. Modify the index.html file (located in the "example/www" directory):
+  * In the header:
+    * Change the "dataHost" variable to the URL of your web-accessible directory from step 4.
+    * If you are using your own Taxonium backend, change the "taxoniumHost" variable to the URL of your backend server. Be sure to prepend the URL with "backend=" and use URL escape codes to replace non-alphanumeric characters. (You may wish to set up your own Taxonium backend if the final phylogentic tree is very large. See the [documention](https://docs.taxonium.org/en/latest/advanced.html#deploying-your-own-taxonium-backend) in Taxonium for how to deploy your own backend.)
+  * In the Downloads section, change the URL of the two download files ("hardcoded_clusters.tsv" and "cview.jsonl.gz") to the location from step 4.
+  * At the bottom of the file, change the URL of the "regions.js" file to the location from step 4.
+6. You can then view your results with a Python server initiated in the "example/www" directory.
 
 ```
-cd ..
+cd ../www
 python3 -m http.server
 ```
 

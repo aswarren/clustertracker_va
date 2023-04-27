@@ -21,14 +21,13 @@
 #   Overview of processing steps:
 #     (1) Process metadata file(s) to filter out unusable samples, and, 
 #         if needed, merge multiple metadata files into one.
-#     (2) Use merged metadata file to filter samples from protobuf file.
-#     (3) Run the primary pipeline
+#     (2) Run the primary pipeline
 #
 # Example command line usage:
 # python3 prepare_data.py -i new_tree.pb -m public.plusGisaid.latest.metadata.tsv -mx samplemeta.tsv
 #  -a hu1.gb -j us-states_ca-counties.geo.json us-states.geo.json 
 #  -e "_us" -l state_and_county_lexicon.txt -T "California Big Tree Cluster Tracker"
-#  -x "genbank_accession,gisaid_accession,country,county,date,name,pango_lineage,nextstrain_clade,specimen_id,specimen_accession_number"
+#  -x "cluster2,region2,genbank_accession,gisaid_accession,country,county,date,name,specimen_id,specimen_accession_number,sequencing_lab"
 #
 #------------------------------------------------------------------------------------------
 
