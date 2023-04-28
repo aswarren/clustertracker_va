@@ -1,7 +1,11 @@
 # Calfornia Big Tree Cluster-Tracker
-Code to generate a webpage displaying SARS-CoV-2 clusters and introductions inferred via [matUtils introduce](https://usher-wiki.readthedocs.io/en/latest/matUtils.html#introduce). SARS-CoV-2 introductions between California counties and U.S. states are displayed geographically on an interactive map and in a separate table below the map, with links to view and explore the data in [Taxonium](http://taxonium.org) and the [California Big Tree Investigator](https://github.com/pathogen-genomics/paui-mapper). This version is a customizaton for use with data produced from the Calfornia Big Tree effort at UCSC for the California Department of Public Health; the original Cluster-Tracker project can be found [here](https://github.com/jmcbroome/introduction-website).
+This repo contains code to generate a webpage displaying SARS-CoV-2 clusters and introductions inferred via [matUtils introduce](https://usher-wiki.readthedocs.io/en/latest/matUtils.html#introduce). 
 
-**Approach:** This site uses python to perform backend setup and vanilla javascript for website rendering. We use the protobuf file format to store mutation-annotated phylogentic tree information, and tab-separated text files (TSV) for metadata and text-based output files. Python scripts are used to process a mix of samples from California State and public repositories, and to launch the [matUtils](https://usher-wiki.readthedocs.io/en/latest/matUtils.html) suite of tools for manipulating the protobuf files and calculating the introductions into each region. [TaxoniumTools](https://docs.taxonium.org/en/latest/taxoniumtools.html) is used to convert protobuf files to JSONL for use in the Taxonium viewer. We use the [Terra](https://terra.bio/) platform as our primary data pipeline, so our python scripts are modularized to be be compatible with WDL, but can also be run on the user's desktop computer. A [GeoJSON](https://geojson.org/) file with introductions for each region is created for input into a [Leaflet-based map](https://leafletjs.com/). JSON files supply a table below the map with cluster details. 
+Two versions are included here. The primary version of the California Big Tree Cluster Tracker (in the "cdph" subfolder), displays SARS-CoV-2 introductions between California counties and U.S. states. Introductions are displayed geographically on an interactive map and in a separate table below the map, with links to view and explore the data in [Taxonium](http://taxonium.org) and the [California Big Tree Investigator](https://github.com/pathogen-genomics/paui-mapper). A second version (in the "example" subfolder) is a generalizeable version that is set up to display introductions between U.S. states, and uses sequences from the [global public SARS-CoV-2 phylogenetic tree](https://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/).
+
+The California Big Tree Cluster Tracker is itself a customized version of the UC Santa Cruz Genomics Institute's [Cluster Tracker](https://clustertracker.gi.ucsc.edu/) ([GitHub repo here](https://github.com/jmcbroome/introduction-website)) and was developed to use data produced from the Calfornia Big Tree effort for the California Department of Public Health.
+
+**Development and Testing:** Notes for development and testing of the California Big Tree Cluster Tracker can be found in the [README](cdph/README.md) in the "cdph" directory. The notes in that file address our particular data processing pipeline and architecture (i.e., Terra and GCP).
 
 **Customization:** Information on how to create a customized version of Cluster Tracker can be found in the [README](example/README.md) in the "examples" directory. A python script and a number of data files would be required to preprocess your data if you wish to use data not in the [global public SARS-CoV-2 phylogenetic tree](https://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/).
 
@@ -9,10 +13,8 @@ Code to generate a webpage displaying SARS-CoV-2 clusters and introductions infe
 
 * [Screenshot and Features](#screenshot-and-features)
   * [Features](#features)
+* [Aproach](#aproach)
 * [Quickstart](#quickstart)
-  * Software Requirements
-  * Input Data Files
-  * [Quickstart Instructions](#quickstart-instructions)
 * [Further Details](#further-details)
   * [Overview of Repo Folder Structure](#overview-of-repo-folder-structure)
 
@@ -39,45 +41,18 @@ Code to generate a webpage displaying SARS-CoV-2 clusters and introductions infe
 * Table data can be copied by selecting a range of table cells and using Ctrl-C to copy the contents to the computer's clipboard.
 * The Taxonium JSONL file with phylogenetic tree information and a tab-separated file with information for all introductions can be downloaded for further analysis.
 
+## Aproach
+
+This site uses Python to perform backend setup and vanilla JavaScript for website rendering. We use the protobuf file format to store mutation-annotated phylogentic tree information, and tab-separated text files (TSV) for metadata and text-based output files. For our primary version, Python scripts are used to process a mix of samples from California State and public repositories and create a phylogenetic tree containing global and California sequences (which we call the California Big Tree). From sequence metadata we identify the region where each sample was collected (i.e., which county in California or which U.S. state) and then we calculate introductions into each region. We use the [matUtils](https://usher-wiki.readthedocs.io/en/latest/matUtils.html) suite of tools for manipulating the protobuf files and calculating the introductions into each region. [TaxoniumTools](https://docs.taxonium.org/en/latest/taxoniumtools.html) is used to convert protobuf files to JSONL for use in the Taxonium viewer. We use the [Terra](https://terra.bio/) platform as our primary data pipeline, so our python scripts are modularized to be be compatible with WDL, but can also be run on the user's desktop computer. A [GeoJSON](https://geojson.org/) file with introductions for each region is created for input into a [Leaflet-based map](https://leafletjs.com/). JSON files supply a table below the map with cluster details.
+
 ## Quickstart
 
-Use this Quickstart guide to create a basic U.S.-based implementation of Cluster Tracker using public SARS-CoV-2 data.
+For instructions on how to set up a simplified version of Cluster Tracker using public data, see the instructions in the example directory [README](example/README.md).
 
-**Software Requirements:** You will need to have the [UShER software suite](https://usher-wiki.readthedocs.io/en/latest/Installation.html) (version 0.6.2 or later) and [TaxoniumTools](https://docs.taxonium.org/en/latest/taxoniumtools.html) installed and available on your path. You should have python 3 installed on your computer. Verify that the python "dateutil" package is included as some versions of python may be missing the dateutil standard package; it can be installed if needed via conda.
+Instructions for setting up the Calfornia Big Tree Cluster Tracker on UCSC's infrastructure can be found in the "cdph" [README](cdph/README.md) and notes in the Pathogen Genomics Google Drive.
 
-**Input Data Files**
+**Software Requirements:** For either the CDPH or basic version of Cluster Tracker, you will need to have the [UShER software suite](https://usher-wiki.readthedocs.io/en/latest/Installation.html) (version 0.6.2 or later) and [TaxoniumTools](https://docs.taxonium.org/en/latest/taxoniumtools.html) installed and available on your path. You should have python 3 installed on your computer. Verify that the python "dateutil" package is included as some versions of python may be missing the dateutil standard package; it can be installed if needed via conda.
 
-Use the following set of input files to create a basic implementation of Cluster Tracker.
-
-| File | Description/Notes |
-| --- | --- |
-| MAT protobuf file | Should be compatible with [UShER](https://usher-wiki.readthedocs.io/en/latest/matUtils.html#the-mutation-annotated-tree-mat-protocol-buffer-pb). Download ["public-latest.all.masked.pb"](https://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/) to use with the processing scripts in the example directory. |
-| Metadata file | Metadata file in TSV format. Download ["public-latest.metadata.tsv.gz"](https://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/) to use with the processing scripts in the example directory. |
-| hu1.gb | Gene annotation file; can be downloaded [here](https://raw.githubusercontent.com/theosanderson/taxonium/master/taxoniumtools/test_data/hu1.gb). Used to produce a Taxonium view. |
-
-### Quickstart Instructions
-1. Clone this repository into your workspace of choice. (Note that "cdph" is the default branch for this repository; "main" is reserved for J. McBroome's original Cluster Tracker.)
-2. Acquire the input data files and store in a directory that can be accesed from your workspace. Unzip the protobuf file and metadata file, if you downloaded the gzipped versions. (You can put these files in the "example/data" directory to simplify the data processing, if desired.)
-3. Navigate to the "example/data" directory of this cloned repo, and run "prepare_us_states.py" with the files obtained above, a la the below.
-
-```
-cd example/data
-python3 prepare_us_states.py -i path/to/public-latest.all.masked.pb -m path/to/public-latest.metadata.tsv -a path/to/hu1.gb -j us-states.geo.json -l state_lexicon.txt -r 0 -x “date,country,name,Nextstrain_clade_usher,pango_lineage_usher”
-```
-
-4. Copy the following files to a web-accessible folder: cluster_data.json.gz, sample_data.json.gz, cview.jsonl.gz, regions.js, hardcoded_clusters.tsv
-5. Modify the index.html file (located in the "example/www" directory):
-  * In the header:
-    * Change the "dataHost" variable to the URL of your web-accessible directory from step 4.
-    * If you are using your own Taxonium backend, change the "taxoniumHost" variable to the URL of your backend server. Be sure to prepend the URL with "backend=" and use URL escape codes to replace non-alphanumeric characters. (You may wish to set up your own Taxonium backend if the final phylogentic tree is very large. See the [documention](https://docs.taxonium.org/en/latest/advanced.html#deploying-your-own-taxonium-backend) in Taxonium for how to deploy your own backend.)
-  * In the Downloads section, change the URL of the two download files ("hardcoded_clusters.tsv" and "cview.jsonl.gz") to the location from step 4.
-  * At the bottom of the file, change the URL of the "regions.js" file to the location from step 4.
-6. You can then view your results with a Python server initiated in the "example/www" directory.
-
-```
-cd ../www
-python3 -m http.server
-```
 
 ## Further Details
 

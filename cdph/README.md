@@ -1,17 +1,25 @@
 # Calfornia Big Tree Cluster-Tracker Development and Testing Notes
 
-The California Big Tree Cluster Tracker uses Google Cloud for storage, deployment, and testing. In addition to UShER and TaxoniumTools, as noted in the main [README](../README.md), you will want to [install the Google Cloud SDK](https://cloud.google.com/sdk/docs/install) and [initialize](https://cloud.google.com/sdk/docs/initializing) it for use on your local machine.
+This subdirectory contains the code to used to create the California Big Tree Cluster Tracker, which will display SARS-CoV-2 introductions between California counties and U.S. states. 
 
-## Testing the Web Site Locally
+The California Big Tree Cluster Tracker uses Google Cloud for storage, deployment, and testing. In addition to Python 3, UShER, and TaxoniumTools, as noted in the main [README](../README.md), you will want to [install the Google Cloud SDK](https://cloud.google.com/sdk/docs/install) and [initialize](https://cloud.google.com/sdk/docs/initializing) it for use on your local machine.
 
-If no changes to the data files are needed, testing the user interface locally should suffice. After performing any necessary commits/merges, navigate to "cdph/www" and start the Python server:
+**Overview of the data pipeline:** Sequences from California state and global public sequences are combined in Terra to create a phylogenetic tree, the California Big Tree. The Python scripts in [data](data) are tranformed into WDL workflows to create input into matUtils introduce, which calculates the introductions, and then into files for the web app. See the "Python to WDL Workflow Inputs/Outputs" Google doc (CDPH Genomics > Big Tree Cluster Tracker) for detailed information on file inputs and outputs. The files needed for the Cluster Tracker app are then copied to our Google Cloud Storage bucket.
+
+**Overview of web app components:** Files for the Cluster Tracker web app are located in the [www](www) directory. It is currently a single-page app, so [index.html](www/index.html) is the only HTML file. The app currently uses several JavaScript libraries (located in [www/lib](www/lib)): Leaflet to display the map, slickgrid for the data table, and bootstrap, jquery, jquery-ui, filter-multi-select, sortable.js, and leaflet-gesture-handling for widgets and styling. The [scripts](www/scripts) directory contains the Javascript that loads the data into the data table ([datagrid.js](www/scripts/datagrid.js)) and into the leaflet map ([main.js](www/scripts/main.js)). [ui_interactions.js](www/scripts/ui_interactions.js) handles some basic user interactions before jQuery is loaded. Since it takes a while to copy files from Terra to the GCP storage bucket, a small text file ([status.json](data/status.json)), indicating the status of the copy procedure, is copied to the storage bucket at the start of the copy procedure (status="updating") and then overwritten at the end (status="ok"). [check_status.js](www/scripts/check_status.js) fetches and reads this file and displayes a warning message to the user if the file copy process is still underway. And finally one style sheet controls styles in the main web page ([css/custom.css](www/css/custom.css)) and another controls the styles and popup for the data grid ([gridstyles.css](www/css/gridstyles.css)). 
+
+## Quickstart
+
+1. Clone this repository into your workspace of choice. (Note that "cdph" is the default branch for this repository; "main" is reserved for J. McBroome's original Cluster Tracker.)
+
+2. Navigate to "cdph/www" and start the Python server:
 
 ```
 cd cdph/www
 python3 -m http.server
 ```
 
-The website should be available for testing at http://localhost:8000/
+The website should be available for testing at http://localhost:8000/ 
 
 ## Development and Testing of the Python Data Processing Scripts
 
