@@ -1,6 +1,6 @@
 #  Python "backend" code to generate JSON files to display cluster data in
 #    the table below the map on the web page. 
-#  This script is meant to be called from "master_backend.py" but can be
+#  This script can either be called from "master_backend.py" script, OR can be
 #    run separately from the command line.
 #
 # Arguments:
@@ -13,8 +13,13 @@
 #  - "cluster-data.json.gz" #gzipped JSON file with basic cluster information (no sample names)
 #  - "sample-data.json.gz" #gzipped JSON file with sample names for each cluster
 #  - "cluster_pids.json" #for CDPH Investigator tool, links cluster ID and PAUI's/specimen IDs
+#  (if using the extension argument, will produce another set of three files using the 
+#  selected extension)
 #
-# Example command line usage:
+# Example command line if following the GitHub example in the "example" directory:
+# python3 generate_display_tables.py
+# 
+# Example command line usage for CDPH:
 # python3 generate_display_tables.py -e "_us"
 #-------------------------------------------------------------
 # CDPH WDL INPUTS:

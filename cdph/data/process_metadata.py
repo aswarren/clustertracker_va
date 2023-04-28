@@ -1,20 +1,23 @@
-# This script takes one or more metadata files and filters out samples that don't
-#   match geographic names specified in a lexicon of place names. Use the lexicon
-#   to store alternate spellings or capitalizatons of place names.
-#   This script also creates files necessary for two regional analysis (one at the
-#   CA county level and one at the US state level).
+# This script generates the input files needed for calculating introductions. It takes
+# two metadata files, a lexicon file, and two metadata files from the CDPH Airports
+# project. (The two airports metadata files are hardwired into the code and stored locally 
+# in the Terra workflow to ensure maximum confidentiality. The lexicon is used to store 
+# alternate spellings, abbreviations, or mispellings of place names that may be present
+# in any of the metadata files.
 #
 #   Arguments:
 #      -lexiconfile: name of file with lexicon of place names
-#      -metadatafiles: list of metadata files (CDPH metadata file should be listed first)
-#      -extension: if using more than one geojson file this is list of file
-#        name extensions to differentiate each set of files. Specify only the
-#        file name extensions to use with the 2nd, 3rd, ..., set of files.
+#      -mfile: primary metadata file (e.g., the public tree metadata)
+#      -mfile_merge: secondary metadata file (e.g., the metadata from CovidNet)
+#      -extension: a python list of file extension designators. Optional. if using 
+#        more than one geojson file use this argument to specify how to differentiate
+#        each set of analyses. Specify only the file name extensions to use with the
+#        2nd (and 3rd, 4th, ..., etc.) set of files. For the CDPH data set, the 
+#        default is set to ["_us"].
 #      -isWDL: defalut is False. Set to true only if the script will be run 
 #        as a WDL task in Terra.
 #   Output files:
-#      -metadata_merged.tsv: combined metadata file for both CDPH and public samples for the county analysis
-#      -metadata_merged_us.tsv: combined metadata file for both CDPH and public samples for the state analysis
+#      -metadata_merged.tsv: combined metadata file for both CDPH and public samples
 #      -sample_regions.tsv: list of sample names and corresponding regions for the county analysis
 #      -sample_regions_us.tsv: list of sample names and corresponding regions for the state analysis
 #      -sample_dates.tsv: list of sample names and corresponding dates for the county analysis

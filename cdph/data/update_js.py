@@ -1,13 +1,12 @@
 #  Python "backend" code for creating a Leaflet compatible geojson file.
 #  This script takes one or more geojson files and inserts cluster introduction
-#  data for each region into each geographic feature. This script is meant to
-#  to be called from "master_backend.py" but can be run separately from the
-#  command line.
+#  data for each region into each geographic feature. This script can be called 
+#  from "master_backend.py", OR can be run separately from the command line.
 #
 # Arguments:
 #   -target: list of geojson file(s) containng the lat/long boundaries of the 
 #     regions of interest. Typically you will show all regions on a single map,
-#     but if you want to  show the same overall map with different boundaries (e.g.
+#     but if you want to show the same overall map with different boundaries (e.g.
 #     one map with US county boundaries and one file with US state boundaries) 
 #     this can be done with using two geojson files (e.g., one with county 
 #     boundaries and one with state boundaries.
@@ -16,9 +15,14 @@
 #     name extensions to differentiate each set of files. Specify only the
 #     file name extensions to use with the 2nd, 3rd, ..., set of files.
 # Outputs:
-#  -region.js
+#  -region.js 
+#  (If using the extension parameter, regions*.js, where * is the extension 
+#  specified in the -e argument.)
 #
-# Example command line usage:
+# Example command line if following the GitHub example in the "example" directory:
+# python3 update_js.py -j us-states.geo.json -l state_lexicon.txt
+# 
+# Example command line usage for CDPH:
 # python3 update_js.py -j us-states_ca-counties.geo.json us-states.geo.json
 #  -l state_and_county_lexicon.txt -e "_us"
 #-------------------------------------------------------------
