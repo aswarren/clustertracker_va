@@ -1,5 +1,5 @@
 #  Python "backend" code that creates a metadata file that will be used
-#    to create the Taxonium protobuf
+#    to create the Taxonium JSONL file
 #
 # Arguments:
 #   -sample_regions_file: TSV file containing sample names and associated regions
@@ -12,7 +12,10 @@
 # Outputs:
 #  -clusterswapped.tsv
 #
-# Example command line usage:
+# Example command line if following the GitHub example in the "example" directory:
+# python3 prepare_taxonium.py -s sample_regions.tsv -m public-latest.metadata.tsv
+# 
+# Example command line usage for CDPH:
 # python3 prepare_taxonium.py -s sample_regions.tsv -m metadata_merged.tsv -e "_us"
 #-------------------------------------------------------------
 
