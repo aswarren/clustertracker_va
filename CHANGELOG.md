@@ -1,5 +1,7 @@
 # Changelog
 
+## v.0.9.2 (2023-12-4):
+   - Added DataDog Real User Monitoring. 
 ## v.0.9.1 (2023-04-26):
    - Update example with latest UI styles.
    - Simplify GitHub project structure.

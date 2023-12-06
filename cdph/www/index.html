@@ -42,6 +42,37 @@
         <script src="lib/jquery-ui/jquery-ui.min.js"></script>
         <script src="lib/filter-multi-select/filter-multi-select-bundle.min.js"></script>
 
+        <!-- DataDog Real User Monitoring -->
+        <script>
+            // const ENVIRONMENT = "development";
+            const ENVIRONMENT = "production";
+
+            if (ENVIRONMENT === "production") {
+                (function(h,o,u,n,d) {
+                    h=h[d]=h[d]||{q:[],onReady:function(c){h.q.push(c)}}
+                    d=o.createElement(u);d.async=1;d.src=n
+                    n=o.getElementsByTagName(u)[0];n.parentNode.insertBefore(d,n)
+                })(window,document,'script','https://www.datadoghq-browser-agent.com/us3/v5/datadog-rum.js','DD_RUM')
+                window.DD_RUM.onReady(function() {
+                    window.DD_RUM.init({
+                        clientToken: 'pub6d600584576c931c45c6f9313b187dc8',
+                        applicationId: '75d998e8-6a9c-40a3-82af-eca87a9b84e8',
+                        site: 'us3.datadoghq.com',
+                        service: 'cluster-tracker',
+                        env: ENVIRONMENT,
+                        // Specify a version number to identify the deployed version of your application in Datadog 
+                        // version: '1.0.0', 
+                        sessionSampleRate: 100,
+                        sessionReplaySampleRate: 20,
+                        trackUserInteractions: true,
+                        trackResources: true,
+                        trackLongTasks: true,
+                        defaultPrivacyLevel: 'mask-user-input',
+                    });
+                })
+            }
+        </script>
+
     </head>
     <body>
 
