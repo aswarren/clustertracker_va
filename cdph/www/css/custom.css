@@ -293,6 +293,11 @@ label {
   line-height: normal;
   margin-top: 1em;
 }
+#dateLastUpdated {
+  font-size: .9rem;
+  font-weight: bold;
+  color: #006aad;
+}
 
 /* data "update in progress" status box */
 #status_msg {

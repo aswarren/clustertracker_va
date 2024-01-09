@@ -1,5 +1,7 @@
 # Changelog
 
+## v.0.9.3 (2024-1-9):
+   - Display date the dataset was last updated.
 ## v.0.9.2 (2023-12-4):
    - Added DataDog Real User Monitoring. 
 ## v.0.9.1 (2023-04-26):
