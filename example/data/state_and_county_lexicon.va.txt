@@ -1,0 +1,186 @@
+county	short
+Salem city,Salem
+Montgomery County,Montgomery
+Poquoson city,Poquoson
+James City County,James City
+Stafford County,Stafford
+Surry County,Surry
+Hanover County,Hanover
+Russell County,Russell
+Henry County,Henry
+Alexandria city,Alexandria
+Charlottesville city,Charlottesville
+King and Queen County,King and Queen
+Waynesboro city,Waynesboro
+Floyd County,Floyd
+Middlesex County,Middlesex
+Rappahannock County,Rappahannock
+Amherst County,Amherst
+Essex County,Essex
+Buchanan County,Buchanan
+Emporia city,Emporia
+Covington city,Covington
+Alleghany County,Alleghany
+Northumberland County,Northumberland
+Craig County,Craig
+Buckingham County,Buckingham
+Gloucester County,Gloucester
+Richmond city,Richmond
+Powhatan County,Powhatan
+Falls Church city,Falls Church
+Goochland County,Goochland
+Orange County,Orange
+Greene County,Greene
+Patrick County,Patrick
+King William County,King William
+Madison County,Madison
+Lunenburg County,Lunenburg
+Roanoke city,Roanoke
+Chesapeake city,Chesapeake
+Charlotte County,Charlotte
+Isle of Wight County,Isle of Wight
+Fauquier County,Fauquier
+Radford city,Radford
+Fairfax city,Fairfax
+Henrico County,Henrico
+Franklin city,Franklin
+Harrisonburg city,Harrisonburg
+Buena Vista city,Buena Vista
+Franklin County,Franklin
+Pittsylvania County,Pittsylvania
+New Kent County,New Kent
+Bedford County,Bedford
+Grayson County,Grayson
+Giles County,Giles
+Wythe County,Wythe
+Prince William County,Prince William
+Scott County,Scott
+Charles City County,Charles City
+Newport News city,Newport News
+Manassas Park city,Manassas Park
+Arlington County,Arlington
+Carroll County,Carroll
+Bath County,Bath
+Winchester city,Winchester
+Sussex County,Sussex
+Cumberland County,Cumberland
+Smyth County,Smyth
+Washington County,Washington
+Roanoke County,Roanoke
+Augusta County,Augusta
+Hopewell city,Hopewell
+Halifax County,Halifax
+Danville city,Danville
+Shenandoah County,Shenandoah
+Portsmouth city,Portsmouth
+Lexington city,Lexington
+Accomack County,Accomack
+Albemarle County,Albemarle
+Clarke County,Clarke
+Pulaski County,Pulaski
+Greensville County,Greensville
+Dinwiddie County,Dinwiddie
+Norfolk city,Norfolk
+Dickenson County,Dickenson
+Amelia County,Amelia
+Bristol city,Bristol
+Norton city,Norton
+Staunton city,Staunton
+Botetourt County,Botetourt
+Williamsburg city,Williamsburg
+Page County,Page
+Westmoreland County,Westmoreland
+Rockbridge County,Rockbridge
+Nelson County,Nelson
+Nottoway County,Nottoway
+Martinsville city,Martinsville
+Appomattox County,Appomattox
+Fluvanna County,Fluvanna
+Wise County,Wise
+Fredericksburg city,Fredericksburg
+Mathews County,Mathews
+King George County,King George
+Prince Edward County,Prince Edward
+Galax city,Galax
+Campbell County,Campbell
+Louisa County,Louisa
+Lynchburg city,Lynchburg
+Bland County,Bland
+Petersburg city,Petersburg
+Southampton County,Southampton
+Suffolk city,Suffolk
+Fairfax County,Fairfax
+Tazewell County,Tazewell
+Lee County,Lee
+Loudoun County,Loudoun
+York County,York
+Culpeper County,Culpeper
+Rockingham County,Rockingham
+Warren County,Warren
+Manassas city,Manassas
+Highland County,Highland
+Spotsylvania County,Spotsylvania
+Northampton County,Northampton
+Chesterfield County,Chesterfield
+Brunswick County,Brunswick
+Prince George County,Prince George
+Hampton city,Hampton
+Frederick County,Frederick
+Caroline County,Caroline
+Colonial Heights city,Colonial Heights
+Virginia Beach city,Virginia Beach
+Lancaster County,Lancaster
+Richmond County,Richmond
+Mecklenburg County,Mecklenburg
+Alabama,AL
+Alaska,AK
+Arizona,AZ
+Arkansas,AR
+California,CA
+Colorado,CO
+Connecticut,CT
+Delaware,DE
+District of Columbia,DC
+Florida,FL
+Georgia,GA
+Hawaii,HI
+Idaho,ID
+Illinois,IL
+Indiana,IN
+Iowa,IA
+Kansas,KS
+Kentucky,KY
+Louisiana,LA
+Maine,ME
+Maryland,MD
+Massachusetts,MA
+Michigan,MI
+Minnesota,MN
+Mississippi,MS
+Missouri,MO
+Montana,MT
+Nebraska,NE
+Nevada,NV
+New Hampshire,NH
+New Jersey,NJ
+New Mexico,NM
+New York,NY
+North Carolina,NC
+North Dakota,ND
+Ohio,OH
+Oklahoma,OK
+Oregon,OR
+Pennsylvania,PA
+Rhode Island,RI
+South Carolina,SC
+South Dakota,SD
+Tennessee,TN
+Texas,TX
+Utah,UT
+Vermont,VT
+Virginia,VA
+Washington,WA
+West Virginia,WV
+Wisconsin,WI
+Wyoming,WY
+Puerto Rico,PR
