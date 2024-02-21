@@ -7,6 +7,8 @@ import sys
 import argparse
 DC_STATEHOOD=1
 import us as us_package
+from copy import deepcopy
+
 
 #open the US level GeoJSON file
 #use argparse to get the files
@@ -24,7 +26,7 @@ with open(args.us) as f, open(args.state) as f2:
     state = json.load(f2)
 
 #deep copy the us_map
-us_orig = us_map.copy()
+us_orig = deepcopy(us_map)
 
 # if remove is defined, remove the state from the US
 if args.remove != None:
@@ -61,4 +63,6 @@ with open('state_and_county_lexicon.va.txt', 'w') as f:
         if feature['properties']['name'] == 'District of Columbia':
             f.write(feature['properties']['name'] + ',' + 'DC' + '\n')
         else:
+            if us_package.states.lookup(feature['properties']['name']) == None:
+                print('Could not find the following in US states package ' + feature['properties']['name'])
             f.write(feature['properties']['name'] + ',' + us_package.states.lookup(feature['properties']['name']).abbr + '\n')
