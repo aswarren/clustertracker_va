@@ -1,137 +1,137 @@
 county	short
-Salem city,Salem
-Montgomery County,Montgomery
-Poquoson city,Poquoson
-James City County,James City
-Stafford County,Stafford
-Surry County,Surry
-Hanover County,Hanover
-Russell County,Russell
-Henry County,Henry
-Alexandria city,Alexandria
-Charlottesville city,Charlottesville
-King and Queen County,King and Queen
-Waynesboro city,Waynesboro
-Floyd County,Floyd
-Middlesex County,Middlesex
-Rappahannock County,Rappahannock
-Amherst County,Amherst
-Essex County,Essex
-Buchanan County,Buchanan
-Emporia city,Emporia
-Covington city,Covington
-Alleghany County,Alleghany
-Northumberland County,Northumberland
-Craig County,Craig
-Buckingham County,Buckingham
-Gloucester County,Gloucester
-Richmond city,Richmond
-Powhatan County,Powhatan
-Falls Church city,Falls Church
-Goochland County,Goochland
-Orange County,Orange
-Greene County,Greene
-Patrick County,Patrick
-King William County,King William
-Madison County,Madison
-Lunenburg County,Lunenburg
-Roanoke city,Roanoke
-Chesapeake city,Chesapeake
-Charlotte County,Charlotte
-Isle of Wight County,Isle of Wight
-Fauquier County,Fauquier
-Radford city,Radford
-Fairfax city,Fairfax
-Henrico County,Henrico
-Franklin city,Franklin
-Harrisonburg city,Harrisonburg
-Buena Vista city,Buena Vista
-Franklin County,Franklin
-Pittsylvania County,Pittsylvania
-New Kent County,New Kent
-Bedford County,Bedford
-Grayson County,Grayson
-Giles County,Giles
-Wythe County,Wythe
-Prince William County,Prince William
-Scott County,Scott
-Charles City County,Charles City
-Newport News city,Newport News
-Manassas Park city,Manassas Park
-Arlington County,Arlington
-Carroll County,Carroll
-Bath County,Bath
-Winchester city,Winchester
-Sussex County,Sussex
-Cumberland County,Cumberland
-Smyth County,Smyth
-Washington County,Washington
-Roanoke County,Roanoke
-Augusta County,Augusta
-Hopewell city,Hopewell
-Halifax County,Halifax
-Danville city,Danville
-Shenandoah County,Shenandoah
-Portsmouth city,Portsmouth
-Lexington city,Lexington
-Accomack County,Accomack
-Albemarle County,Albemarle
-Clarke County,Clarke
-Pulaski County,Pulaski
-Greensville County,Greensville
-Dinwiddie County,Dinwiddie
-Norfolk city,Norfolk
-Dickenson County,Dickenson
-Amelia County,Amelia
-Bristol city,Bristol
-Norton city,Norton
-Staunton city,Staunton
-Botetourt County,Botetourt
-Williamsburg city,Williamsburg
-Page County,Page
-Westmoreland County,Westmoreland
-Rockbridge County,Rockbridge
-Nelson County,Nelson
-Nottoway County,Nottoway
-Martinsville city,Martinsville
-Appomattox County,Appomattox
-Fluvanna County,Fluvanna
-Wise County,Wise
-Fredericksburg city,Fredericksburg
-Mathews County,Mathews
-King George County,King George
-Prince Edward County,Prince Edward
-Galax city,Galax
-Campbell County,Campbell
-Louisa County,Louisa
-Lynchburg city,Lynchburg
-Bland County,Bland
-Petersburg city,Petersburg
-Southampton County,Southampton
-Suffolk city,Suffolk
-Fairfax County,Fairfax
-Tazewell County,Tazewell
-Lee County,Lee
-Loudoun County,Loudoun
-York County,York
-Culpeper County,Culpeper
-Rockingham County,Rockingham
-Warren County,Warren
-Manassas city,Manassas
-Highland County,Highland
-Spotsylvania County,Spotsylvania
-Northampton County,Northampton
-Chesterfield County,Chesterfield
-Brunswick County,Brunswick
-Prince George County,Prince George
-Hampton city,Hampton
-Frederick County,Frederick
-Caroline County,Caroline
-Colonial Heights city,Colonial Heights
-Virginia Beach city,Virginia Beach
-Lancaster County,Lancaster
-Richmond County,Richmond
-Mecklenburg County,Mecklenburg
+Salem,51775,Salem city
+Montgomery,51121,Montgomery County
+Poquoson,51735,Poquoson city
+James City,51095,James City County
+Stafford,51179,Stafford County
+Surry,51181,Surry County
+Hanover,51085,Hanover County
+Russell,51167,Russell County
+Henry,51089,Henry County
+Alexandria,51510,Alexandria city
+Charlottesville,51540,Charlottesville city
+King and Queen,51097,King and Queen County
+Waynesboro,51820,Waynesboro city
+Floyd,51063,Floyd County
+Middlesex,51119,Middlesex County
+Rappahannock,51157,Rappahannock County
+Amherst,51009,Amherst County
+Essex,51057,Essex County
+Buchanan,51027,Buchanan County
+Emporia,51595,Emporia city
+Covington,51580,Covington city
+Alleghany,51005,Alleghany County
+Northumberland,51133,Northumberland County
+Craig,51045,Craig County
+Buckingham,51029,Buckingham County
+Gloucester,51073,Gloucester County
+Richmond,51760,Richmond city
+Powhatan,51145,Powhatan County
+Falls Church,51610,Falls Church city
+Goochland,51075,Goochland County
+Orange,51137,Orange County
+Greene,51079,Greene County
+Patrick,51141,Patrick County
+King William,51101,King William County
+Madison,51113,Madison County
+Lunenburg,51111,Lunenburg County
+Roanoke,51770,Roanoke city
+Chesapeake,51550,Chesapeake city
+Charlotte,51037,Charlotte County
+Isle of Wight,51093,Isle of Wight County
+Fauquier,51061,Fauquier County
+Radford,51750,Radford city
+Fairfax,51600,Fairfax city
+Henrico,51087,Henrico County
+Franklin,51620,Franklin city
+Harrisonburg,51660,Harrisonburg city
+Buena Vista,51530,Buena Vista city
+Franklin,51067,Franklin County
+Pittsylvania,51143,Pittsylvania County
+New Kent,51127,New Kent County
+Bedford,51019,Bedford County
+Grayson,51077,Grayson County
+Giles,51071,Giles County
+Wythe,51197,Wythe County
+Prince William,51153,Prince William County
+Scott,51169,Scott County
+Charles City,51036,Charles City County
+Newport News,51700,Newport News city
+Manassas Park,51685,Manassas Park city
+Arlington,51013,Arlington County
+Carroll,51035,Carroll County
+Bath,51017,Bath County
+Winchester,51840,Winchester city
+Sussex,51183,Sussex County
+Cumberland,51049,Cumberland County
+Smyth,51173,Smyth County
+Washington,51191,Washington County
+Roanoke,51161,Roanoke County
+Augusta,51015,Augusta County
+Hopewell,51670,Hopewell city
+Halifax,51083,Halifax County
+Danville,51590,Danville city
+Shenandoah,51171,Shenandoah County
+Portsmouth,51740,Portsmouth city
+Lexington,51678,Lexington city
+Accomack,51001,Accomack County
+Albemarle,51003,Albemarle County
+Clarke,51043,Clarke County
+Pulaski,51155,Pulaski County
+Greensville,51081,Greensville County
+Dinwiddie,51053,Dinwiddie County
+Norfolk,51710,Norfolk city
+Dickenson,51051,Dickenson County
+Amelia,51007,Amelia County
+Bristol,51520,Bristol city
+Norton,51720,Norton city
+Staunton,51790,Staunton city
+Botetourt,51023,Botetourt County
+Williamsburg,51830,Williamsburg city
+Page,51139,Page County
+Westmoreland,51193,Westmoreland County
+Rockbridge,51163,Rockbridge County
+Nelson,51125,Nelson County
+Nottoway,51135,Nottoway County
+Martinsville,51690,Martinsville city
+Appomattox,51011,Appomattox County
+Fluvanna,51065,Fluvanna County
+Wise,51195,Wise County
+Fredericksburg,51630,Fredericksburg city
+Mathews,51115,Mathews County
+King George,51099,King George County
+Prince Edward,51147,Prince Edward County
+Galax,51640,Galax city
+Campbell,51031,Campbell County
+Louisa,51109,Louisa County
+Lynchburg,51680,Lynchburg city
+Bland,51021,Bland County
+Petersburg,51730,Petersburg city
+Southampton,51175,Southampton County
+Suffolk,51800,Suffolk city
+Fairfax,51059,Fairfax County
+Tazewell,51185,Tazewell County
+Lee,51105,Lee County
+Loudoun,51107,Loudoun County
+York,51199,York County
+Culpeper,51047,Culpeper County
+Rockingham,51165,Rockingham County
+Warren,51187,Warren County
+Manassas,51683,Manassas city
+Highland,51091,Highland County
+Spotsylvania,51177,Spotsylvania County
+Northampton,51131,Northampton County
+Chesterfield,51041,Chesterfield County
+Brunswick,51025,Brunswick County
+Prince George,51149,Prince George County
+Hampton,51650,Hampton city
+Frederick,51069,Frederick County
+Caroline,51033,Caroline County
+Colonial Heights,51570,Colonial Heights city
+Virginia Beach,51810,Virginia Beach city
+Lancaster,51103,Lancaster County
+Richmond,51159,Richmond County
+Mecklenburg,51117,Mecklenburg County
 Alabama,AL
 Alaska,AK
 Arizona,AZ
