@@ -39,6 +39,8 @@ us_id = int(us_map['features'][-1]['id'])
 for feature in state['features']:
     us_id += 1
     feature['id'] = us_id
+    #swap the name and namelsad attributes so that county name is the primary alias
+    feature['properties']['name'], feature['properties']['namelsad'] = feature['properties']['namelsad'], feature['properties']['name']
     us_map['features'].append(feature)
 
 #write the new GeoJSON file
@@ -56,7 +58,8 @@ with open('state_and_county_lexicon.va.txt', 'w') as f:
     #write the county names and their shortened versions
     #writing this with the expectation that county,fips,longe county name. that name attribute will be used out of the geojson
     for feature in state['features']:
-        f.write(','.join([feature['properties']['name'],feature['properties']['geoid'],feature['properties']['namelsad']]) + '\n')
+        #f.write(','.join([feature['properties']['name'],feature['properties']['geoid'],feature['properties']['namelsad']]) + '\n')
+        f.write(','.join([feature['properties']['name'],feature['properties']['geoid']]) + '\n')
     #now write all the states in the US and their abbreviation, use python library to get the abbreviation
     for feature in us_orig['features']:
         #print(feature['properties']['name'])
