@@ -29,6 +29,7 @@
 #-------------------------------------------------------------
 
 import re, csv
+import us as us_package
 
 def process_metadata(lexiconfile, mfile, mfile_merge, extension=["_us"], isWDL = False):
     #== for WDL ===
@@ -60,13 +61,18 @@ def process_metadata(lexiconfile, mfile, mfile_merge, extension=["_us"], isWDL =
     with open(lexiconfile) as inf:
         for entry in inf:
             spent = entry.strip().split(",")
-            if "Airport" in spent[0]:
-                airp_conversion[spent[1]] = spent[0]
-            elif "County" in spent[0]:
-                county_conversion[spent[1].upper()] = spent[0]
+            #if "Airport" in spent[0]:
+            #    airp_conversion[spent[1]] = spent[0]
+            #elif "County" in spent[0]:
+            #    county_conversion[spent[1].upper()] = spent[0]
+            #else:
+            if us_package.states.lookup(spent[0]) != None:
+                for alternative in spent:
+                    state_conversion[alternative.upper()] = spent[0]
             else:
                 for alternative in spent:
-                    state_conversion[alternative.upper()] = spent[0] 
+                    county_conversion[alternative.upper()] = spent[0]
+
 
     metadata = open("metadata_merged.tsv","w+") #output file for merged metadata, for US + CA county analysis
     badsamples = open("rejected_samples.txt","w+") # file for rejected sample names
@@ -84,14 +90,15 @@ def process_metadata(lexiconfile, mfile, mfile_merge, extension=["_us"], isWDL =
 
     #read airport sample data
     airport_data = []
-    with open(airport_file_p, mode='r') as csv_file:
-        data = csv.DictReader(csv_file)
-        for row in data:
-            airport_data.append([str(row["Barcode"]),'',row["GISAID_epi_isl"],row["Kiosk"],row["Collection_Date"]])
-    with open(airport_file_c, mode='r') as csv_file:
-        data = csv.DictReader(csv_file)
-        for row in data:
-            airport_data.append([str(row["Submitter Specimen ID"]),str(row["PAUI"]),row["GISAID_epi_isl"],row["Airport"],row["Collection_Date"]])
+    if False:
+        with open(airport_file_p, mode='r') as csv_file:
+            data = csv.DictReader(csv_file)
+            for row in data:
+                airport_data.append([str(row["Barcode"]),'',row["GISAID_epi_isl"],row["Kiosk"],row["Collection_Date"]])
+        with open(airport_file_c, mode='r') as csv_file:
+            data = csv.DictReader(csv_file)
+            for row in data:
+                airport_data.append([str(row["Submitter Specimen ID"]),str(row["PAUI"]),row["GISAID_epi_isl"],row["Airport"],row["Collection_Date"]])
     
     with open(mfile_merge) as inf:
         print("parsing input metadata file: " + mfile_merge)
@@ -151,7 +158,7 @@ def process_metadata(lexiconfile, mfile, mfile_merge, extension=["_us"], isWDL =
             #assign region for non-airport data
             if not isAirport:
                 #assign to CA state in region file
-                print(fields[0] + "\tCalifornia", file = region_assoc_us)
+                print(fields[0] + "\tVirginia", file = region_assoc_us)
                 #check if county is in lexicon and if so add to region association file
                 county = fields[5]
                 if county != "":
