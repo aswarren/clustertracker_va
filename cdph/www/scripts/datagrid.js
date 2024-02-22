@@ -166,7 +166,7 @@ function getInvetigatorLink(cluster, nPauis, ext = '') {
   return link;
 }
 function clusterObjs(items, taxoniumURL, ext = '') {
-  if (items[10] === 0) {
+  if (items[10] === 0 || items[10] === undefined) {
     items[10] = 'No identifiable samples';
   } else {
     items[10] = getInvetigatorLink(items[0].toString(), items[10].toString(), ext);
@@ -198,7 +198,7 @@ function sampleObjs(items) {
     const n = s.length <= 50 ? s.length - 1 : 50;
     st = s.slice(0, n) + '...';
   }
-  if (p !== '') {
+  if (p !== '' && p !== undefined) {
     const n = p.length <= 50 ? p.length - 1 : 50;
     pt = p.slice(0, n) + '...';
   }
