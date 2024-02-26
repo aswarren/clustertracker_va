@@ -52,6 +52,8 @@ def main(input, lexicon, geojson, output):
     gdf['introductions'] = gdf['name'].map(introductions)
     #create the chloropleth map
     fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+    #center the map and zoom on VA
+    gdf = gdf.cx[-83.6753:-75.1664, 36.5408:39.4660]
     gdf.plot(column='introductions', cmap='OrRd', linewidth=0.8, ax=ax, edgecolor='0.8')
     ax.axis('off')
     #add a colorbar
