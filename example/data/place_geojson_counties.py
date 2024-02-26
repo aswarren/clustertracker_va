@@ -54,13 +54,14 @@ with open(mashup, 'w') as outfile:
 #write a state_and_county_lexicon.va.txt file in the style of https://github.com/pathogen-genomics/introduction-website/blob/cdph/cdph/data/state_and_county_lexicon.txt
 #in two column format name of the county from VA and the shortened versions using the information from the GeoJSON
 #open the file
-with open('state_and_county_lexicon.va.txt', 'w') as f:
+with open('state_and_county_lexicon.va.txt', 'w') as f, open('county_lexicon.va.txt', 'w') as f2:
     #write the header
-    f.write('county\tshort\n')
     #write the county names and their shortened versions
     #writing this with the expectation that county,fips,longe county name. that name attribute will be used out of the geojson
     for feature in state['features']:
         f.write(','.join([feature['properties']['name'],feature['properties']['geoid'],feature['properties']['namelsad']]) + '\n')
+        f2.write(','.join([feature['properties']['name'],feature['properties']['geoid'],feature['properties']['namelsad']]) + '\n')
+
         #f.write(','.join([feature['properties']['name'],feature['properties']['geoid']]) + '\n')
     #now write all the states in the US and their abbreviation, use python library to get the abbreviation
     for feature in us_orig['features']:
