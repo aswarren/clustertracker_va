@@ -61,12 +61,19 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     #get the total number of introductions
     total_introductions = sum(introductions.values())
     #using the ratio of introductions to samples calculate the z-score for each county
-    z_scores = {}
+    ratios = {}
     for county, num_introd in introductions.items():
         #get the total number of samples from the region
-        total_samples = total_va_samples_per_region[county]
-        #calculate the z-score
-        z_scores[county] = (num_introd - total_samples * total_introductions / total_va_samples) / np.sqrt(total_samples * total_introductions / total_va_samples)
+        county_samples = total_va_samples_per_region[county]
+        ratios[county] = float(num_introd) / county_samples
+    #get the mean and std. dev of the ratios
+    mean = np.mean(list(ratios.values()))
+    std_dev = np.std(list(ratios.values()))
+    #calculate the z-score for each county using the mena and std. dev
+    z_scores = {}
+    for county, ratio in ratios.items():
+        z_scores[county] = (ratio - mean) / std_dev
+
     #add the z-scores to the gdf
     gdf['z_scores'] = gdf['name'].map(z_scores)
     #add the introductions to the gdf
@@ -76,13 +83,13 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     #center the map and zoom on VA
     gdf = gdf.cx[-83.6753:-75.1664, 36.5408:39.4660]
     #gdf.plot(column='introductions', cmap='OrRd', linewidth=0.8, ax=ax, edgecolor='0.8')
-    gdf.plot(column='z_scores', cmap='OrRd', linewidth=0.8, ax=ax, edgecolor='0.8')
+    gdf.plot(column='z_scores', cmap='OrRd', linewidth=0.8, ax=ax, edgecolor='k')
     ax.axis('off')
     #add a colorbar
     #norm = colors.Normalize(vmin=gdf['introductions'].min(), vmax=gdf['introductions'].max())
     norm = colors.Normalize(vmin=gdf['z_scores'].min(), vmax=gdf['z_scores'].max())
     cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap='OrRd'), ax=ax, orientation='horizontal', fraction=0.05, pad=0.05)
-    cbar.set_label('Number of introductions')
+    cbar.set_label('Z-score of introductions/samples')
     #save the chloropleth map
     plt.savefig(save_dir + '/' + save_name + '.png', bbox_inches='tight')
     plt.close()
