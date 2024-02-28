@@ -55,11 +55,19 @@ def update_js(target=[''], conversion = {}, extension=['']):
         #which are generally structured with the minimum date as the outermost layer
         #then the destination of an introduction
         #than the source of an introduction
-        prefd = {datepoints[0]:"", datepoints[1]:"12_", datepoints[2]:"6_", datepoints[3]:"3_"}
+
+        # dinvc: Tracks the number of introductions to each region for different date points
         dinvc = {d:{} for d in datepoints}
+
+        # dsvc: Tracks the total count of introductions to each region for different date points
         dsvc = {d:{} for d in datepoints}
+
+        # dotvc: Tracks the total count of introductions from each region to other regions for different date points
         dotvc = {d:{} for d in datepoints}
+
+        # dovc: Tracks the count of introductions from each region to other regions for different date points
         dovc = {d:{} for d in datepoints} 
+
         
         with open(cluster_file[idx]) as inf:
             for entry in inf:
