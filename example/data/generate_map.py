@@ -29,7 +29,7 @@ from matplotlib import colors
 
 #main function reads in the hardcoded_clusters.tsv file, filters the table down to the lexicon selection in the first column using the region column in the hardcoded_clusters.tsv file
 
-def main(hardcoded, clusterswapped, lexicon, geojson, output):
+def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
 
     #read in the hardcoded_clusters.tsv file
     df = pd.read_csv(hardcoded, sep='\t', header=0)
@@ -84,7 +84,7 @@ def main(hardcoded, clusterswapped, lexicon, geojson, output):
     cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap='OrRd'), ax=ax, orientation='horizontal', fraction=0.05, pad=0.05)
     cbar.set_label('Number of introductions')
     #save the chloropleth map
-    plt.savefig(args.save_dir + '/' + args.save_name + '.png', bbox_inches='tight')
+    plt.savefig(save_dir + '/' + save_name + '.png', bbox_inches='tight')
     plt.close()
 
 
@@ -98,4 +98,4 @@ if __name__ == "__main__":
     #option for the geojson to use for the chloropleth map
     parser.add_argument("-g", "--geojson", help="The input geojson file", required=True)
     args = parser.parse_args()
-    main(args.input, args.input2, args.lexicon, args.pangolin, args.output)
+    main(args.input, args.lexicon, args.geojson, args.save_dir, args.save_name)

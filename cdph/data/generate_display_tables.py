@@ -34,7 +34,7 @@
 
 import json, gzip
 
-def generate_display_tables(extension = [''], isWDL = False):
+def generate_display_tables(extension = [''], isWDL = False, is_custom=False):
     #== for WDL ===
     # isWDL = True
     #===
@@ -51,13 +51,13 @@ def generate_display_tables(extension = [''], isWDL = False):
         return pids_arr
 
     #function to evaluate whether to add custom CDPH data fields to output cluster files
-    def is_custom_data():
-        if len(extension) > 1:
-            return True
-        else:
-            return False
+    #def is_custom_data():
+    #    if len(extension) > 1:
+    #        return True
+    #    else:
+    #        return False
     #set flag to identify whether to add custom fields to output cluster files
-    is_custom =  is_custom_data()
+    #is_custom =  False #is_custom_data()
 
 
     if isWDL:
@@ -186,8 +186,9 @@ if __name__ == "__main__":
     from master_backend import parse_setup
     args = parse_setup()
     extension = args.region_extension
+    is_custom=False
     if extension is None:
         extension = ['']
     else:
         extension.insert(0,'')
-    generate_display_tables(extension)
+    generate_display_tables(extension, is_custom)

@@ -110,7 +110,7 @@ def update_js(target=[''], conversion = {}, extension=['']):
                 data["properties"]["intros"][prefix + "basecount"] = invc.get(data["properties"]["name"],0) 
             svd["features"].append(data)
             if "id" in data:
-                sids[data["properties"]["name"]] = data["id"]
+                sids[data["properties"]["name"]] = str(data["id"])
             else:
                 data["id"] = str(id)
                 sids[data["properties"]["name"]] = str(id)

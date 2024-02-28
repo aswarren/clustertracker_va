@@ -62,6 +62,9 @@ def prepare_taxonium(sample_regions_file, mfile, extension=[''], isWDL = False):
         with open(sample_regions[index]) as inf:
             for entry in inf:
                 spent = entry.strip().split("\t")
+                #skipping entries with only a location and no smaple ID or vice versa
+                if len(spent) < 2:
+                    continue
                 rd[spent[0]] = spent[1] # rd[sample name] = region
         cluster_dicts.append(sd)
         region_dicts.append(rd)
