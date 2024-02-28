@@ -48,9 +48,9 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
         #read in the geojson file
     
     #get the total number of samples which have a :VA in the region column from df2
-    total_va_samples = df2[df2['region'].str.contains(':VA')].shape[0]
+    total_va_samples = df2[df2['region'].fillna('').str.contains(':VA')].shape[0]
     #get the total number of samples which have a :VA in the region column from df2 per region
-    total_va_samples_per_region = df2[df2['region'].str.contains(':VA')].groupby('region').size()
+    total_va_samples_per_region = df2[df2['region'].fillna('').str.contains(':VA')].groupby('region').size()
 
     gdf = gpd.read_file(args.geojson)
     #create a dictionary of the number of introductions per county
@@ -62,11 +62,11 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     total_introductions = sum(introductions.values())
     #using the ratio of introductions to samples calculate the z-score for each county
     z_scores = {}
-    for county, introductions in introductions.items():
+    for county, num_introd in introductions.items():
         #get the total number of samples from the region
         total_samples = total_va_samples_per_region[county]
         #calculate the z-score
-        z_scores[county] = (introductions - total_samples * total_introductions / total_va_samples) / np.sqrt(total_samples * total_introductions / total_va_samples)
+        z_scores[county] = (num_introd - total_samples * total_introductions / total_va_samples) / np.sqrt(total_samples * total_introductions / total_va_samples)
     #add the z-scores to the gdf
     gdf['z_scores'] = gdf['name'].map(z_scores)
     #add the introductions to the gdf
@@ -98,4 +98,4 @@ if __name__ == "__main__":
     #option for the geojson to use for the chloropleth map
     parser.add_argument("-g", "--geojson", help="The input geojson file", required=True)
     args = parser.parse_args()
-    main(args.input, args.lexicon, args.geojson, args.save_dir, args.save_name)
+    main(args.input, args.input2, args.lexicon, args.geojson, args.save_dir, args.save_name)
