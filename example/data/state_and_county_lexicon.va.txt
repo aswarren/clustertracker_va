@@ -1,4 +1,3 @@
-county	short
 Salem:VA,51775,Salem city
 Montgomery:VA,51121,Montgomery County
 Poquoson:VA,51735,Poquoson city
