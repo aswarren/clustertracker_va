@@ -27,6 +27,23 @@ from matplotlib import colors
 #This program converts hardcoded_clusters.tsv form clustertracker to a generalized EpiHiper seeding
 #it also creates a chloropleth map of the introductions into the state
 
+def get_state_pop(state_fips):
+    # Read the CSV file from the Census Bureau's website
+    import pandas as pd
+    state_fips=51
+    df = pd.read_csv("https://www2.census.gov/programs-surveys/popest/datasets/2010-2020/counties/totals/co-est2020-alldata.csv", encoding = "latin-1")
+
+    # Filter the data by the FIPS code (column name: STATE and COUNTY)
+    # For example, to get the population size for the state of VA (FIPS code: 51)
+    state_df = df[df["STATE"] == int(state_fips)]
+
+    # Extract the population size (column name: POPESTIMATE2020) and the county name (column name: CTYNAME) for each county
+    #state_pop = va_df[["POPESTIMATE2020", "CTYNAME"]]
+
+    # Print the results
+    print(state_df.head())
+    return state_df
+
 #main function reads in the hardcoded_clusters.tsv file, filters the table down to the lexicon selection in the first column using the region column in the hardcoded_clusters.tsv file
 
 def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
@@ -43,6 +60,9 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     #this hack for VA will need to be generalized for other regions
     df_selected = df_selected[~df_selected['inferred_origin'].str.contains(':VA')]
     
+    #get state population data from census
+    state_df=get_state_pop(51)
+
     #using the counties in the region column in df_selected and the counties in the name(s) attribute in a geojson generate a chlopleth map of the number of rows in df_selected per county
     #read in the geojson file
         #read in the geojson file
@@ -65,7 +85,17 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     for county, num_introd in introductions.items():
         #get the total number of samples from the region
         county_samples = total_va_samples_per_region[county]
-        ratios[county] = float(num_introd) / county_samples
+        #use the fips code to get the population of the county from the state_df
+        fips = int(gdf[gdf['name'] == county]['countyfp'].values[0])
+        county_pop = state_df[state_df['COUNTY'] == fips]['POPESTIMATE2020'].values[0]
+
+        ratios[county] = float(num_introd) / (float(county_samples) / float(county_pop))
+        
+        #use the county variable to get the gdf record using the name attribute and construct the fips from the countyfp and statefp attributes
+        #get the fips code for the county
+
+        #get the population of the county
+
     #get the mean and std. dev of the ratios
     mean = np.mean(list(ratios.values()))
     std_dev = np.std(list(ratios.values()))
