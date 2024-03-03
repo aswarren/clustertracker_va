@@ -56,6 +56,8 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     
     #the lexicon doesn't introduce '_' like apparently the cluster tracker table does
     df_selected = df[df['region'].str.replace('_',' ').isin(lexicon[0])]
+
+    df_selected['region'] = df_selected['region'].str.replace('_',' ')
     
     #filter df_selected to those rows that do not have ":VA" as substring in the inferred_origin column
     #this hack for VA will need to be generalized for other regions
