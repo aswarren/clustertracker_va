@@ -44,6 +44,52 @@ def get_state_pop(state_fips):
     print(state_df.head())
     return state_df
 
+#perform sobol sensitivity analysis on a 2*std deviation range of parameters to determine the behavior of the calculation
+def sobol_sensitivity_analysis(mean_introductions, std_dev_introductions, mean_samples, std_dev_samples, mean_population, std_dev_population):
+    from SALib.problem import ProblemSpec
+
+    problem = ProblemSpec({
+    'names': ['num_introd', 'county_samples', 'county_pop'], #input parameter names
+    'bounds': [[mean_introductions - (2*std_dev_introductions), mean_introductions + (2*std_dev_introductions)], \
+               [mean_samples - (2 * std_dev_samples), mean_samples + (2 * std_dev_samples)],\
+                  [mean_population - (2* std_dev_population), mean_population + (2*std_dev_population)]], #input parameter ranges
+    'outputs': ['z_scores'] #output variable name
+    })
+
+    from SALib.sample import latin
+
+    #Generate 1000 samples using LHS
+    param_values = latin.sample(problem, 1000)
+    #Initialize an empty list to store the output values
+    output_values = []
+    ratios = []
+    #Loop through each sample
+    for i in range(len(param_values)):
+    #Get the sampled values of the input parameters
+        num_introd = param_values[i][0]
+        county_samples = param_values[i][1]
+        county_pop = param_values[i][2]
+
+        #Calculate the ratio of introductions to samples per population
+        ratio = float(num_introd) / (float(county_samples) / float(county_pop))
+        ratios.append(ratio)
+    mean= np.mean(ratios)
+    std_dev = np.std(ratios)
+
+    for ratio in ratios:
+        #Calculate the z-score using the mean and std. dev of the ratios
+        z_score = (ratio - mean) / std_dev
+        #Append the output value to the list
+        output_values.append(z_score)
+
+    from SALib.analyze import sobol
+    #Perform the Sobol analysis
+    Si = sobol.analyze(problem, output_values)
+    #Print the first-order sensitivity indices
+    print(Si['S1'])
+    #Print the total-order sensitivity indices
+    print(Si['ST'])
+
 #main function reads in the hardcoded_clusters.tsv file, filters the table down to the lexicon selection in the first column using the region column in the hardcoded_clusters.tsv file
 
 def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
@@ -90,15 +136,35 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
         county_pop = state_df[state_df['COUNTY'] == fips]['POPESTIMATE2020'].values[0]
 
         ratios[county] = float(num_introd) / (float(county_samples) / float(county_pop))
-        
+
         #use the county variable to get the gdf record using the name attribute and construct the fips from the countyfp and statefp attributes
         #get the fips code for the county
 
         #get the population of the county
 
+    #print the mean and std. deviation of the populations, samples, and introductions
     #get the mean and std. dev of the ratios
     mean = np.mean(list(ratios.values()))
     std_dev = np.std(list(ratios.values()))
+    mean_introductions = np.mean(list(introductions.values()))
+    std_dev_introductions = np.std(list(introductions.values()))
+    mean_samples = np.mean(list(total_va_samples_per_region.values()))
+    std_dev_samples = np.std(list(total_va_samples_per_region.values()))
+    mean_population = np.mean(list(state_df['POPESTIMATE2020'].values()))
+    std_dev_population = np.std(list(state_df['POPESTIMATE2020'].values()))
+
+    print('mean introductions/samples:', mean)
+    print('std. dev introductions/samples:', std_dev)
+    print('mean introductions:', mean_introductions)
+    print('std. dev introductions:', std_dev_introductions)
+    print('mean samples:', mean_samples)
+    print('std. dev samples:', std_dev_samples)
+    print('mean population:', mean_population)
+    print('std. dev population:', std_dev_population)
+    
+    sobol_sensitivity_analysis(mean_introductions, std_dev_introductions, mean_samples, std_dev_samples, mean_population, std_dev_population)
+    
+
     #calculate the z-score for each county using the mena and std. dev
     z_scores = {}
     for county, ratio in ratios.items():
