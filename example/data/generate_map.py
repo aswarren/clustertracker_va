@@ -45,7 +45,7 @@ def get_state_pop(state_fips):
 
 #perform sobol sensitivity analysis on a 2*std deviation range of parameters to determine the behavior of the calculation
 def sobol_sensitivity_analysis(mean_introductions, std_dev_introductions, mean_samples, std_dev_samples, mean_population, std_dev_population):
-    from SALib.problem import ProblemSpec
+    from SALib.util.problem import ProblemSpec
 
     problem = ProblemSpec({
     'names': ['num_introd', 'county_samples', 'county_pop'], #input parameter names
