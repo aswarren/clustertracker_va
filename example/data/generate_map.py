@@ -21,7 +21,7 @@ from matplotlib import colorbar
 from matplotlib import ticker
 from matplotlib import patches
 from matplotlib import colors
-
+import SALib
 
 
 #This program converts hardcoded_clusters.tsv form clustertracker to a generalized EpiHiper seeding
