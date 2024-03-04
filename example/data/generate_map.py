@@ -83,7 +83,7 @@ def sobol_sensitivity_analysis(mean_introductions, std_dev_introductions, mean_s
 
     from SALib.analyze import sobol
     #Perform the Sobol analysis
-    Si = sobol.analyze(problem, output_values)
+    Si = sobol.analyze(problem, np.array(output_values))
     #Print the first-order sensitivity indices
     print(Si['S1'])
     #Print the total-order sensitivity indices
