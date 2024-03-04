@@ -41,7 +41,6 @@ def get_state_pop(state_fips):
     #state_pop = va_df[["POPESTIMATE2020", "CTYNAME"]]
 
     # Print the results
-    print(state_df.head())
     return state_df
 
 #perform sobol sensitivity analysis on a 2*std deviation range of parameters to determine the behavior of the calculation
@@ -100,7 +99,11 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     #read in the lexicon file
     lexicon = pd.read_csv(args.lexicon, sep=',', header=None)
     #filter the table down to the lexicon selection in the first column using the region column in the hardcoded_clusters.tsv file
-    df_selected = df[df['region'].isin(lexicon[0])]
+    
+    #the lexicon doesn't introduce '_' like apparently the cluster tracker table does
+    df_selected = df[df['region'].str.replace('_',' ').isin(lexicon[0])]
+
+    df_selected['region'] = df_selected['region'].str.replace('_',' ')
     
     #filter df_selected to those rows that do not have ":VA" as substring in the inferred_origin column
     #this hack for VA will need to be generalized for other regions
@@ -136,11 +139,6 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
         county_pop = state_df[state_df['COUNTY'] == fips]['POPESTIMATE2020'].values[0]
 
         ratios[county] = float(num_introd) / (float(county_samples) / float(county_pop))
-
-        #use the county variable to get the gdf record using the name attribute and construct the fips from the countyfp and statefp attributes
-        #get the fips code for the county
-
-        #get the population of the county
 
     #print the mean and std. deviation of the populations, samples, and introductions
     #get the mean and std. dev of the ratios
