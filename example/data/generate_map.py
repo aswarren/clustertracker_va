@@ -121,7 +121,7 @@ def sobol_sensitivity_analysis(mean_introductions, std_dev_introductions, mean_s
 def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
 
     #read in the hardcoded_clusters.tsv file
-    df = pd.read_csv(hardcoded, sep='\t', header=0)
+    df = pd.read_csv(hardcoded, sep='\t', header=0, parse_dates=['earliest_date'])
     df2 = pd.read_csv(clusterswapped, sep='\t', header=0)
     #read in the lexicon file
     lexicon = pd.read_csv(args.lexicon, sep=',', header=None)
