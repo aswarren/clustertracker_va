@@ -35,6 +35,8 @@ def get_temporal_distribution(df, save_dir, save_name):
     #create a dictionary of the number of introductions per week per county
     introductions_per_week = defaultdict(int)
     #loop through each row in the dataframe
+    #convert the earliest_date column to a datetime object
+    df['earliest_date'] = pd.to_datetime(df['earliest_date'])
     for index, row in df.iterrows():
         #get the week of the year
         week = row['earliest_date'].isocalendar()[1]
