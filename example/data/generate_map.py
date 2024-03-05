@@ -24,9 +24,42 @@ from matplotlib import colors
 import SALib
 
 
+
+
 #This program converts hardcoded_clusters.tsv form clustertracker to a generalized EpiHiper seeding
 #it also creates a chloropleth map of the introductions into the state
 
+#function to graph the average temporal distribution of clusters per week per county
+#use earliest_date as the date and region for the county
+def get_temporal_distribution(df, save_dir, save_name):
+    #get the earliest date
+    earliest_date = df['date'].min()
+    #get the latest date
+    latest_date = df['date'].max()
+    #get the number of weeks between the earliest and latest date
+    num_weeks = (latest_date - earliest_date).days / 7
+    #create a dictionary of the number of introductions per week per county
+    introductions_per_week = defaultdict(int)
+    #loop through each row in the dataframe
+    for index, row in df.iterrows():
+        #get the week of the year
+        week = row['date'].isocalendar()[1]
+        #increment the count of introductions for that week
+        introductions_per_week[week] += 1
+    #create a list of the weeks
+    weeks = list(range(1, int(num_weeks) + 1))
+    #create a list of the number of introductions per week
+    num_introductions = [introductions_per_week[week] for week in weeks]
+    #create a bar plot of the number of introductions per week
+    plt.bar(weeks, num_introductions)
+    plt.xlabel('Week')
+    plt.ylabel('Number of introductions')
+    plt.title('Temporal distribution of introductions')
+    #save figure
+    plt.savefig(save_dir + '/' + save_name + '_temporal_distribution.png', bbox_inches='tight')
+
+
+#given the state fips code, return the population of the state by county
 def get_state_pop(state_fips):
     # Read the CSV file from the Census Bureau's website
     import pandas as pd
@@ -70,7 +103,7 @@ def sobol_sensitivity_analysis(mean_introductions, std_dev_introductions, mean_s
         county_pop = param_values[i][2]
 
         #Calculate the ratio of introductions to samples per population
-        ratio = float(num_introd) / (float(county_samples) / float(county_pop))
+        ratio = float(num_introd) / ((float(county_samples) * 100000) / float(county_pop))
         ratios.append(ratio)
     mean= np.mean(ratios)
     std_dev = np.std(ratios)
@@ -111,6 +144,8 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     
     #get state population data from census
     state_df=get_state_pop(51)
+
+    get_temporal_distribution(df_selected, save_dir, save_name)
 
     #using the counties in the region column in df_selected and the counties in the name(s) attribute in a geojson generate a chlopleth map of the number of rows in df_selected per county
     #read in the geojson file
