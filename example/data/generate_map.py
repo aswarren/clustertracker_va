@@ -37,8 +37,8 @@ def get_temporal_distribution(df, save_dir, save_name):
     #loop through each row in the dataframe
     #convert the earliest_date column to a datetime object
     #get the earliest year in the earliest_date column
-    earliest_year = min(df['earliest_date']).year
     df['earliest_date'] = pd.to_datetime(df['earliest_date'])
+    earliest_year = min(df['earliest_date']).year
     for index, row in df.iterrows():
         #get the week of the year
         week = row['earliest_date'].isocalendar()[1]
