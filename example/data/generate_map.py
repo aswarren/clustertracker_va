@@ -131,13 +131,14 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     total_introductions = sum(introductions.values())
     #using the ratio of introductions to samples calculate the z-score for each county
     ratios = {}
+    county_pops={}
     for county, num_introd in introductions.items():
         #get the total number of samples from the region
         county_samples = total_va_samples_per_region[county]
         #use the fips code to get the population of the county from the state_df
         fips = int(gdf[gdf['name'] == county]['countyfp'].values[0])
         county_pop = state_df[state_df['COUNTY'] == fips]['POPESTIMATE2020'].values[0]
-
+        county_pops[county]=county_pop
         ratios[county] = float(num_introd) / (float(county_samples) / float(county_pop))
 
     #print the mean and std. deviation of the populations, samples, and introductions
@@ -165,28 +166,78 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
 
     #calculate the z-score for each county using the mena and std. dev
     z_scores = {}
+    z_score_intro = {}
     for county, ratio in ratios.items():
+        county_pop=state_df[state_df['COUNTY'] == fips]['POPESTIMATE2020'].values[0]
         z_scores[county] = (ratio - mean) / std_dev
+        z_score_intro[county] = (introductions[county] - mean_introductions) / std_dev_introductions
+        z_score_pop = (county_pops[county] - mean_population) / std_dev_population
+
 
     #add the z-scores to the gdf
-    gdf['z_scores'] = gdf['name'].map(z_scores)
+    gdf['z_score_force'] = gdf['name'].map(z_scores)
     #add the introductions to the gdf
     gdf['introductions'] = gdf['name'].map(introductions)
-    #create the chloropleth map
+
+    #create the chloropleth map for z_score_force
     fig, ax = plt.subplots(1, 1, figsize=(10, 10))
     #center the map and zoom on VA
     gdf = gdf.cx[-83.6753:-75.1664, 36.5408:39.4660]
     #gdf.plot(column='introductions', cmap='OrRd', linewidth=0.8, ax=ax, edgecolor='0.8')
-    gdf.plot(column='z_scores', cmap='OrRd', linewidth=0.8, ax=ax, edgecolor='k')
+    gdf.plot(column='z_score_force', cmap='OrRd', linewidth=0.8, ax=ax, edgecolor='k')
     ax.axis('off')
     #add a colorbar
     #norm = colors.Normalize(vmin=gdf['introductions'].min(), vmax=gdf['introductions'].max())
-    norm = colors.Normalize(vmin=gdf['z_scores'].min(), vmax=gdf['z_scores'].max())
+    norm = colors.Normalize(vmin=gdf['z_score_force'].min(), vmax=gdf['z_score_force'].max())
     cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap='OrRd'), ax=ax, orientation='horizontal', fraction=0.05, pad=0.05)
-    cbar.set_label('Z-score of introductions/samples')
+    cbar.set_label('Per county Z-score of introductions * (population/samples)')
     #save the chloropleth map
     plt.savefig(save_dir + '/' + save_name + '.png', bbox_inches='tight')
     plt.close()
+
+    #create the chloropleth map for introductions
+    fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+    #center the map and zoom on VA
+    gdf = gdf.cx[-83.6753:-75.1664, 36.5408:39.4660]
+    gdf.plot(column='introductions', cmap='OrRd', linewidth=0.8, ax=ax, edgecolor='k')
+    ax.axis('off')
+    #add a colorbar
+    norm = colors.Normalize(vmin=gdf['introductions'].min(), vmax=gdf['introductions'].max())
+    cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap='OrRd'), ax=ax, orientation='horizontal', fraction=0.05, pad=0.05)
+    cbar.set_label('Number of introductions')
+    #save the chloropleth map
+    plt.savefig(save_dir + '/' + save_name + '_introductions.png', bbox_inches='tight')
+    plt.close()
+
+    #create the chloropleth map for z_score_intro
+    fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+    #center the map and zoom on VA
+    gdf = gdf.cx[-83.6753:-75.1664, 36.5408:39.4660]
+    gdf.plot(column='z_score_intro', cmap='OrRd', linewidth=0.8, ax=ax, edgecolor='k')
+    ax.axis('off')
+    #add a colorbar
+    norm = colors.Normalize(vmin=gdf['z_score_intro'].min(), vmax=gdf['z_score_intro'].max())
+    cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap='OrRd'), ax=ax, orientation='horizontal', fraction=0.05, pad=0.05)
+    cbar.set_label('Per county Z-score of introductions')
+    #save the chloropleth map
+    plt.savefig(save_dir + '/' + save_name + '_z_score_intro.png', bbox_inches='tight')
+    plt.close()
+
+    #create the chloropleth map for z_score_pop
+    fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+    #center the map and zoom on VA
+    gdf = gdf.cx[-83.6753:-75.1664, 36.5408:39.4660]
+    gdf.plot(column='z_score_pop', cmap='OrRd', linewidth=0.8, ax=ax, edgecolor='k')
+    ax.axis('off')
+    #add a colorbar
+    norm = colors.Normalize(vmin=gdf['z_score_pop'].min(), vmax=gdf['z_score_pop'].max())
+    cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap='OrRd'), ax=ax, orientation='horizontal', fraction=0.05, pad=0.05)
+    cbar.set_label('Per county Z-score of population')
+    #save the chloropleth map
+    plt.savefig(save_dir + '/' + save_name + '_z_score_pop.png', bbox_inches='tight')
+    plt.close()
+
+    
 
 
 if __name__ == "__main__":
