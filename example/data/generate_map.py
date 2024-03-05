@@ -174,10 +174,13 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
         z_score_pop = (county_pops[county] - mean_population) / std_dev_population
 
 
-    #add the z-scores to the gdf
-    gdf['z_score_force'] = gdf['name'].map(z_scores)
     #add the introductions to the gdf
     gdf['introductions'] = gdf['name'].map(introductions)
+    #add the z-scores to the gdf
+    gdf['z_score_force'] = gdf['name'].map(z_scores) 
+    gdf['z_score_intro'] = gdf['name'].map(z_score_intro)
+    gdf['z_score_pop'] = gdf['name'].map(z_score_pop)
+
 
     #create the chloropleth map for z_score_force
     fig, ax = plt.subplots(1, 1, figsize=(10, 10))
@@ -237,7 +240,7 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     plt.savefig(save_dir + '/' + save_name + '_z_score_pop.png', bbox_inches='tight')
     plt.close()
 
-    
+
 
 
 if __name__ == "__main__":
