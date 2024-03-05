@@ -196,7 +196,7 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     #norm = colors.Normalize(vmin=gdf['introductions'].min(), vmax=gdf['introductions'].max())
     norm = colors.Normalize(vmin=gdf['z_score_force'].min(), vmax=gdf['z_score_force'].max())
     cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap='OrRd'), ax=ax, orientation='horizontal', fraction=0.05, pad=0.05)
-    cbar.set_label('Per county Z-score of introductions * (population/samples)')
+    cbar.set_label('Per county Z-score of introductions / (samples per 100k)')
     #save the chloropleth map
     plt.savefig(save_dir + '/' + save_name + '.png', bbox_inches='tight')
     plt.close()
