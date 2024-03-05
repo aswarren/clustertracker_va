@@ -139,7 +139,9 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
         fips = int(gdf[gdf['name'] == county]['countyfp'].values[0])
         county_pop = state_df[state_df['COUNTY'] == fips]['POPESTIMATE2020'].values[0]
         county_pops[county]=county_pop
-        ratios[county] = float(num_introd) / (float(county_samples) / float(county_pop))
+        #calculate samples per 100k people
+        county_samples_per_100k = (float(county_samples) / float(county_pop)) * 100000
+        ratios[county] = float(num_introd) / county_samples_per_100k
 
     #print the mean and std. deviation of the populations, samples, and introductions
     #get the mean and std. dev of the ratios
