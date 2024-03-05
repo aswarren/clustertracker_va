@@ -167,11 +167,12 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     #calculate the z-score for each county using the mena and std. dev
     z_scores = {}
     z_score_intro = {}
+    z_score_pop = {}
     for county, ratio in ratios.items():
         county_pop=state_df[state_df['COUNTY'] == fips]['POPESTIMATE2020'].values[0]
         z_scores[county] = (ratio - mean) / std_dev
         z_score_intro[county] = (introductions[county] - mean_introductions) / std_dev_introductions
-        z_score_pop = (county_pops[county] - mean_population) / std_dev_population
+        z_score_pop[county] = (county_pops[county] - mean_population) / std_dev_population
 
 
     #add the introductions to the gdf
