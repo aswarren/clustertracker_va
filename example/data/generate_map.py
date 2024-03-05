@@ -43,7 +43,7 @@ def get_temporal_distribution(df, save_dir, save_name):
         #increment the count of introductions for that week
         introductions_per_week[week] += 1
     #create a list of the weeks
-    weeks = list(range(1, int(num_weeks) + 1))
+    weeks = list(range(1, int(max(introductions_per_week.keys())) + 1))
     #create a list of the number of introductions per week
     num_introductions = [introductions_per_week[week] for week in weeks]
     #create a bar plot of the number of introductions per week
