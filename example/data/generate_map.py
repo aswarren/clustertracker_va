@@ -32,18 +32,12 @@ import SALib
 #function to graph the average temporal distribution of clusters per week per county
 #use earliest_date as the date and region for the county
 def get_temporal_distribution(df, save_dir, save_name):
-    #get the earliest date
-    earliest_date = df['date'].min()
-    #get the latest date
-    latest_date = df['date'].max()
-    #get the number of weeks between the earliest and latest date
-    num_weeks = (latest_date - earliest_date).days / 7
     #create a dictionary of the number of introductions per week per county
     introductions_per_week = defaultdict(int)
     #loop through each row in the dataframe
     for index, row in df.iterrows():
         #get the week of the year
-        week = row['date'].isocalendar()[1]
+        week = row['earliest_date'].isocalendar()[1]
         #increment the count of introductions for that week
         introductions_per_week[week] += 1
     #create a list of the weeks
