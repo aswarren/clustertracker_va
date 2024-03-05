@@ -36,10 +36,14 @@ def get_temporal_distribution(df, save_dir, save_name):
     introductions_per_week = defaultdict(int)
     #loop through each row in the dataframe
     #convert the earliest_date column to a datetime object
+    #get the earliest year in the earliest_date column
+    earliest_year = min(df['earliest_date']).year
     df['earliest_date'] = pd.to_datetime(df['earliest_date'])
     for index, row in df.iterrows():
         #get the week of the year
         week = row['earliest_date'].isocalendar()[1]
+        #add 52 for years past the earliest year
+        week += (row['earliest_date'].year - earliest_year) * 52
         #increment the count of introductions for that week
         introductions_per_week[week] += 1
     #create a list of the weeks
