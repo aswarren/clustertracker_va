@@ -206,12 +206,14 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     z_score_intro = {}
     z_score_pop = {}
     z_score_samples = {}
+    z_score_ratio2 = {} #introductions per sample
     for county, ratio in ratios.items():
         county_pop=state_df[state_df['COUNTY'] == fips]['POPESTIMATE2020'].values[0]
         z_scores[county] = (ratio - mean) / std_dev
         z_score_intro[county] = (introductions[county] - mean_introductions) / std_dev_introductions
         z_score_pop[county] = (county_pops[county] - mean_population) / std_dev_population
         z_score_samples[county] = (total_va_samples_per_region[county] - mean_samples) / std_dev_samples
+        z_score_ratio2[county] = (introductions[county] - mean_introductions) / (total_va_samples_per_region[county] - mean_samples)
 
     #add the introductions to the gdf
     gdf['introductions'] = gdf['name'].map(introductions)
@@ -221,6 +223,7 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     gdf['z_score_pop'] = gdf['name'].map(z_score_pop)
     gdf['z_score_samples'] = gdf['name'].map(z_score_samples)
     gdf['samples'] = gdf['name'].map(total_va_samples_per_region)
+    gdf['z_score_ratio2'] = gdf['name'].map(z_score_ratio2)
 
 
     #create the chloropleth map for z_score_force
@@ -238,6 +241,21 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     #save the chloropleth map
     plt.savefig(save_dir + '/' + save_name + '.png', bbox_inches='tight')
     plt.close()
+
+    #create chloropleth map for z_score_ratio2
+    fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+    #center the map and zoom on VA
+    gdf = gdf.cx[-83.6753:-75.1664, 36.5408:39.4660]
+    gdf.plot(column='z_score_ratio2', cmap='OrRd', linewidth=0.8, ax=ax, edgecolor='k')
+    ax.axis('off')
+    #add a colorbar
+    norm = colors.Normalize(vmin=gdf['z_score_ratio2'].min(), vmax=gdf['z_score_ratio2'].max())
+    cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap='OrRd'), ax=ax, orientation='horizontal', fraction=0.05, pad=0.05)
+    cbar.set_label('Per county Z-score of introductions / samples')
+    #save the chloropleth map
+    plt.savefig(save_dir + '/' + save_name + '_z_score_ratio2.png', bbox_inches='tight')
+    plt.close()
+    
 
     #create the chloropleth map for introductions
     fig, ax = plt.subplots(1, 1, figsize=(10, 10))
@@ -308,7 +326,7 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     #save the chloropleth map
     plt.savefig(save_dir + '/' + save_name + '_samples.png', bbox_inches='tight')
     plt.close()
-    
+
 
 
 
