@@ -242,6 +242,8 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     norm = colors.Normalize(vmin=gdf['z_score_force'].min(), vmax=gdf['z_score_force'].max())
     cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap='OrRd'), ax=ax, orientation='horizontal', fraction=0.05, pad=0.05)
     cbar.set_label('Per county Z-score of introductions / (samples per 100k)')
+    #add title
+    ax.set_title(f"Per county Z-score of introductions / (samples per 100k): using {len(df_selected)} samples")
     #save the chloropleth map
     plt.savefig(save_dir + '/' + save_name + '.png', bbox_inches='tight')
     plt.close()
@@ -256,6 +258,8 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     norm = colors.Normalize(vmin=gdf['z_score_ratio2'].min(), vmax=gdf['z_score_ratio2'].max())
     cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap='OrRd'), ax=ax, orientation='horizontal', fraction=0.05, pad=0.05)
     cbar.set_label('Per county Z-score of introductions / samples')
+    #add title
+    ax.set_title(f"Per county Z-score of introductions / samples: using {len(df_selected)} samples")
     #save the chloropleth map
     plt.savefig(save_dir + '/' + save_name + '_z_score_ratio2.png', bbox_inches='tight')
     plt.close()
@@ -272,7 +276,7 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap='OrRd'), ax=ax, orientation='horizontal', fraction=0.05, pad=0.05)
     cbar.set_label('Number of introductions')
     #add title
-    ax.set_title(f"Introductions: using {df_selected.length} samples")
+    ax.set_title(f"Introductions: using {len(df_selected)} samples")
     #save the chloropleth map
     plt.savefig(save_dir + '/' + save_name + '_introductions.png', bbox_inches='tight')
     plt.close()
@@ -288,7 +292,7 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap='OrRd'), ax=ax, orientation='horizontal', fraction=0.05, pad=0.05)
     cbar.set_label('Per county Z-score of introductions')
     #add title
-    ax.set_title(f"Z-score of introductions: using {df_selected.length} samples")
+    ax.set_title(f"Z-score of introductions: using {len(df_selected)} samples")
     #save the chloropleth map
     plt.savefig(save_dir + '/' + save_name + '_z_score_intro.png', bbox_inches='tight')
     plt.close()
@@ -304,7 +308,7 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap='OrRd'), ax=ax, orientation='horizontal', fraction=0.05, pad=0.05)
     cbar.set_label('Per county Z-score of population')
     #add title
-    ax.set_title(f"Z-score of population: using {df_selected.length} samples")
+    ax.set_title(f"Z-score of population: using {len(df_selected)} samples")
     #save the chloropleth map
     plt.savefig(save_dir + '/' + save_name + '_z_score_pop.png', bbox_inches='tight')
     plt.close()
@@ -320,7 +324,7 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap='OrRd'), ax=ax, orientation='horizontal', fraction=0.05, pad=0.05)
     cbar.set_label('Per county Z-score of samples')
     #add title
-    ax.set_title(f"Z-score of samples: using {df_selected.length} samples")
+    ax.set_title(f"Z-score of samples: using {len(df_selected)} samples")
     #save the chloropleth map
     plt.savefig(save_dir + '/' + save_name + '_z_score_samples.png', bbox_inches='tight')
     plt.close()
@@ -336,7 +340,7 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap='OrRd'), ax=ax, orientation='horizontal', fraction=0.05, pad=0.05)
     cbar.set_label('Number of samples')
     #add title
-    ax.set_title(f"Samples: using {df_selected.length} samples")
+    ax.set_title(f"Samples: using {len(df_selected)} samples")
     #save the chloropleth map
     plt.savefig(save_dir + '/' + save_name + '_samples.png', bbox_inches='tight')
     plt.close()
