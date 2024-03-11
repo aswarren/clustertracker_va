@@ -193,6 +193,8 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     mean_population = np.mean(list(state_df['POPESTIMATE2020'].values))
     std_dev_population = np.std(list(state_df['POPESTIMATE2020'].values))
 
+    print(f"all samples: {total_va_samples} available after processing by clustertracker")
+    print(f"filtered samples: {len(df_selected)}")
     print('mean introductions/samples:', mean_ratio100k)
     print('std. dev introductions/samples:', std_dev_ratio100k)
     print('mean introductions:', mean_introductions)
