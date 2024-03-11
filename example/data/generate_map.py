@@ -167,6 +167,7 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     #using the ratio of introductions to samples calculate the z-score for each county
     ratios = {}
     county_pops={}
+    ratios2 = {}
     for county, num_introd in introductions.items():
         #get the total number of samples from the region
         county_samples = total_va_samples_per_region[county]
@@ -177,11 +178,14 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
         #calculate samples per 100k people
         county_samples_per_100k = (float(county_samples) / float(county_pop)) * 100000
         ratios[county] = float(num_introd) / county_samples_per_100k
+        ratios2[county] = float(num_introd) / county_samples
 
     #print the mean and std. deviation of the populations, samples, and introductions
     #get the mean and std. dev of the ratios
-    mean = np.mean(list(ratios.values()))
-    std_dev = np.std(list(ratios.values()))
+    mean_ratio100k = np.mean(list(ratios.values()))
+    std_dev_ratio100k = np.std(list(ratios.values()))
+    mean_ratio = np.mean(list(ratios2.values()))
+    std_dev_ratio = np.std(list(ratios2.values()))
     mean_introductions = np.mean(list(introductions.values()))
     std_dev_introductions = np.std(list(introductions.values()))
     mean_samples = np.mean(list(total_va_samples_per_region.values))
@@ -189,8 +193,8 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     mean_population = np.mean(list(state_df['POPESTIMATE2020'].values))
     std_dev_population = np.std(list(state_df['POPESTIMATE2020'].values))
 
-    print('mean introductions/samples:', mean)
-    print('std. dev introductions/samples:', std_dev)
+    print('mean introductions/samples:', mean_ratio100k)
+    print('std. dev introductions/samples:', std_dev_ratio100k)
     print('mean introductions:', mean_introductions)
     print('std. dev introductions:', std_dev_introductions)
     print('mean samples:', mean_samples)
@@ -209,11 +213,11 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     z_score_ratio2 = {} #introductions per sample
     for county, ratio in ratios.items():
         county_pop=state_df[state_df['COUNTY'] == fips]['POPESTIMATE2020'].values[0]
-        z_scores[county] = (ratio - mean) / std_dev
+        z_scores[county] = (ratio - mean_ratio100k) / std_dev_ratio100k
         z_score_intro[county] = (introductions[county] - mean_introductions) / std_dev_introductions
         z_score_pop[county] = (county_pops[county] - mean_population) / std_dev_population
         z_score_samples[county] = (total_va_samples_per_region[county] - mean_samples) / std_dev_samples
-        z_score_ratio2[county] = (introductions[county] - mean_introductions) / (total_va_samples_per_region[county] - mean_samples)
+        z_score_ratio2[county] = (ratios2[county] - mean_ratio) / std_dev_ratio
 
     #add the introductions to the gdf
     gdf['introductions'] = gdf['name'].map(introductions)
@@ -255,7 +259,7 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     #save the chloropleth map
     plt.savefig(save_dir + '/' + save_name + '_z_score_ratio2.png', bbox_inches='tight')
     plt.close()
-    
+
 
     #create the chloropleth map for introductions
     fig, ax = plt.subplots(1, 1, figsize=(10, 10))
