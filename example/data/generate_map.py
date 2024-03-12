@@ -22,6 +22,7 @@ from matplotlib import ticker
 from matplotlib import patches
 from matplotlib import colors
 import SALib
+from collections import defaultdict
 
 
 
@@ -31,21 +32,53 @@ import SALib
 
 #function to graph the average temporal distribution of clusters per week per county
 #use earliest_date as the date and region for the county
-def get_temporal_distribution(df, save_dir, save_name):
+def get_temporal_distribution(df, df2, lexicon, save_dir, save_name, cases_df=None):
+
     #create a dictionary of the number of introductions per week per county
-    introductions_per_week = defaultdict(int)
     #loop through each row in the dataframe
     #convert the earliest_date column to a datetime object
     #get the earliest year in the earliest_date column
     df['earliest_date'] = pd.to_datetime(df['earliest_date'])
-    earliest_year = min(df['earliest_date']).year
-    for index, row in df.iterrows():
-        #get the week of the year
-        week = row['earliest_date'].isocalendar()[1]
-        #add 52 for years past the earliest year
-        week += (row['earliest_date'].year - earliest_year) * 52
-        #increment the count of introductions for that week
-        introductions_per_week[week] += 1
+    #create a dictionary of the number of introductions per week per county
+    introductions = defaultdict(int) #stores using county name
+    introductions_per_week = defaultdict(int)
+    
+    earliest_year2 = min(df['earliest_date']).year
+    earliest_year3 = min(df2['date']).year
+    earliest_year = min(earliest_year2, earliest_year3)
+    cases_on = cases_df is not None
+    if cases_on:
+        earliest_date1 = min(cases_df['report_date'])
+        earliest_year = min(earliest_date1.year, earliest_year)
+        #loop through each row in the cases_df to setup the week
+        cases_df['week'] = cases_df['report_date'].apply(lambda x: (x.isocalendar()[1] + (x.year - earliest_year) * 52))
+        #group by week and region and take the max of total_cases
+        cases_county_week_df = cases_df.groupby(['week', 'locality']).max('total_cases').reset_index()
+        #get the case count per week by subtracting from the previous week
+        cases_county_week_df['case_count'] = cases_county_week_df.groupby('locality')['total_cases'].diff().fillna(cases_county_week_df['total_cases'])
+
+    df['week'] = df['earliest_date'].apply(lambda x: (x.isocalendar()[1] + (x.year - earliest_year) * 52))
+    df2['week'] = df2['date'].apply(lambda x: (x.isocalendar()[1] + (x.year - earliest_year2) * 52))
+    #table with week, region, count
+    introductions_county_week_df = df.groupby(['week', 'region']).size().reset_index(name='intro_count')
+    samples_county_week_df = df2.groupby(['week', 'region']).size().reset_index(name='sample_count')
+    #use the lexicon to add fips to the introductions_county_week_df
+    introductions_county_week_df['fips'] = introductions_county_week_df['region'].map(lexicon.set_index(0)[1])
+    introductions = df.groupby('region').size().to_dict()
+    introductions_per_week = df.groupby('week').size().to_dict()
+
+    #merge introductions_county_week_df with samples_county_week_df
+    introductions_county_week_df = introductions_county_week_df.merge(samples_county_week_df, on=['week', 'region'], how='left')
+    if cases_on:
+        #merge introductions_county_week_df with cases_county_week_df
+        introductions_county_week_df = introductions_county_week_df.merge(cases_county_week_df, on=['week', 'locality'], how='left')
+        #fill NaN values with 0
+        introductions_county_week_df = introductions_county_week_df.fillna(0)
+        #calculate the ratio of introductions to cases
+        introductions_county_week_df['intro_to_cases'] = introductions_county_week_df['intro_count'].astype(float) / introductions_county_week_df['case_count']
+        #calculate the ratio of introductions to samples/cases
+        introductions_county_week_df['intro_to_coverage'] = introductions_county_week_df['intro_count'].astype(float) \
+            / (introductions_county_week_df['sample_count'].astype(float) / introductions_county_week_df['case_count'])
     #create a list of the weeks
     weeks = list(range(1, int(max(introductions_per_week.keys())) + 1))
     #create a list of the number of introductions per week
@@ -56,13 +89,26 @@ def get_temporal_distribution(df, save_dir, save_name):
     plt.ylabel('Number of introductions')
     plt.title('Temporal distribution of introductions')
     #save figure
-    plt.savefig(save_dir + '/' + save_name + '_temporal_distribution.png', bbox_inches='tight')
+    plt.savefig(save_dir + '/' + save_name + '_introductions_temporal.png', bbox_inches='tight')
+    plt.close()
+    #create plot of the number of samples per week from df2
+    samples_per_week = df2.groupby('week').size().to_dict()
+    #create a list of the number of samples per week
+    num_samples = [samples_per_week[week] for week in weeks]
+    #create a bar plot of the number of samples per week
+    plt.bar(weeks, num_samples)
+    plt.xlabel('Week')
+    plt.ylabel('Number of samples')
+    plt.title('Temporal distribution of samples')
+    #save figure
+    plt.savefig(save_dir + '/' + save_name + '_samples_temporal.png', bbox_inches='tight')
+    plt.close()
+    return introductions, introductions_county_week_df
 
 
 #given the state fips code, return the population of the state by county
 def get_state_pop(state_fips):
     # Read the CSV file from the Census Bureau's website
-    import pandas as pd
     state_fips=51
     df = pd.read_csv("https://www2.census.gov/programs-surveys/popest/datasets/2010-2020/counties/totals/co-est2020-alldata.csv", encoding = "latin-1")
 
@@ -124,13 +170,13 @@ def sobol_sensitivity_analysis(mean_introductions, std_dev_introductions, mean_s
 
 #main function reads in the hardcoded_clusters.tsv file, filters the table down to the lexicon selection in the first column using the region column in the hardcoded_clusters.tsv file
 
-def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
+def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, cases_file=None):
 
     #read in the hardcoded_clusters.tsv file
     df = pd.read_csv(hardcoded, sep='\t', header=0, parse_dates=['earliest_date'])
     df2 = pd.read_csv(clusterswapped, sep='\t', header=0)
     #read in the lexicon file
-    lexicon = pd.read_csv(args.lexicon, sep=',', header=None)
+    lexicon = pd.read_csv(lexicon_file, sep=',', header=None)
     #filter the table down to the lexicon selection in the first column using the region column in the hardcoded_clusters.tsv file
     
     #the lexicon doesn't introduce '_' like apparently the cluster tracker table does
@@ -141,11 +187,23 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     #filter df_selected to those rows that do not have ":VA" as substring in the inferred_origin column
     #this hack for VA will need to be generalized for other regions
     df_selected = df_selected[~df_selected['inferred_origin'].str.contains(':VA')]
+
+    cases_df = None
+    earliest_year = None
+    #get the case data from file if passed 
+    #expected format report_date,fips,locality,vdh_health_district,total_cases,hospitalizations,deaths
+    if cases_file:
+        cases_df = pd.read_csv(cases_file, header=0, parse_dates=['report_date'])
+
+        
+
+
+    
     
     #get state population data from census
     state_df=get_state_pop(51)
 
-    get_temporal_distribution(df_selected, save_dir, save_name)
+    introductions, introductions_county_week_df = get_temporal_distribution(df_selected, lexicon, save_dir, save_name, earliest_year, cases_df)
 
     #using the counties in the region column in df_selected and the counties in the name(s) attribute in a geojson generate a chlopleth map of the number of rows in df_selected per county
     #read in the geojson file
@@ -157,22 +215,24 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     total_va_samples_per_region = df2[df2['region'].fillna('').str.contains(':VA')].groupby('region').size()
 
     gdf = gpd.read_file(args.geojson)
-    #create a dictionary of the number of introductions per county
-    introductions = defaultdict(int)
-    for index, row in df_selected.iterrows():
-        introductions[row['region']] += 1
+    
     
     #get the total number of introductions
     total_introductions = sum(introductions.values())
+   
+
     #using the ratio of introductions to samples calculate the z-score for each county
     ratios = {}
     county_pops={}
     ratios2 = {}
+    
     for county, num_introd in introductions.items():
         #get the total number of samples from the region
         county_samples = total_va_samples_per_region[county]
+        #get the fips code from the lexicon 2nd column and store it in the 
+        fips = int(lexicon[lexicon[0] == county][1].values[0])
         #use the fips code to get the population of the county from the state_df
-        fips = int(gdf[gdf['name'] == county]['countyfp'].values[0])
+        #fips = int(gdf[gdf['name'] == county]['countyfp'].values[0])
         county_pop = state_df[state_df['COUNTY'] == fips]['POPESTIMATE2020'].values[0]
         county_pops[county]=county_pop
         #calculate samples per 100k people
@@ -230,6 +290,35 @@ def main(hardcoded, clusterswapped, lexicon, geojson, save_dir, save_name):
     gdf['z_score_samples'] = gdf['name'].map(z_score_samples)
     gdf['samples'] = gdf['name'].map(total_va_samples_per_region)
     gdf['z_score_ratio2'] = gdf['name'].map(z_score_ratio2)
+
+
+    #if cases_file is not None, use the introductions_county_week_df to create a chloropleth map of the z-score of ratio of introduction to cases
+    if cases_file:
+        #calculate the mean and std. dev of the introductions to cases
+        mean_intro_to_cases = np.mean(introductions_county_week_df['intro_to_cases'])
+        std_dev_intro_to_cases = np.std(introductions_county_week_df['intro_to_cases'])
+        #calculate the z-score for each county
+        z_score_intro_to_cases = {}
+        county_mean_intro_to_cases = introductions_county_week_df.groupby('region').mean('intro_to_cases').to_dict()
+        for county, cur_mean in county_mean_intro_to_cases.items():
+            z_score_intro_to_cases[county] = (cur_mean - mean_intro_to_cases) / std_dev_intro_to_cases
+        #add the z-scores to the gdf
+        gdf['intro_to_cases'] = gdf['name'].map(z_score_intro_to_cases)
+        #create the chloropleth map for z_score_intro
+        fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+        #center the map and zoom on VA
+        gdf = gdf.cx[-83.6753:-75.1664, 36.5408:39.4660]
+        gdf.plot(column='intro_to_cases', cmap='OrRd', linewidth=0.8, ax=ax, edgecolor='k')
+        ax.axis('off')
+        #add a colorbar
+        norm = colors.Normalize(vmin=gdf['intro_to_cases'].min(), vmax=gdf['intro_to_cases'].max())
+        cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap='OrRd'), ax=ax, orientation='horizontal', fraction=0.05, pad=0.05)
+        cbar.set_label('Per county Z-score of introductions / cases')
+        #add title
+        ax.set_title(f"Z-score of introductions / cases: using {len(df_selected)} samples")
+        #save the chloropleth map
+        plt.savefig(save_dir + '/' + save_name + '_z_score_intro_to_cases.png', bbox_inches='tight')
+        plt.close()
 
 
     #create the chloropleth map for z_score_force
@@ -357,7 +446,8 @@ if __name__ == "__main__":
     parser.add_argument("-l", "--lexicon", help="The input lexicon file", required=True)
     parser.add_argument("-d", "--save_dir", help="The output directory", required=True)
     parser.add_argument("-n", "--save_name", help="The output name", required=True)
+    parser.add_argument("-c", "--cases", default=None, help="The input cases file", required=False)
     #option for the geojson to use for the chloropleth map
     parser.add_argument("-g", "--geojson", help="The input geojson file", required=True)
     args = parser.parse_args()
-    main(args.input, args.input2, args.lexicon, args.geojson, args.save_dir, args.save_name)
+    main(args.input, args.input2, args.lexicon, args.geojson, args.save_dir, args.save_name, cases_file=args.cases)
