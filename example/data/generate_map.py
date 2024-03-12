@@ -39,6 +39,7 @@ def get_temporal_distribution(df, df2, lexicon, save_dir, save_name, cases_df=No
     #convert the earliest_date column to a datetime object
     #get the earliest year in the earliest_date column
     df['earliest_date'] = pd.to_datetime(df['earliest_date'])
+    df2['date'] = pd.to_datetime(df2['date'])
     #create a dictionary of the number of introductions per week per county
     introductions = defaultdict(int) #stores using county name
     introductions_per_week = defaultdict(int)
@@ -174,7 +175,7 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
 
     #read in the hardcoded_clusters.tsv file
     df = pd.read_csv(hardcoded, sep='\t', header=0, parse_dates=['earliest_date'])
-    df2 = pd.read_csv(clusterswapped, sep='\t', header=0)
+    df2 = pd.read_csv(clusterswapped, sep='\t', header=0, parse_dates=['date'])
     #read in the lexicon file
     lexicon = pd.read_csv(lexicon_file, sep=',', header=None)
     #filter the table down to the lexicon selection in the first column using the region column in the hardcoded_clusters.tsv file
@@ -194,6 +195,7 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
     #expected format report_date,fips,locality,vdh_health_district,total_cases,hospitalizations,deaths
     if cases_file:
         cases_df = pd.read_csv(cases_file, header=0, parse_dates=['report_date'])
+        cases_df['report_date'] = pd.to_datetime(cases_df['report_date'])
 
         
 
@@ -203,7 +205,7 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
     #get state population data from census
     state_df=get_state_pop(51)
 
-    introductions, introductions_county_week_df = get_temporal_distribution(df_selected, lexicon, save_dir, save_name, earliest_year, cases_df)
+    introductions, introductions_county_week_df = get_temporal_distribution(df_selected, df2, lexicon, save_dir, save_name, cases_df)
 
     #using the counties in the region column in df_selected and the counties in the name(s) attribute in a geojson generate a chlopleth map of the number of rows in df_selected per county
     #read in the geojson file
