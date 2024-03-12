@@ -64,7 +64,7 @@ def get_temporal_distribution(df, df2, lexicon, save_dir, save_name, cases_df=No
     introductions_county_week_df = df.groupby(['week', 'region']).size().reset_index(name='intro_count')
     samples_county_week_df = df2.groupby(['week', 'region']).size().reset_index(name='sample_count')
     #use the lexicon to add fips to the introductions_county_week_df
-    introductions_county_week_df['fips'] = introductions_county_week_df['region'].map(lexicon.set_index(0)[1])
+    introductions_county_week_df['fips'] = introductions_county_week_df['region'].map(lexicon.set_index('map_code')['fips'])
     introductions = df.groupby('region').size().to_dict()
     introductions_per_week = df.groupby('week').size().to_dict()
 
@@ -72,7 +72,7 @@ def get_temporal_distribution(df, df2, lexicon, save_dir, save_name, cases_df=No
     introductions_county_week_df = introductions_county_week_df.merge(samples_county_week_df, on=['week', 'region'], how='left')
     if cases_on:
         #merge introductions_county_week_df with cases_county_week_df
-        introductions_county_week_df = introductions_county_week_df.merge(cases_county_week_df, on=['week', 'locality'], how='left')
+        introductions_county_week_df = introductions_county_week_df.merge(cases_county_week_df, on=['week', 'fips'], how='left')
         #fill NaN values with 0
         introductions_county_week_df = introductions_county_week_df.fillna(0)
         #calculate the ratio of introductions to cases
@@ -83,7 +83,7 @@ def get_temporal_distribution(df, df2, lexicon, save_dir, save_name, cases_df=No
     #create a list of the weeks
     weeks = list(range(1, int(max(introductions_per_week.keys())) + 1))
     #create a list of the number of introductions per week
-    num_introductions = [introductions_per_week[week] for week in weeks]
+    num_introductions = [introductions_per_week.get(week,0) for week in weeks]
     #create a bar plot of the number of introductions per week
     plt.bar(weeks, num_introductions)
     plt.xlabel('Week')
@@ -95,7 +95,7 @@ def get_temporal_distribution(df, df2, lexicon, save_dir, save_name, cases_df=No
     #create plot of the number of samples per week from df2
     samples_per_week = df2.groupby('week').size().to_dict()
     #create a list of the number of samples per week
-    num_samples = [samples_per_week[week] for week in weeks]
+    num_samples = [samples_per_week.get(week,0) for week in weeks]
     #create a bar plot of the number of samples per week
     plt.bar(weeks, num_samples)
     plt.xlabel('Week')
@@ -116,6 +116,7 @@ def get_state_pop(state_fips):
     # Filter the data by the FIPS code (column name: STATE and COUNTY)
     # For example, to get the population size for the state of VA (FIPS code: 51)
     state_df = df[df["STATE"] == int(state_fips)]
+    state_df["COUNTYFIPS"]= state_df['STATE'].astype(str).str.zfill(2) + state_df['COUNTY'].astype(str).str.zfill(3)
 
     # Extract the population size (column name: POPESTIMATE2020) and the county name (column name: CTYNAME) for each county
     #state_pop = va_df[["POPESTIMATE2020", "CTYNAME"]]
@@ -176,12 +177,18 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
     #read in the hardcoded_clusters.tsv file
     df = pd.read_csv(hardcoded, sep='\t', header=0, parse_dates=['earliest_date'])
     df2 = pd.read_csv(clusterswapped, sep='\t', header=0, parse_dates=['date'])
+    df2=df2[df2['region'].fillna('').str.contains(':VA')]
     #read in the lexicon file
     lexicon = pd.read_csv(lexicon_file, sep=',', header=None)
+    lexicon.columns=["map_code","fips","name"]
+    if len(lexicon[lexicon.duplicated('map_code', keep=False)]) > 0:
+        print(f"warning duplicates in the map lexicon {lexicon[lexicon.duplicated('map_code', keep=False)]}")
+        #drop duplicates according to the first column
+        lexicon = lexicon.drop_duplicates(subset='map_code')
     #filter the table down to the lexicon selection in the first column using the region column in the hardcoded_clusters.tsv file
     
     #the lexicon doesn't introduce '_' like apparently the cluster tracker table does
-    df_selected = df[df['region'].str.replace('_',' ').isin(lexicon[0])]
+    df_selected = df[df['region'].str.replace('_',' ').isin(lexicon["map_code"])]
 
     df_selected['region'] = df_selected['region'].str.replace('_',' ')
     
@@ -231,10 +238,10 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
     for county, num_introd in introductions.items():
         #get the total number of samples from the region
         county_samples = total_va_samples_per_region[county]
-        #get the fips code from the lexicon 2nd column and store it in the 
-        fips = int(lexicon[lexicon[0] == county][1].values[0])
+        #get the fips code from the lexicon 2nd column and store it in the
+        #fips = str(lexicon[lexicon['map_code'] == county]['fips'].values[0])
         #use the fips code to get the population of the county from the state_df
-        #fips = int(gdf[gdf['name'] == county]['countyfp'].values[0])
+        fips = int(gdf[gdf['name'] == county]['countyfp'].values[0])
         county_pop = state_df[state_df['COUNTY'] == fips]['POPESTIMATE2020'].values[0]
         county_pops[county]=county_pop
         #calculate samples per 100k people
@@ -302,7 +309,7 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
         #calculate the z-score for each county
         z_score_intro_to_cases = {}
         county_mean_intro_to_cases = introductions_county_week_df.groupby('region').mean('intro_to_cases').to_dict()
-        for county, cur_mean in county_mean_intro_to_cases.items():
+        for county, cur_mean in county_mean_intro_to_cases['intro_to_cases'].items():
             z_score_intro_to_cases[county] = (cur_mean - mean_intro_to_cases) / std_dev_intro_to_cases
         #add the z-scores to the gdf
         gdf['intro_to_cases'] = gdf['name'].map(z_score_intro_to_cases)
