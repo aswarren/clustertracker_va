@@ -59,7 +59,7 @@ def get_temporal_distribution(df, df2, lexicon, save_dir, save_name, cases_df=No
         cases_county_week_df['case_count'] = cases_county_week_df.groupby('locality')['total_cases'].diff().fillna(cases_county_week_df['total_cases'])
 
     df['week'] = df['earliest_date'].apply(lambda x: (x.isocalendar()[1] + (x.year - earliest_year) * 52))
-    df2['week'] = df2['date'].apply(lambda x: (x.isocalendar()[1] + (x.year - earliest_year2) * 52))
+    df2['week'] = df2['date'].apply(lambda x: (x.isocalendar()[1] + (x.year - earliest_year) * 52))
     #table with week, region, count
     introductions_county_week_df = df.groupby(['week', 'region']).size().reset_index(name='intro_count')
     samples_county_week_df = df2.groupby(['week', 'region']).size().reset_index(name='sample_count')
@@ -75,11 +75,23 @@ def get_temporal_distribution(df, df2, lexicon, save_dir, save_name, cases_df=No
         introductions_county_week_df = introductions_county_week_df.merge(cases_county_week_df, on=['week', 'fips'], how='left')
         #fill NaN values with 0
         introductions_county_week_df = introductions_county_week_df.fillna(0)
+        if False:
+            #if the case_count is less than the sample count then interpolate the value of the case_count
+            introductions_county_week_df['total_case_count_filled'] = introductions_county_week_df['case_count'].interpolate(method='linear', limit_direction='both')
+            #plot the case_count filled and case_count by week to file
+            introductions_county_week_df.plot(x='week', y=['case_count', 'case_count_filled'], kind='line')
+            plt.xlabel('Week')
+            plt.ylabel('Number of cases')
+            plt.title('Temporal distribution of cases')
+            #save figure
+            plt.savefig(save_dir + '/' + save_name + '_cases_temporal.png', bbox_inches='tight')
+            plt.close()
         #calculate the ratio of introductions to cases
         introductions_county_week_df['intro_to_cases'] = introductions_county_week_df['intro_count'].astype(float) / introductions_county_week_df['case_count']
         #calculate the ratio of introductions to samples/cases
         introductions_county_week_df['intro_to_coverage'] = introductions_county_week_df['intro_count'].astype(float) \
             / (introductions_county_week_df['sample_count'].astype(float) / introductions_county_week_df['case_count'])
+
     #create a list of the weeks
     weeks = list(range(1, int(max(introductions_per_week.keys())) + 1))
     #create a list of the number of introductions per week
@@ -303,6 +315,10 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
 
     #if cases_file is not None, use the introductions_county_week_df to create a chloropleth map of the z-score of ratio of introduction to cases
     if cases_file:
+        #if the case_count is less than the sample count then set case count to sample count in that row
+        introductions_county_week_df['case_count'] = introductions_county_week_df['case_count'].where(introductions_county_week_df['case_count'] > introductions_county_week_df['sample_count'], introductions_county_week_df['sample_count'])
+        #drop any rows with inf value for intro_to_cases
+        introductions_county_week_df = introductions_county_week_df.replace([np.inf, -np.inf], np.nan).dropna(subset=['intro_to_cases'])
         #calculate the mean and std. dev of the introductions to cases
         mean_intro_to_cases = np.mean(introductions_county_week_df['intro_to_cases'])
         std_dev_intro_to_cases = np.std(introductions_county_week_df['intro_to_cases'])
@@ -313,7 +329,7 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
             z_score_intro_to_cases[county] = (cur_mean - mean_intro_to_cases) / std_dev_intro_to_cases
         #add the z-scores to the gdf
         gdf['intro_to_cases'] = gdf['name'].map(z_score_intro_to_cases)
-        #create the chloropleth map for z_score_intro
+        #create the chloropleth map for z_score_intro_to_cases
         fig, ax = plt.subplots(1, 1, figsize=(10, 10))
         #center the map and zoom on VA
         gdf = gdf.cx[-83.6753:-75.1664, 36.5408:39.4660]
@@ -327,6 +343,31 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
         ax.set_title(f"Z-score of introductions / cases: using {len(df_selected)} samples")
         #save the chloropleth map
         plt.savefig(save_dir + '/' + save_name + '_z_score_intro_to_cases.png', bbox_inches='tight')
+        plt.close()
+
+        #calculate the mean and std. dev of the introductions to coverage
+        mean_intro_to_coverage = np.mean(introductions_county_week_df['intro_to_coverage'])
+        std_dev_intro_to_coverage = np.std(introductions_county_week_df['intro_to_coverage'])
+        z_score_intro_to_coverage = {}
+        county_mean_intro_to_coverage = introductions_county_week_df.groupby('region').mean('intro_to_coverage').to_dict()
+        for county, cur_mean in county_mean_intro_to_coverage['intro_to_coverage'].items():
+            z_score_intro_to_coverage[county] = (cur_mean - mean_intro_to_coverage) / std_dev_intro_to_coverage
+        #add the z-scores to the gdf
+        gdf['intro_to_coverage'] = gdf['name'].map(z_score_intro_to_coverage)
+        #create the chloropleth map for z_score_intro_to_coverage
+        fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+        #center the map and zoom on VA
+        gdf = gdf.cx[-83.6753:-75.1664, 36.5408:39.4660]
+        gdf.plot(column='intro_to_coverage', cmap='OrRd', linewidth=0.8, ax=ax, edgecolor='k')
+        ax.axis('off')
+        #add a colorbar
+        norm = colors.Normalize(vmin=gdf['intro_to_coverage'].min(), vmax=gdf['intro_to_coverage'].max())
+        cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap='OrRd'), ax=ax, orientation='horizontal', fraction=0.05, pad=0.05)
+        cbar.set_label('Per county Z-score of introductions / (samples / cases)')
+        #add title
+        ax.set_title(f"Z-score of introductions / (samples / cases): using {len(df_selected)} samples")
+        #save the chloropleth map
+        plt.savefig(save_dir + '/' + save_name + '_z_score_intro_to_coverage.png', bbox_inches='tight')
         plt.close()
 
 
