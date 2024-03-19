@@ -25,8 +25,23 @@ import SALib
 from collections import defaultdict
 
 
+from pango_aliasor.aliasor import Aliasor
+from typing import List, Dict
+#of the variants in base_variants make a dictionary of all the subvariants that point to them
+def make_variant_base_map(base_variants: List[str], recombinant=False) -> Dict[str, str]:
+    namer = Aliasor()
+    namer.enable_expansion()
+    all_rules = namer.partition_focus(base_variants, recombinant=True)
+    lineage_base_map = {k: v for v, ks in all_rules.items() for k in ks}
+    
+    for b in base_variants:
+        if b not in lineage_base_map:
+            lineage_base_map[b] = b
+            
+    return lineage_base_map
 
-
+#major immune escape waves
+major_variants=["BA.2","BA.4","BA.5","XBB.1.5","XBB.1.9","XBB.1.16","BA.2.86"]
 #This program converts hardcoded_clusters.tsv form clustertracker to a generalized EpiHiper seeding
 #it also creates a chloropleth map of the introductions into the state
 
@@ -91,6 +106,7 @@ def get_temporal_distribution(df, df2, lexicon, save_dir, save_name, cases_df=No
         #calculate the ratio of introductions to samples/cases
         introductions_county_week_df['intro_to_coverage'] = introductions_county_week_df['intro_count'].astype(float) \
             / (introductions_county_week_df['sample_count'].astype(float) / introductions_county_week_df['case_count'])
+        
 
     #create a list of the weeks
     weeks = list(range(1, int(max(introductions_per_week.keys())) + 1))
@@ -116,6 +132,37 @@ def get_temporal_distribution(df, df2, lexicon, save_dir, save_name, cases_df=No
     #save figure
     plt.savefig(save_dir + '/' + save_name + '_samples_temporal.png', bbox_inches='tight')
     plt.close()
+
+    #for each variant in variant_alias store the earliest week from the week column in a dictionary
+    variant_weeks = {}
+    for variant in df['variant_alias'].unique():
+        variant_weeks[variant] = df[df['variant_alias'] == variant]['week'].min()
+    #create a variant_week column in df that subtracts the variant_weeks[variant] from the week column according to the variant_alias
+    df['variant_week'] = df.apply(lambda x: x['week'] - variant_weeks[x['variant_alias']], axis=1)
+    #create a dictionary from df that stores the number of introductions per variant per week
+    variant_introductions = df.groupby(['variant_alias', 'variant_week']).size().to_dict()
+    #get the total number of samples for each week from df2
+    total_samples_per_week = df2.groupby('week').size().to_dict()
+    #create a line graph that shows the number of introductions per variant per week
+    for variant in df['variant_alias'].unique():
+        #create a list of the weeks
+        cur_weeks = list(df[df['variant_alias'] == variant]['week'])
+        #get list of variant_week values from df for values in cur_week
+        var_weeks= list(df[df['variant_alias'] == variant]['variant_week'])
+        #create a list of the number of introductions per week
+        num_introductions = [variant_introductions.get((variant, week),0)/float(total_samples_per_week[week]) for week in cur_weeks]
+        
+        #create a line plot of the number of introductions per week
+        plt.plot(var_weeks, num_introductions, label=variant)
+    plt.xlabel('Week')
+    plt.ylabel('Number of introductions')
+    plt.title('Temporal distribution of introductions by variant')
+    plt.legend()
+    #save figure
+    plt.savefig(save_dir + '/' + save_name + '_introductions_temporal_variant.png', bbox_inches='tight')
+    plt.close()
+
+
     return introductions, introductions_county_week_df
 
 
@@ -184,7 +231,12 @@ def sobol_sensitivity_analysis(mean_introductions, std_dev_introductions, mean_s
 
 #main function reads in the hardcoded_clusters.tsv file, filters the table down to the lexicon selection in the first column using the region column in the hardcoded_clusters.tsv file
 
-def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, cases_file=None):
+def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, alias_list, cases_file=None):
+
+    #enable the renaming of variants to a controlled list
+    alias_map = make_variant_base_map(alias_list)
+    namer = Aliasor()
+    namer.enable_expansion()
 
     #read in the hardcoded_clusters.tsv file
     df = pd.read_csv(hardcoded, sep='\t', header=0, parse_dates=['earliest_date'])
@@ -203,6 +255,7 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
     df_selected = df[df['region'].str.replace('_',' ').isin(lexicon["map_code"])]
 
     df_selected['region'] = df_selected['region'].str.replace('_',' ')
+    df_selected['variant_alias'] = df_selected['annotation2'].map(alias_map)
     
     #filter df_selected to those rows that do not have ":VA" as substring in the inferred_origin column
     #this hack for VA will need to be generalized for other regions
@@ -465,7 +518,7 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
     cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap='OrRd'), ax=ax, orientation='horizontal', fraction=0.05, pad=0.05)
     cbar.set_label('Per county Z-score of samples')
     #add title
-    ax.set_title(f"Z-score of samples: using {len(df_selected)} samples")
+    ax.set_title(f"Z-score of samples: using {total_va_samples} samples")
     #save the chloropleth map
     plt.savefig(save_dir + '/' + save_name + '_z_score_samples.png', bbox_inches='tight')
     plt.close()
@@ -481,7 +534,7 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
     cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap='OrRd'), ax=ax, orientation='horizontal', fraction=0.05, pad=0.05)
     cbar.set_label('Number of samples')
     #add title
-    ax.set_title(f"Samples: using {len(df_selected)} samples")
+    ax.set_title(f"Samples: using {total_va_samples} samples")
     #save the chloropleth map
     plt.savefig(save_dir + '/' + save_name + '_samples.png', bbox_inches='tight')
     plt.close()
@@ -500,4 +553,4 @@ if __name__ == "__main__":
     #option for the geojson to use for the chloropleth map
     parser.add_argument("-g", "--geojson", help="The input geojson file", required=True)
     args = parser.parse_args()
-    main(args.input, args.input2, args.lexicon, args.geojson, args.save_dir, args.save_name, cases_file=args.cases)
+    main(args.input, args.input2, args.lexicon, args.geojson, args.save_dir, args.save_name, major_variants, cases_file=args.cases)
