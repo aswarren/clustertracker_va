@@ -1,133 +1,133 @@
-Salem:VA,51775,Salem city
-Montgomery:VA,51121,Montgomery County
-Poquoson:VA,51735,Poquoson city
-James City:VA,51095,James City County
-Stafford:VA,51179,Stafford County
-Surry:VA,51181,Surry County
-Hanover:VA,51085,Hanover County
-Russell:VA,51167,Russell County
-Henry:VA,51089,Henry County
-Alexandria:VA,51510,Alexandria city
-Charlottesville:VA,51540,Charlottesville city
-King and Queen:VA,51097,King and Queen County
-Waynesboro:VA,51820,Waynesboro city
-Floyd:VA,51063,Floyd County
-Middlesex:VA,51119,Middlesex County
-Rappahannock:VA,51157,Rappahannock County
-Amherst:VA,51009,Amherst County
-Essex:VA,51057,Essex County
-Buchanan:VA,51027,Buchanan County
-Emporia:VA,51595,Emporia city
-Covington:VA,51580,Covington city
-Alleghany:VA,51005,Alleghany County
-Northumberland:VA,51133,Northumberland County
-Craig:VA,51045,Craig County
-Buckingham:VA,51029,Buckingham County
-Gloucester:VA,51073,Gloucester County
-Richmond:VA,51760,Richmond city
-Powhatan:VA,51145,Powhatan County
-Falls Church:VA,51610,Falls Church city
-Goochland:VA,51075,Goochland County
-Orange:VA,51137,Orange County
-Greene:VA,51079,Greene County
-Patrick:VA,51141,Patrick County
-King William:VA,51101,King William County
-Madison:VA,51113,Madison County
-Lunenburg:VA,51111,Lunenburg County
-Roanoke:VA,51770,Roanoke city
-Chesapeake:VA,51550,Chesapeake city
-Charlotte:VA,51037,Charlotte County
-Isle of Wight:VA,51093,Isle of Wight County
-Fauquier:VA,51061,Fauquier County
-Radford:VA,51750,Radford city
-Fairfax:VA,51600,Fairfax city
-Henrico:VA,51087,Henrico County
-Franklin:VA,51620,Franklin city
-Harrisonburg:VA,51660,Harrisonburg city
-Buena Vista:VA,51530,Buena Vista city
-Franklin:VA,51067,Franklin County
-Pittsylvania:VA,51143,Pittsylvania County
-New Kent:VA,51127,New Kent County
-Bedford:VA,51019,Bedford County
-Grayson:VA,51077,Grayson County
-Giles:VA,51071,Giles County
-Wythe:VA,51197,Wythe County
-Prince William:VA,51153,Prince William County
-Scott:VA,51169,Scott County
-Charles City:VA,51036,Charles City County
-Newport News:VA,51700,Newport News city
-Manassas Park:VA,51685,Manassas Park city
-Arlington:VA,51013,Arlington County
-Carroll:VA,51035,Carroll County
-Bath:VA,51017,Bath County
-Winchester:VA,51840,Winchester city
-Sussex:VA,51183,Sussex County
-Cumberland:VA,51049,Cumberland County
-Smyth:VA,51173,Smyth County
-Washington:VA,51191,Washington County
-Roanoke:VA,51161,Roanoke County
-Augusta:VA,51015,Augusta County
-Hopewell:VA,51670,Hopewell city
-Halifax:VA,51083,Halifax County
-Danville:VA,51590,Danville city
-Shenandoah:VA,51171,Shenandoah County
-Portsmouth:VA,51740,Portsmouth city
-Lexington:VA,51678,Lexington city
-Accomack:VA,51001,Accomack County
-Albemarle:VA,51003,Albemarle County
-Clarke:VA,51043,Clarke County
-Pulaski:VA,51155,Pulaski County
-Greensville:VA,51081,Greensville County
-Dinwiddie:VA,51053,Dinwiddie County
-Norfolk:VA,51710,Norfolk city
-Dickenson:VA,51051,Dickenson County
-Amelia:VA,51007,Amelia County
-Bristol:VA,51520,Bristol city
-Norton:VA,51720,Norton city
-Staunton:VA,51790,Staunton city
-Botetourt:VA,51023,Botetourt County
-Williamsburg:VA,51830,Williamsburg city
-Page:VA,51139,Page County
-Westmoreland:VA,51193,Westmoreland County
-Rockbridge:VA,51163,Rockbridge County
-Nelson:VA,51125,Nelson County
-Nottoway:VA,51135,Nottoway County
-Martinsville:VA,51690,Martinsville city
-Appomattox:VA,51011,Appomattox County
-Fluvanna:VA,51065,Fluvanna County
-Wise:VA,51195,Wise County
-Fredericksburg:VA,51630,Fredericksburg city
-Mathews:VA,51115,Mathews County
-King George:VA,51099,King George County
-Prince Edward:VA,51147,Prince Edward County
-Galax:VA,51640,Galax city
-Campbell:VA,51031,Campbell County
-Louisa:VA,51109,Louisa County
-Lynchburg:VA,51680,Lynchburg city
-Bland:VA,51021,Bland County
-Petersburg:VA,51730,Petersburg city
-Southampton:VA,51175,Southampton County
-Suffolk:VA,51800,Suffolk city
-Fairfax:VA,51059,Fairfax County
-Tazewell:VA,51185,Tazewell County
-Lee:VA,51105,Lee County
-Loudoun:VA,51107,Loudoun County
-York:VA,51199,York County
-Culpeper:VA,51047,Culpeper County
-Rockingham:VA,51165,Rockingham County
-Warren:VA,51187,Warren County
-Manassas:VA,51683,Manassas city
-Highland:VA,51091,Highland County
-Spotsylvania:VA,51177,Spotsylvania County
-Northampton:VA,51131,Northampton County
-Chesterfield:VA,51041,Chesterfield County
-Brunswick:VA,51025,Brunswick County
-Prince George:VA,51149,Prince George County
-Hampton:VA,51650,Hampton city
-Frederick:VA,51069,Frederick County
-Caroline:VA,51033,Caroline County
-Colonial Heights:VA,51570,Colonial Heights city
-Virginia Beach:VA,51810,Virginia Beach city
-Lancaster:VA,51103,Lancaster County
-Richmond:VA,51159,Richmond County
-Mecklenburg:VA,51117,Mecklenburg County
+Salem city:VA,51775,Salem city
+Montgomery County:VA,51121,Montgomery County
+Poquoson city:VA,51735,Poquoson city
+James City County:VA,51095,James City County
+Stafford County:VA,51179,Stafford County
+Surry County:VA,51181,Surry County
+Hanover County:VA,51085,Hanover County
+Russell County:VA,51167,Russell County
+Henry County:VA,51089,Henry County
+Alexandria city:VA,51510,Alexandria city
+Charlottesville city:VA,51540,Charlottesville city
+King and Queen County:VA,51097,King and Queen County
+Waynesboro city:VA,51820,Waynesboro city
+Floyd County:VA,51063,Floyd County
+Middlesex County:VA,51119,Middlesex County
+Rappahannock County:VA,51157,Rappahannock County
+Amherst County:VA,51009,Amherst County
+Essex County:VA,51057,Essex County
+Buchanan County:VA,51027,Buchanan County
+Emporia city:VA,51595,Emporia city
+Covington city:VA,51580,Covington city
+Alleghany County:VA,51005,Alleghany County
+Northumberland County:VA,51133,Northumberland County
+Craig County:VA,51045,Craig County
+Buckingham County:VA,51029,Buckingham County
+Gloucester County:VA,51073,Gloucester County
+Richmond city:VA,51760,Richmond city
+Powhatan County:VA,51145,Powhatan County
+Falls Church city:VA,51610,Falls Church city
+Goochland County:VA,51075,Goochland County
+Orange County:VA,51137,Orange County
+Greene County:VA,51079,Greene County
+Patrick County:VA,51141,Patrick County
+King William County:VA,51101,King William County
+Madison County:VA,51113,Madison County
+Lunenburg County:VA,51111,Lunenburg County
+Roanoke city:VA,51770,Roanoke city
+Chesapeake city:VA,51550,Chesapeake city
+Charlotte County:VA,51037,Charlotte County
+Isle of Wight County:VA,51093,Isle of Wight County
+Fauquier County:VA,51061,Fauquier County
+Radford city:VA,51750,Radford city
+Fairfax city:VA,51600,Fairfax city
+Henrico County:VA,51087,Henrico County
+Franklin city:VA,51620,Franklin city
+Harrisonburg city:VA,51660,Harrisonburg city
+Buena Vista city:VA,51530,Buena Vista city
+Franklin County:VA,51067,Franklin County
+Pittsylvania County:VA,51143,Pittsylvania County
+New Kent County:VA,51127,New Kent County
+Bedford County:VA,51019,Bedford County
+Grayson County:VA,51077,Grayson County
+Giles County:VA,51071,Giles County
+Wythe County:VA,51197,Wythe County
+Prince William County:VA,51153,Prince William County
+Scott County:VA,51169,Scott County
+Charles City County:VA,51036,Charles City County
+Newport News city:VA,51700,Newport News city
+Manassas Park city:VA,51685,Manassas Park city
+Arlington County:VA,51013,Arlington County
+Carroll County:VA,51035,Carroll County
+Bath County:VA,51017,Bath County
+Winchester city:VA,51840,Winchester city
+Sussex County:VA,51183,Sussex County
+Cumberland County:VA,51049,Cumberland County
+Smyth County:VA,51173,Smyth County
+Washington County:VA,51191,Washington County
+Roanoke County:VA,51161,Roanoke County
+Augusta County:VA,51015,Augusta County
+Hopewell city:VA,51670,Hopewell city
+Halifax County:VA,51083,Halifax County
+Danville city:VA,51590,Danville city
+Shenandoah County:VA,51171,Shenandoah County
+Portsmouth city:VA,51740,Portsmouth city
+Lexington city:VA,51678,Lexington city
+Accomack County:VA,51001,Accomack County
+Albemarle County:VA,51003,Albemarle County
+Clarke County:VA,51043,Clarke County
+Pulaski County:VA,51155,Pulaski County
+Greensville County:VA,51081,Greensville County
+Dinwiddie County:VA,51053,Dinwiddie County
+Norfolk city:VA,51710,Norfolk city
+Dickenson County:VA,51051,Dickenson County
+Amelia County:VA,51007,Amelia County
+Bristol city:VA,51520,Bristol city
+Norton city:VA,51720,Norton city
+Staunton city:VA,51790,Staunton city
+Botetourt County:VA,51023,Botetourt County
+Williamsburg city:VA,51830,Williamsburg city
+Page County:VA,51139,Page County
+Westmoreland County:VA,51193,Westmoreland County
+Rockbridge County:VA,51163,Rockbridge County
+Nelson County:VA,51125,Nelson County
+Nottoway County:VA,51135,Nottoway County
+Martinsville city:VA,51690,Martinsville city
+Appomattox County:VA,51011,Appomattox County
+Fluvanna County:VA,51065,Fluvanna County
+Wise County:VA,51195,Wise County
+Fredericksburg city:VA,51630,Fredericksburg city
+Mathews County:VA,51115,Mathews County
+King George County:VA,51099,King George County
+Prince Edward County:VA,51147,Prince Edward County
+Galax city:VA,51640,Galax city
+Campbell County:VA,51031,Campbell County
+Louisa County:VA,51109,Louisa County
+Lynchburg city:VA,51680,Lynchburg city
+Bland County:VA,51021,Bland County
+Petersburg city:VA,51730,Petersburg city
+Southampton County:VA,51175,Southampton County
+Suffolk city:VA,51800,Suffolk city
+Fairfax County:VA,51059,Fairfax County
+Tazewell County:VA,51185,Tazewell County
+Lee County:VA,51105,Lee County
+Loudoun County:VA,51107,Loudoun County
+York County:VA,51199,York County
+Culpeper County:VA,51047,Culpeper County
+Rockingham County:VA,51165,Rockingham County
+Warren County:VA,51187,Warren County
+Manassas city:VA,51683,Manassas city
+Highland County:VA,51091,Highland County
+Spotsylvania County:VA,51177,Spotsylvania County
+Northampton County:VA,51131,Northampton County
+Chesterfield County:VA,51041,Chesterfield County
+Brunswick County:VA,51025,Brunswick County
+Prince George County:VA,51149,Prince George County
+Hampton city:VA,51650,Hampton city
+Frederick County:VA,51069,Frederick County
+Caroline County:VA,51033,Caroline County
+Colonial Heights city:VA,51570,Colonial Heights city
+Virginia Beach city:VA,51810,Virginia Beach city
+Lancaster County:VA,51103,Lancaster County
+Richmond County:VA,51159,Richmond County
+Mecklenburg County:VA,51117,Mecklenburg County

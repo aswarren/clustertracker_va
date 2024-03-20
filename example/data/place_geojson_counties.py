@@ -40,7 +40,7 @@ for feature in state['features']:
     us_id += 1
     feature['id'] = us_id
     #swap the name and namelsad attributes so that county name is the primary alias
-    #feature['properties']['name'], feature['properties']['namelsad'] = feature['properties']['namelsad'], feature['properties']['name']
+    feature['properties']['name'], feature['properties']['alias'] = feature['properties']['namelsad'], feature['properties']['name']
     #append :VA to the end of the name
     feature['properties']['name'] = feature['properties']['name'] + ':VA'
     us_map['features'].append(feature)
