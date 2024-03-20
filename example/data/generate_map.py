@@ -31,7 +31,7 @@ from typing import List, Dict
 def make_variant_base_map(base_variants: List[str], recombinant=False) -> Dict[str, str]:
     namer = Aliasor()
     namer.enable_expansion()
-    all_rules = namer.partition_focus(base_variants, recombinant=True)
+    all_rules = namer.partition_focus(base_variants, recombinant=recombinant)
     lineage_base_map = {k: v for v, ks in all_rules.items() for k in ks}
     
     for b in base_variants:
@@ -53,8 +53,6 @@ def get_temporal_distribution(df, df2, lexicon, save_dir, save_name, cases_df=No
     #loop through each row in the dataframe
     #convert the earliest_date column to a datetime object
     #get the earliest year in the earliest_date column
-    df['earliest_date'] = pd.to_datetime(df['earliest_date'])
-    df2['date'] = pd.to_datetime(df2['date'])
     #create a dictionary of the number of introductions per week per county
     introductions = defaultdict(int) #stores using county name
     introductions_per_week = defaultdict(int)
@@ -140,18 +138,19 @@ def get_temporal_distribution(df, df2, lexicon, save_dir, save_name, cases_df=No
     #create a variant_week column in df that subtracts the variant_weeks[variant] from the week column according to the variant_alias
     df['variant_week'] = df.apply(lambda x: x['week'] - variant_weeks[x['variant_alias']], axis=1)
     #create a dictionary from df that stores the number of introductions per variant per week
-    variant_introductions = df.groupby(['variant_alias', 'variant_week']).size().to_dict()
+    variant_introductions = df.groupby(['variant_alias', 'week']).size().to_dict()
     #get the total number of samples for each week from df2
     total_samples_per_week = df2.groupby('week').size().to_dict()
+    #sort df by week
+    df = df.sort_values(by='week')
     #create a line graph that shows the number of introductions per variant per week
-    for variant in df['variant_alias'].unique():
+    for variant in df['variant_alias'].dropna().unique():
         #create a list of the weeks
         cur_weeks = list(df[df['variant_alias'] == variant]['week'])
         #get list of variant_week values from df for values in cur_week
         var_weeks= list(df[df['variant_alias'] == variant]['variant_week'])
         #create a list of the number of introductions per week
-        num_introductions = [variant_introductions.get((variant, week),0)/float(total_samples_per_week[week]) for week in cur_weeks]
-        
+        num_introductions = [variant_introductions.get((variant, week),0)/float(total_samples_per_week[week]) for week in cur_weeks]        
         #create a line plot of the number of introductions per week
         plt.plot(var_weeks, num_introductions, label=variant)
     plt.xlabel('Week')
@@ -242,6 +241,26 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
     df = pd.read_csv(hardcoded, sep='\t', header=0, parse_dates=['earliest_date'])
     df2 = pd.read_csv(clusterswapped, sep='\t', header=0, parse_dates=['date'])
     df2=df2[df2['region'].fillna('').str.contains(':VA')]
+    df2['date'] = pd.to_datetime(df2['date'])
+    #drop the time from the date column
+    df2['date'] = df2['date'].dt.date
+
+    #date issues. augment with Date from strain column (ID)
+    #create id_date column by splitting the strain column by "|" and taking the last element
+    df2['id_date'] = df2['strain'].apply(lambda x: x.split('|')[-1])
+    #set values of "no-valid-date" to NaT
+    df2.loc[df2['id_date'] == 'no-valid-date', 'id_date'] = pd.NaT
+    df2['id_date'] = pd.to_datetime(df2['id_date'],format='%Y-%m-%d', errors='coerce')
+    #set values that don't have full date to nan
+    df2.loc[~df2['id_date'].dt.year.isna() & df2['id_date'].dt.month.isna() & df2['id_date'].dt.day.isna(), 'id_date'] = pd.NaT
+    #print summary statistics for counts of how many times date differs from id_date per sequencing_lab, ignore NaT
+    print(df2[~df2['date'].isna() & ~df2['id_date'].isna()].groupby('sequencing_lab').apply(lambda x: x[x['date'] != x['id_date']].shape[0]))
+    #print one example of the difference for each lab, include only the sequencing_lab, strain, and date columns
+    print(df2[~df2['date'].isna() & ~df2['id_date'].isna()].groupby('sequencing_lab').apply(lambda x: x[x['date'] != x['id_date']][['sequencing_lab', 'strain', 'date', 'id_date']].head(1)))
+    #where id_date is not NaT use id_date as the date
+    df2['date'] = df2['id_date'].fillna(df2['date']) 
+    
+    
     #read in the lexicon file
     lexicon = pd.read_csv(lexicon_file, sep=',', header=None)
     lexicon.columns=["map_code","fips","name"]
@@ -253,13 +272,14 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
     
     #the lexicon doesn't introduce '_' like apparently the cluster tracker table does
     df_selected = df[df['region'].str.replace('_',' ').isin(lexicon["map_code"])]
-
     df_selected['region'] = df_selected['region'].str.replace('_',' ')
-    df_selected['variant_alias'] = df_selected['annotation2'].map(alias_map)
+    df_selected['variant_alias'] = df_selected['annotation_2'].map(alias_map)
     
     #filter df_selected to those rows that do not have ":VA" as substring in the inferred_origin column
     #this hack for VA will need to be generalized for other regions
     df_selected = df_selected[~df_selected['inferred_origin'].str.contains(':VA')]
+    df_selected['earliest_date'] = pd.to_datetime(df_selected['earliest_date'])
+
 
     cases_df = None
     earliest_year = None
