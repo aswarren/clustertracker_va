@@ -47,7 +47,7 @@ major_variants=["BA.2","BA.4","BA.5","XBB.1.5","XBB.1.9","XBB.1.16","BA.2.86"]
 
 #function to graph the average temporal distribution of clusters per week per county
 #use earliest_date as the date and region for the county
-def get_temporal_distribution(df, df2, lexicon, save_dir, save_name, cases_df=None):
+def get_temporal_distribution(df, df2, lexicon, save_dir, save_name, cases_df=None, state_df=None):
 
     #create a dictionary of the number of introductions per week per county
     #loop through each row in the dataframe
@@ -78,6 +78,8 @@ def get_temporal_distribution(df, df2, lexicon, save_dir, save_name, cases_df=No
     samples_county_week_df = df2.groupby(['week', 'region']).size().reset_index(name='sample_count')
     #use the lexicon to add fips to the introductions_county_week_df
     introductions_county_week_df['fips'] = introductions_county_week_df['region'].map(lexicon.set_index('map_code')['fips'])
+    #add the population to the dataframe
+    introductions_county_week_df['population'] = introductions_county_week_df['fips'].astype(str).map(state_df.set_index('COUNTYFIPS')['POPESTIMATE2020'])
     introductions = df.groupby('region').size().to_dict()
     introductions_per_week = df.groupby('week').size().to_dict()
 
@@ -104,6 +106,10 @@ def get_temporal_distribution(df, df2, lexicon, save_dir, save_name, cases_df=No
         #calculate the ratio of introductions to samples/cases
         introductions_county_week_df['intro_to_coverage'] = introductions_county_week_df['intro_count'].astype(float) \
             / (introductions_county_week_df['sample_count'].astype(float) / introductions_county_week_df['case_count'])
+        #calculate the ratio of introductions to samples/cases per person in the county
+        introductions_county_week_df['intro_to_coverage_per_person'] = introductions_county_week_df['intro_count'].astype(float) \
+            / ((introductions_county_week_df['sample_count'].astype(float) / introductions_county_week_df['case_count']) / introductions_county_week_df['population'])
+
         
 
     #create a list of the weeks
@@ -124,7 +130,7 @@ def get_temporal_distribution(df, df2, lexicon, save_dir, save_name, cases_df=No
     num_samples = [samples_per_week.get(week,0) for week in weeks]
     #create a bar plot of the number of samples per week
     plt.bar(weeks, num_samples)
-    plt.xlabel('Week')
+    plt.xlabel(f"Week (earliest week is {min(df2['date']).date()})")
     plt.ylabel('Number of samples')
     plt.title('Temporal distribution of samples')
     #save figure
@@ -142,22 +148,27 @@ def get_temporal_distribution(df, df2, lexicon, save_dir, save_name, cases_df=No
     #get the total number of samples for each week from df2
     total_samples_per_week = df2.groupby('week').size().to_dict()
     #sort df by week
+    from scipy.signal import savgol_filter
+
     df = df.sort_values(by='week')
-    #create a line graph that shows the number of introductions per variant per week
+    # create a line graph that shows the number of introductions per variant per week
     for variant in df['variant_alias'].dropna().unique():
-        #create a list of the weeks
+        # create a list of the weeks
         cur_weeks = list(df[df['variant_alias'] == variant]['week'])
-        #get list of variant_week values from df for values in cur_week
-        var_weeks= list(df[df['variant_alias'] == variant]['variant_week'])
-        #create a list of the number of introductions per week
-        num_introductions = [variant_introductions.get((variant, week),0)/float(total_samples_per_week[week]) for week in cur_weeks]        
-        #create a line plot of the number of introductions per week
-        plt.plot(var_weeks, num_introductions, label=variant)
-    plt.xlabel('Week')
-    plt.ylabel('Number of introductions')
+        # get list of variant_week values from df for values in cur_week
+        var_weeks = list(df[df['variant_alias'] == variant]['variant_week'])
+        # create a list of the number of introductions per week
+        num_introductions = [variant_introductions.get((variant, week), 0) / float(total_samples_per_week[week]) for week in cur_weeks]
+        # apply Savitzky-Golay filter to smooth the data
+        smoothed_introductions = savgol_filter(num_introductions, window_length=5, polyorder=2)
+        # create a line plot of the number of introductions per week
+        plt.plot(var_weeks, smoothed_introductions, label=variant)
+        #plt.plot(var_weeks, num_introductions, label=variant)
+    plt.xlabel(f"Variant Week")
+    plt.ylabel('Number of introductions/samples')
     plt.title('Temporal distribution of introductions by variant')
     plt.legend()
-    #save figure
+    # save figure
     plt.savefig(save_dir + '/' + save_name + '_introductions_temporal_variant.png', bbox_inches='tight')
     plt.close()
 
@@ -297,7 +308,7 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
     #get state population data from census
     state_df=get_state_pop(51)
 
-    introductions, introductions_county_week_df = get_temporal_distribution(df_selected, df2, lexicon, save_dir, save_name, cases_df)
+    introductions, introductions_county_week_df = get_temporal_distribution(df_selected, df2, lexicon, save_dir, save_name, cases_df, state_df)
 
     #using the counties in the region column in df_selected and the counties in the name(s) attribute in a geojson generate a chlopleth map of the number of rows in df_selected per county
     #read in the geojson file
@@ -333,6 +344,16 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
         county_samples_per_100k = (float(county_samples) / float(county_pop)) * 100000
         ratios[county] = float(num_introd) / county_samples_per_100k
         ratios2[county] = float(num_introd) / county_samples
+
+    
+    #create a table of the number of introductions and population per county
+    county_introductions = pd.DataFrame.from_dict(introductions, orient='index', columns=['introductions'])
+    county_introductions['population'] = county_introductions.index.map(county_pops)
+    county_introductions['samples'] = county_introductions.index.map(total_va_samples_per_region)
+    county_introductions['introductions_per_sample'] = county_introductions['introductions'] / county_introductions['samples']
+    county_introductions['introductions_per_population'] = county_introductions['introductions'] / county_introductions['population']
+    county_introductions['samples_per_population'] = county_introductions['samples'] / county_introductions['population']
+
 
     #print the mean and std. deviation of the populations, samples, and introductions
     #get the mean and std. dev of the ratios
@@ -417,6 +438,50 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
         #save the chloropleth map
         plt.savefig(save_dir + '/' + save_name + '_z_score_intro_to_cases.png', bbox_inches='tight')
         plt.close()
+
+        #calculate the z-score of intro_to_coverage_per_person and the corresponding chloropleth map
+        mean_intro_to_coverage_per_person = np.mean(introductions_county_week_df['intro_to_coverage_per_person'])
+        std_dev_intro_to_coverage_per_person = np.std(introductions_county_week_df['intro_to_coverage_per_person'])
+        z_score_intro_to_coverage_per_person = {}
+        county_mean_intro_to_coverage_per_person = introductions_county_week_df.groupby('region').mean('intro_to_coverage_per_person').to_dict()
+        for county, cur_mean in county_mean_intro_to_coverage_per_person['intro_to_coverage_per_person'].items():
+            z_score_intro_to_coverage_per_person[county] = (cur_mean - mean_intro_to_coverage_per_person) / std_dev_intro_to_coverage_per_person
+        #add the z-scores to the gdf
+        gdf['intro_to_coverage_per_person'] = gdf['name'].map(z_score_intro_to_coverage_per_person)
+        #create the chloropleth map for z_score_intro_to_coverage_per_person
+        fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+        #center the map and zoom on VA
+        gdf = gdf.cx[-83.6753:-75.1664, 36.5408:39.4660]
+        gdf.plot(column='intro_to_coverage_per_person', cmap='OrRd', linewidth=0.8, ax=ax, edgecolor='k')
+        ax.axis('off')
+        #add a colorbar
+        norm = colors.Normalize(vmin=gdf['intro_to_coverage_per_person'].min(), vmax=gdf['intro_to_coverage_per_person'].max())
+        cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap='OrRd'), ax=ax, orientation='horizontal', fraction=0.05, pad=0.05)
+        cbar.set_label('Per county Z-score of introductions / (samples / cases per person)')
+        #add title
+        ax.set_title(f"Z-score of introductions / (samples / cases per person): using {len(df_selected)} samples")
+        #save the chloropleth map
+        plt.savefig(save_dir + '/' + save_name + '_z_score_intro_to_coverage_per_person.png', bbox_inches='tight')
+        plt.close()
+
+        #create plots that look at correlation of introductions to cases, population, and samples
+        #plot the correlation of introductions to cases
+        sns.lmplot(x='intro_count', y='case_count', data=introductions_county_week_df)
+        plt.xlabel('Number of introductions')
+        plt.ylabel('Number of cases')
+        plt.title('Correlation of introductions to cases by week')
+        #save figure
+        plt.savefig(save_dir + '/' + save_name + '_intro_to_cases_correlation.png', bbox_inches='tight')
+        plt.close()
+        #plot the correlation of introductions to samples
+        sns.lmplot(x='intro_count', y='sample_count', data=introductions_county_week_df)
+        plt.xlabel('Number of introductions')
+        plt.ylabel('Number of samples')
+        plt.title('Correlation of introductions to samples by week')
+        #save figure
+        plt.savefig(save_dir + '/' + save_name + '_intro_to_samples_correlation.png', bbox_inches='tight')  
+        plt.close()
+
 
         #calculate the mean and std. dev of the introductions to coverage
         mean_intro_to_coverage = np.mean(introductions_county_week_df['intro_to_coverage'])
@@ -558,6 +623,16 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
     #save the chloropleth map
     plt.savefig(save_dir + '/' + save_name + '_samples.png', bbox_inches='tight')
     plt.close()
+
+    #plot the correlation of introductions to population of the county
+    sns.lmplot(x='introductions', y='population', data=county_introductions)
+    plt.xlabel('Number of introductions')
+    plt.ylabel('Population')
+    plt.title('Correlation of introductions to population')
+    #save figure
+    plt.savefig(save_dir + '/' + save_name + '_intro_to_population_correlation.png', bbox_inches='tight')
+    plt.close()
+
 
 
 
