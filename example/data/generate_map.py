@@ -101,6 +101,14 @@ def get_temporal_distribution(df, df2, lexicon, save_dir, save_name, cases_df=No
             #save figure
             plt.savefig(save_dir + '/' + save_name + '_cases_temporal.png', bbox_inches='tight')
             plt.close()
+        #if the case_count is less than the sample count then set case count to sample count in that row
+        introductions_county_week_df['case_count'] = introductions_county_week_df['case_count'].where(introductions_county_week_df['case_count'] > introductions_county_week_df['sample_count'], introductions_county_week_df['sample_count'])
+        #caclulate the ratio of samples to cases
+        introductions_county_week_df['samples_to_cases'] = introductions_county_week_df['sample_count'].astype(float) / introductions_county_week_df['case_count']
+        #calculate the ratio of samples to cases scaled by population
+        introductions_county_week_df['samples_to_cases_per_person'] = introductions_county_week_df['sample_count'].astype(float) / (introductions_county_week_df['case_count'] / introductions_county_week_df['population'])
+        #query those samples_to_cases that are greater than one
+        print(introductions_county_week_df.query('samples_to_cases > 1'))
         #calculate the ratio of introductions to cases
         introductions_county_week_df['intro_to_cases'] = introductions_county_week_df['intro_count'].astype(float) / introductions_county_week_df['case_count']
         #calculate the ratio of introductions to samples/cases
@@ -409,8 +417,7 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
 
     #if cases_file is not None, use the introductions_county_week_df to create a chloropleth map of the z-score of ratio of introduction to cases
     if cases_file:
-        #if the case_count is less than the sample count then set case count to sample count in that row
-        introductions_county_week_df['case_count'] = introductions_county_week_df['case_count'].where(introductions_county_week_df['case_count'] > introductions_county_week_df['sample_count'], introductions_county_week_df['sample_count'])
+
         #drop any rows with inf value for intro_to_cases
         introductions_county_week_df = introductions_county_week_df.replace([np.inf, -np.inf], np.nan).dropna(subset=['intro_to_cases'])
         #calculate the mean and std. dev of the introductions to cases
@@ -481,6 +488,23 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
         #save figure
         plt.savefig(save_dir + '/' + save_name + '_intro_to_samples_correlation.png', bbox_inches='tight')  
         plt.close()
+        #plot the correlation of introductions to samples/cases
+        sns.lmplot(x='intro_count', y='samples_to_cases', data=introductions_county_week_df)
+        plt.xlabel('Number of introductions')
+        plt.ylabel('Samples / Cases')
+        plt.title('Correlation of introductions to (samples / cases) by week')
+        #save figure
+        plt.savefig(save_dir + '/' + save_name + '_intro_to_coverage_correlation.png', bbox_inches='tight')
+        plt.close()
+        #plot the correlation of introductions to samples/cases per person
+        sns.lmplot(x='intro_count', y='samples_to_cases_per_person', data=introductions_county_week_df)
+        plt.xlabel('Number of introductions')
+        plt.ylabel('(Samples / Cases per person)')
+        plt.title('Correlation of introductions to (samples / cases per person) by week')
+        #save figure
+        plt.savefig(save_dir + '/' + save_name + '_intro_to_coverage_per_person_correlation.png', bbox_inches='tight')
+        plt.close()
+
 
 
         #calculate the mean and std. dev of the introductions to coverage
