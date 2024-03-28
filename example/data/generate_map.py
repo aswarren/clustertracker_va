@@ -250,7 +250,7 @@ def sobol_sensitivity_analysis(mean_introductions, std_dev_introductions, mean_s
 
 #main function reads in the hardcoded_clusters.tsv file, filters the table down to the lexicon selection in the first column using the region column in the hardcoded_clusters.tsv file
 
-def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, alias_list, cases_file=None, extra_meta=None):
+def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, alias_list, cases_file=None):
 
     #enable the renaming of variants to a controlled list
     alias_map = make_variant_base_map(alias_list)
@@ -309,46 +309,73 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
         cases_df = pd.read_csv(cases_file, header=0, parse_dates=['report_date'])
         cases_df['report_date'] = pd.to_datetime(cases_df['report_date'])
 
-    if extra_meta: #NOTE PAUI is in DF2 so there is no need to get the extra meta merge
-        #read in the extra meta data file set the number of columns to 11 no header
-        extra_meta_df = pd.read_csv(extra_meta, sep='\t', header=None)
-        #name the columns usherID,name,pango_lineage,nextclade_clade,gisaid_accession,county,collection_date,paui,sequencing_lab,specimen_id,specimen_accession_number
-        extra_meta_df.columns = ['usherID','name','pango_lineage','nextclade_clade','gisaid_accession','county','collection_date','outbreak_name','sequencing_lab','specimen_id','specimen_accession_number']
-        #merge the extra meta data with the df_selected keep only outbreak_name on_left=strain on_right=usherID
-        #df2 = df2.merge(extra_meta_df[['usherID','outbreak_name']], left_on='strain', right_on='usherID', how='left')
-        df2['outbreak_name']=df2['paui']
-        #highest number of occurring outbreak_name
-        outbreak_name_counts = df2['outbreak_name'].value_counts()
-        #get the outbreak_name with the highest count
-        max_outbreak_name = outbreak_name_counts.idxmax()
-        #get the number of unique clusters with max_outbreak_name
-        max_outbreak_clusters = df2[df2['outbreak_name'] == max_outbreak_name]['cluster'].unique().shape[0]
-        #get the number of unique strain with the max_outbreak_name
-        max_outbreak_strains = df2[df2['outbreak_name'] == max_outbreak_name]['strain'].unique().shape[0]
-        print(f"Number of unique clusters with outbreak name {max_outbreak_name}: {max_outbreak_clusters}")
-        print(f"Number of unique samples with outbreak name {max_outbreak_name}: {max_outbreak_strains}")
+    
+    #read in the extra meta data file set the number of columns to 11 no header
+    #extra_meta_df = pd.read_csv(extra_meta, sep='\t', header=None)
+    #name the columns usherID,name,pango_lineage,nextclade_clade,gisaid_accession,county,collection_date,paui,sequencing_lab,specimen_id,specimen_accession_number
+    #extra_meta_df.columns = ['usherID','name','pango_lineage','nextclade_clade','gisaid_accession','county','collection_date','outbreak_name','sequencing_lab','specimen_id','specimen_accession_number']
+    #merge the extra meta data with the df_selected keep only outbreak_name on_left=strain on_right=usherID
+    #df2 = df2.merge(extra_meta_df[['usherID','outbreak_name']], left_on='strain', right_on='usherID', how='left')
+    
+    df2['outbreak_name']=df2['paui']
+    #highest number of occurring outbreak_name
+    outbreak_name_counts = df2['outbreak_name'].value_counts()
+    #get the outbreak_name with the highest count
+    max_outbreak_name = outbreak_name_counts.idxmax()
+    #get the number of unique clusters with max_outbreak_name
+    max_outbreak_clusters = df2[df2['outbreak_name'] == max_outbreak_name]['cluster'].unique().shape[0]
+    #get the number of unique strain with the max_outbreak_name
+    max_outbreak_strains = df2[df2['outbreak_name'] == max_outbreak_name]['strain'].unique().shape[0]
+    print(f"Number of unique clusters with outbreak name {max_outbreak_name}: {max_outbreak_clusters}")
+    print(f"Number of unique samples with outbreak name {max_outbreak_name}: {max_outbreak_strains}")
+    
+
+    #create a table based on group_by outbreak_name that has the number of unique clusters and the number of unique "strain" aka samples
+    oubreak_grouped = df2.groupby('outbreak_name').agg({'cluster': 'nunique', 'strain': 'nunique'}).reset_index()
+    #name the columns
+    oubreak_grouped.columns = ['outbreak_name', 'cluster_count', 'sample_count']
+    #group by the cluster_count get the number of unique outbreak_names and the sum of sample_count
+    cluster_count_grouped = oubreak_grouped.groupby('cluster_count').agg({'outbreak_name': 'nunique', 'sample_count': 'sum'}).reset_index()
+    #name the columns
+    cluster_count_grouped.columns = ['cluster_count_group', 'outbreak_count', 'sample_count']
+
+    outbreak_samples = df2[df2['outbreak_name'].notna()].shape[0]
+
+    import matplotlib.pyplot as plt
+    fig, ax1 = plt.subplots()
+
+    cluster_count_grouped['cluster_count_group'] = cluster_count_grouped['cluster_count_group'].astype(str)
+    x = np.arange(len(cluster_count_grouped['cluster_count_group']))
+
+    bar_width = 0.4
+
+    ax1.bar(x, cluster_count_grouped['outbreak_count'], width=bar_width, color='skyblue', label='Number of outbreak IDs')
+    ax1.set_xlabel('Cluster Bins (clusters per outbreak ID)')
+    ax1.set_ylabel('Count')
+    ax1.set_yscale('log')
+    ax1.set_xticks(x)
+    ax1.set_xticklabels(cluster_count_grouped['cluster_count_group'])
+
+    #ax2 = ax1.twinx()
+    ax1.bar(x + bar_width, cluster_count_grouped['sample_count'], width=bar_width, color='lightcoral', label='Number of samples')
+   
+    plt.title(f"Outbreak and Sample Counts by Cluster Bin ({outbreak_samples} samples)")
+    plt.legend(loc='upper right')
+    plt.tight_layout()
+    plt.savefig(save_dir + '/' + save_name + '_outbreak_sample_counts.png', bbox_inches='tight')
+    plt.close()
+
+    
+    #create a violin plot of the number of sample_counts with the keys as the x-axis and the values as the y-axis
+
+    sns.violinplot(x='cluster_count', y='sample_count', data=oubreak_grouped)
+    plt.xlabel('Cluster Bins (clusters per outbreak ID)')
+    plt.ylabel('Outbreak size distribution')
+    plt.title(f"Outbreak size distribution by Cluster Bin ({outbreak_samples} samples)")
+    plt.savefig(save_dir + '/' + save_name + '_outbreak_size_distribution.png', bbox_inches='tight')
+    plt.close()
+
         
-        #get the unique outbreak_names
-        #outbreak_names = extra_meta_df['outbreak_name'].unique()
-        outbreak_names=df2['outbreak_name'].unique()
-        #create a dictionary that counts the number of unique clusters per outbreak_name
-        cluster_counts = {outbreak: df2[df2['outbreak_name'] == outbreak]["cluster"].unique().shape[0] for outbreak in outbreak_names}
-        #get the number of samples with an outbreak_name
-        outbreak_samples = df2[df2['outbreak_name'].notna()].shape[0]
-
-        sns.histplot([count for count in cluster_counts.values() if count > 0], log_scale=True, shrink=0.4)
-        #turn on log scale for y axis
-        plt.yscale('log')
-        plt.xlabel('Unique CT clusters per outbreak ID', fontsize=12)
-        plt.ylabel('Number of outbreak IDs', fontsize=12)
-        plt.title(f"Unique CT clusters per outbreak ID using {outbreak_samples} samples", fontsize=14)
-
-        plt.grid(True)  # Add gridlines
-        plt.savefig(save_dir + '/' + save_name + '_clusters_per_outbreak.png', bbox_inches='tight')
-        plt.close()
-
-        
-
 
     
     
@@ -708,9 +735,9 @@ if __name__ == "__main__":
     parser.add_argument("-d", "--save_dir", help="The output directory", required=True)
     parser.add_argument("-n", "--save_name", help="The output name", required=True)
     parser.add_argument("-c", "--cases", default=None, help="The input cases file", required=False)
-    parser.add_argument("-mx", "--extra_meta", default=None, help="Extra sample metadata", required=False)
+
 
     #option for the geojson to use for the chloropleth map
     parser.add_argument("-g", "--geojson", help="The input geojson file", required=True)
     args = parser.parse_args()
-    main(args.input, args.input2, args.lexicon, args.geojson, args.save_dir, args.save_name, major_variants, cases_file=args.cases, extra_meta=args.extra_meta)
+    main(args.input, args.input2, args.lexicon, args.geojson, args.save_dir, args.save_name, major_variants, cases_file=args.cases)
