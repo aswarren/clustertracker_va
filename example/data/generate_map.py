@@ -357,7 +357,7 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
     ax1.set_xticklabels(cluster_count_grouped['cluster_count_group'])
 
     #ax2 = ax1.twinx()
-    ax1.bar(x + bar_width, cluster_count_grouped['sample_count'], width=bar_width, color='lightcoral', label='Number of samples')
+    ax1.bar(x + bar_width, cluster_count_grouped['sample_count'], width=bar_width, color='lightcoral', label='Total samples')
    
     plt.title(f"Outbreak and Sample Counts by Cluster Bin ({outbreak_samples} samples)")
     plt.legend(loc='upper right')
@@ -370,7 +370,7 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
 
     sns.violinplot(x='cluster_count', y='sample_count', data=oubreak_grouped)
     plt.xlabel('Cluster Bins (clusters per outbreak ID)')
-    plt.ylabel('Outbreak size distribution')
+    plt.ylabel('Outbreak size distribution (samples)')
     plt.title(f"Outbreak size distribution by Cluster Bin ({outbreak_samples} samples)")
     plt.savefig(save_dir + '/' + save_name + '_outbreak_size_distribution.png', bbox_inches='tight')
     plt.close()
