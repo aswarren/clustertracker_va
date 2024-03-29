@@ -279,6 +279,8 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
     print(df2[~df2['date'].isna() & ~df2['id_date'].isna()].groupby('sequencing_lab').apply(lambda x: x[x['date'] != x['id_date']][['sequencing_lab', 'strain', 'date', 'id_date']].head(1)))
     #where id_date is not NaT use id_date as the date
     df2['date'] = df2['id_date'].fillna(df2['date']) 
+
+
     
     
     #read in the lexicon file
@@ -318,6 +320,8 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
     #df2 = df2.merge(extra_meta_df[['usherID','outbreak_name']], left_on='strain', right_on='usherID', how='left')
     
     df2['outbreak_name']=df2['paui']
+    #print the number of rows that have a non-NaN value in the outbreak_name column but a NaN value in the strain column
+    print(f"Number of outbreak_names {df2[(df2['outbreak_name'].notna())].shape[0]}")
     #highest number of occurring outbreak_name
     outbreak_name_counts = df2['outbreak_name'].value_counts()
     #get the outbreak_name with the highest count
@@ -331,13 +335,11 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
     
 
     #create a table based on group_by outbreak_name that has the number of unique clusters and the number of unique "strain" aka samples
-    oubreak_grouped = df2.groupby('outbreak_name').agg({'cluster': 'nunique', 'strain': 'nunique'}).reset_index()
-    #name the columns
-    oubreak_grouped.columns = ['outbreak_name', 'cluster_count', 'sample_count']
+    oubreak_grouped = df2.groupby('outbreak_name').agg({'cluster': 'nunique', 'strain': 'nunique', 'date': lambda x: (x.max() - x.min()).days}).reset_index()
+    oubreak_grouped.columns = ['outbreak_name', 'cluster_count', 'sample_count', 'days']
     #group by the cluster_count get the number of unique outbreak_names and the sum of sample_count
-    cluster_count_grouped = oubreak_grouped.groupby('cluster_count').agg({'outbreak_name': 'nunique', 'sample_count': 'sum'}).reset_index()
-    #name the columns
-    cluster_count_grouped.columns = ['cluster_count_group', 'outbreak_count', 'sample_count']
+    cluster_count_grouped = oubreak_grouped.groupby('cluster_count').agg({'outbreak_name': 'nunique', 'sample_count': 'sum','days':'mean'}).reset_index()
+    cluster_count_grouped.columns = ['cluster_count_group', 'outbreak_count', 'sample_count','days_mean']
 
     outbreak_samples = df2[df2['outbreak_name'].notna()].shape[0]
 
@@ -355,12 +357,21 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
     ax1.set_yscale('log')
     ax1.set_xticks(x)
     ax1.set_xticklabels(cluster_count_grouped['cluster_count_group'])
-
-    #ax2 = ax1.twinx()
     ax1.bar(x + bar_width, cluster_count_grouped['sample_count'], width=bar_width, color='lightcoral', label='Total samples')
-   
+    ax2 = ax1.twinx()
+    #add a line plot of the mean days
+    ax2.plot(x, cluster_count_grouped['days_mean'], color='green', label='Mean days', marker='D', markersize=4)
+    ax2.set_ylabel('Mean outbreak duration (days)')
+    #minor ticks at on ax2 at 100
+    ax2.yaxis.set_minor_locator(ticker.MultipleLocator(100))
+   # get the handles and labels for both ax1 and ax2
+    handles1, labels1 = ax1.get_legend_handles_labels()
+    handles2, labels2 = ax2.get_legend_handles_labels()
+    # combine the handles and labels
+    handles = handles1 + handles2
+    labels = labels1 + labels2
     plt.title(f"Outbreak and Sample Counts by Cluster Bin ({outbreak_samples} samples)")
-    plt.legend(loc='upper right')
+    plt.legend(handles, labels, loc='upper center')
     plt.tight_layout()
     plt.savefig(save_dir + '/' + save_name + '_outbreak_sample_counts.png', bbox_inches='tight')
     plt.close()
@@ -371,6 +382,10 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
     sns.violinplot(x='cluster_count', y='sample_count', data=oubreak_grouped)
     plt.xlabel('Cluster Bins (clusters per outbreak ID)')
     plt.ylabel('Outbreak size distribution (samples)')
+    #minor ticks at 20 
+    plt.gca().yaxis.set_minor_locator(ticker.MultipleLocator(20))
+    #show grid lines
+    plt.grid(True)
     plt.title(f"Outbreak size distribution by Cluster Bin ({outbreak_samples} samples)")
     plt.savefig(save_dir + '/' + save_name + '_outbreak_size_distribution.png', bbox_inches='tight')
     plt.close()
