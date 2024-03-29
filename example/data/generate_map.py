@@ -382,10 +382,6 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
     sns.violinplot(x='cluster_count', y='sample_count', data=oubreak_grouped)
     plt.xlabel('Cluster Bins (clusters per outbreak ID)')
     plt.ylabel('Outbreak size distribution (samples)')
-    #minor ticks at 20 
-    plt.gca().yaxis.set_minor_locator(ticker.MultipleLocator(20))
-    #show grid lines
-    plt.grid(True)
     plt.title(f"Outbreak size distribution by Cluster Bin ({outbreak_samples} samples)")
     plt.savefig(save_dir + '/' + save_name + '_outbreak_size_distribution.png', bbox_inches='tight')
     plt.close()
