@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>VA Tree Cluster Tracker</title>
+        <title>CA Big Tree Cluster Tracker</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,1,0" />
@@ -24,8 +24,7 @@
         <script>
             /* Data and Map Settings */
             /* Data storage location */
-            // const dataHost = 'https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/';
-            const dataHost = 'data/';
+            const dataHost = 'https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/';
             /* URL of Taxonium Link and Custom Backend */
             const taxoniumHost = 'https%3A%2F%2Ftaxonium.big-tree.ucsc.edu';
             /* Initial Cluster Data and Sample Data files */
@@ -83,7 +82,7 @@
         <div id="bannerHead" class="container-fluid px-0">
             <div class="row no-gutters align-items-center">
                 <div class="col pl-3">
-                    <h1>Virginia Tree Cluster Tracker </h1>
+                    <h1>California Big Tree Cluster Tracker </h1>
                 </div>
                 <div class="col-auto pr-3">
                     <div class="dropdown">
@@ -125,7 +124,7 @@
                     <p class="pullquote"><a href="https://pathogengenomics.ucsc.edu/tools/cluster-tracker/glossary" target="_blank" class="pullquoteLink">We define a cluster as the set of sequences within a region that are inferred to result from a single introduction via travel.</a></p>
                 </div>
                 <p class="cardTitle">Welcome</p>
-                <p>The Virginia Tree Cluster Tracker combines sequence data from the <a data-toggle="tooltip" title="Repository containing daily-updated comprehensive global phylogenetic trees for SARS-CoV-2" target="_blank" href="https://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/">global public SARS-CoV-2 phylogenetic tree</a> and sequences in VA's central repository in VEDSS.
+                <p>The California Big Tree Cluster Tracker combines sequence data from the <a data-toggle="tooltip" title="Repository containing daily-updated comprehensive global phylogenetic trees for SARS-CoV-2" target="_blank" href="https://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/">global public SARS-CoV-2 phylogenetic tree</a> and sequences in California’s central repository in Terra.
                 <span id="collapseAbout" class="collapse hide">
                     The Cluster Tracker applies a <a data-toggle="tooltip" title="Wiki page describing the heuristic calculation." target="_blank" href="https://usher-wiki.readthedocs.io/en/latest/matUtils.html#introduce">heuristic</a> to identify groups of sequences in a given region that may have recently arrived from another region. These groups may reflect cases of an infected traveler entering a region, followed by local spread. Note that biases might affect these results: relative local sequencing effort, the rate sequences arrive in repositories, and accuracy of reconstructed evolutionary relationships. <br></br>You can view each cluster in <a data-toggle="tooltip" title="link to California Big Tree Investigator" href="https://investigator.big-tree.ucsc.edu/" target="_blank">CA Big Tree Investigator</a> or <a data-toggle="tooltip" title="Github repository for the Taxonium browser tree viewer" href="https://github.com/theosanderson/taxonium" target="_blank">Taxonium</a> and perform your own analysis with UCSC’s <a data-toggle="tooltip" title="Github repository for UShER" href="https://github.com/yatisht/usher" target="_blank">UShER</a> after downloading the output files from the link below the table. 
                 </span>
@@ -139,7 +138,7 @@
                 <div class="container-fluid mapBar">
                     <div class="row">
                         <div class="col">
-                            <button onclick="swap_countystate()" class="dropbtn mapButton" id="btn_SC">Show VA State Introductions</button>
+                            <button onclick="swap_countystate()" class="dropbtn mapButton" id="btn_SC">Show CA State Introductions</button>
                         </div>
                         <div class="col-auto pl-0 pr-0">
                             <button onclick="changeScale()" class="dropbtn mapButton" id="colorbtn" disabled>Show Raw Cluster Count</button>
@@ -395,8 +394,8 @@
         <script src="lib/leafletjs/leaflet.js"></script>
         <script src="lib/leaflet-gesture-handling/leaflet-gesture-handling.min.js"></script>
         <script src="scripts/check_status.js"></script>
-        <script src="data/regions.js" id="script-region"></script>
-        <script src="data/regions_us.js" id="script-region_us"></script>
+        <script src="https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/regions.js" id="script-region"></script>
+        <script src="https://storage.googleapis.com/ucsc-gi-cdph-bigtree/display_tables/regions_us.js" id="script-region_us"></script>
         <script src="scripts/main.js" id="script-main"></script>
         <script type="text/javascript">
 

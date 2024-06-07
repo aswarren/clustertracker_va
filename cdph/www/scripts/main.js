@@ -301,13 +301,13 @@ function swap_countystate() {
     global_state = 'default';
     global_time = '';
     setTimeLabels(0);
-    if (btn.innerHTML == 'Show VA State Introductions') {
-        btn.innerHTML = 'Show VA County Introductions';
+    if (btn.innerHTML == 'Show CA State Introductions') {
+        btn.innerHTML = 'Show CA County Introductions';
         map.removeLayer(geojson[0]);
         map.addLayer(geojson[1]);
         map_layer = 1;
     } else {
-        btn.innerHTML = 'Show VA State Introductions';
+        btn.innerHTML = 'Show CA State Introductions';
         map.removeLayer(geojson[1]);
         map.addLayer(geojson[0]);
         map_layer = 0;
