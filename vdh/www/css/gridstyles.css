@@ -1,0 +1,188 @@
+@import url('../lib/slickgrid/slick-default-theme.min.css');
+#myGrid {
+  background: white;
+  border-top: 1px solid #C0C0C0;
+  border-left: 1px solid #C0C0C0;
+  border-right: 1px solid #C0C0C0;
+  border-top-right-radius: 0.25rem;
+  border-top-left-radius: 0.25rem;
+  background-clip: border-box;
+}
+#myGrid, #pager {
+  font-size: 8pt;
+  line-height: normal;
+}
+#pager {
+  padding-right: 5px;
+  padding-top: 4px;
+  padding-left: 5px;
+  border: 1px solid #C0C0C0;
+  border-bottom-right-radius: 0.25rem;
+  border-bottom-left-radius: 0.25rem;
+  background-clip: border-box;
+}
+.slick-pager {
+  background: none;
+  border: none;
+}
+/* grid header styles */
+#myGrid .slick-header-column {
+  font-size: 12px;
+  height: 48px;
+  background: none;
+  background-color: white;
+}
+.slick-header-columns {
+    background: none;
+}
+.slick-column-name { white-space: normal; }
+.slick-header.ui-state-default {
+    border: none;
+}
+/*.slick-sort-indicator-asc {
+    background: url(/lib/slickgrid/images/sort-asc-gray.gif);
+}
+.slick-sort-indicator-desc {
+    background: url(/lib/slickgrid/images/sort-desc-gray.gif);
+}*/
+.slick-sort-indicator {
+  position: absolute;
+  bottom: 5px;
+  right: 7px;
+}
+
+/* cell copy color */
+.slick-cell.copied {
+  background: blue;
+  background: rgba(0, 0, 255, 0.2);
+  -webkit-transition: 0.5s background;
+}
+
+/* grid link color */
+.ui-widget-content a {
+  color: #333;
+  text-decoration: underline;
+}
+.ui-widget-content a:link {
+  color: #333;
+  text-decoration: underline;
+}
+.ui-widget-content a:visted {
+  color: #333;
+}
+
+/* sample IDs popup */
+button.ui-button.ui-corner-all.ui-widget.ui-button-icon-only.ui-dialog-titlebar-close {
+  border: none;
+  background-color: #fff;
+}
+button.ui-button.ui-corner-all.ui-widget.ui-button-icon-only.ui-dialog-titlebar-close:hover {
+  background: #ededed;
+}
+div.ui-dialog {
+  line-height: normal;
+  font-size: 10pt;
+  z-index: 3000;
+}
+.ui-dialog-titlebar {
+  background-color: #fff !important;
+  color: #006aad !important;
+  border-top: none;
+  border-right: none;
+  border-left: none;
+  border-bottom: 1px solid rgba(0,0,0,.125);
+  border-bottom-right-radius: 0px;
+  border-bottom-left-radius: 0px;
+}
+.grdInfoTable {
+  line-height: normal;
+  border-collapse: collapse;
+}
+.grdInfoTable td, .grdInfoTable th {
+  padding: 2px 8px 2px 2px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  border-left: none;
+  border-right: none;
+}
+.grdInfoTable th {font-weight: 600;}
+td.ctr {
+  text-align: center;
+}
+
+/* Search and Filter Styles */
+#searchCardHead {
+  color: #006aad !important;
+  background-color: #fff !important;
+  font-size: 1.2em;
+}
+#searchbox {
+  font-size: 10pt;
+  line-height: normal;
+}
+#txtSearch {
+  border: 1px solid gray;
+  width: 320px;
+  margin-top: 8px;
+}
+#filterTitle {
+  border-top: 2px solid #DCDCDC;
+  margin-top: 15px;
+  color: #006aad;
+}
+.searchSubT {
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #006aad;
+  margin-bottom: 0px;
+  margin-top: 5px;
+}
+.searchSubSubT {
+  font-size: 1em;
+  font-weight: 600;
+  color: gray;
+  margin-bottom: 4px;
+  margin-top: 5px;
+}
+.searchNote {
+  font-style: italic;
+  width: 320px;
+  margin-bottom: 0px;
+}
+#txtGrowthMin, #txtGrowthMax, #txtSizeMin, #txtSizeMax {
+  border: 1px solid gray;
+  width: 70px;
+}
+#txtDateMin, #txtDateMax {
+  border: 1px solid gray;
+  width: 100px;
+}
+.left-padding-small {
+  padding-left:  4px;
+}
+.subElement {
+  margin-top:  8px;
+}
+#btnSimpleSearch {
+  margin-top: 5px;
+  margin-bottom:  5px;
+}
+/* multi-select styles */
+.filter-multi-select > .viewbar {
+  font-size: 0.75rem;
+}
+.filter-multi-select > .viewbar > .selected-items > .item {
+  height: 1.5em;
+  border-radius: 0.7em;
+  background-color: #006aad;
+}
+.filter-multi-select > .dropdown-menu {
+  font-size: 0.75rem;
+}
+.filter-multi-select > .dropdown-menu > .filter {
+  display: none;
+}
+.filter-multi-select > .dropdown-menu > .items {
+  padding-left: 12px;
+  padding-right:  12px;
+}
