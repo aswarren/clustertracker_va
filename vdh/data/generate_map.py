@@ -23,7 +23,7 @@ from matplotlib import patches
 from matplotlib import colors
 import SALib
 from collections import defaultdict
-
+import seaborn as sns
 
 from pango_aliasor.aliasor import Aliasor
 from typing import List, Dict
@@ -101,15 +101,23 @@ def get_temporal_distribution(df, df2, lexicon, save_dir, save_name, cases_df=No
             #save figure
             plt.savefig(save_dir + '/' + save_name + '_cases_temporal.png', bbox_inches='tight')
             plt.close()
+        #if the case_count is less than the sample count then set case count to sample count in that row
+        introductions_county_week_df['case_count'] = introductions_county_week_df['case_count'].where(introductions_county_week_df['case_count'] > introductions_county_week_df['sample_count'], introductions_county_week_df['sample_count'])
+        #caclulate the ratio of samples to cases
+        introductions_county_week_df['samples_to_cases'] = introductions_county_week_df['sample_count'].astype(float) / introductions_county_week_df['case_count']
+        #calculate the ratio of samples to cases scaled by population
+        introductions_county_week_df['samples_to_cases_per_person'] = introductions_county_week_df['sample_count'].astype(float) / (introductions_county_week_df['case_count'] / introductions_county_week_df['population'])
+        #query those samples_to_cases that are greater than one
+        print(introductions_county_week_df.query('samples_to_cases > 1'))
         #calculate the ratio of introductions to cases
         introductions_county_week_df['intro_to_cases'] = introductions_county_week_df['intro_count'].astype(float) / introductions_county_week_df['case_count']
         #calculate the ratio of introductions to samples/cases
         introductions_county_week_df['intro_to_coverage'] = introductions_county_week_df['intro_count'].astype(float) \
             / (introductions_county_week_df['sample_count'].astype(float) / introductions_county_week_df['case_count'])
         #calculate the ratio of introductions to samples/cases per person in the county
-        introductions_county_week_df['intro_to_coverage_per_person'] = introductions_county_week_df['intro_count'].astype(float) \
-            / ((introductions_county_week_df['sample_count'].astype(float) / introductions_county_week_df['case_count']) / introductions_county_week_df['population'])
-
+        introductions_county_week_df['intro_to_coverage_per_person'] = (introductions_county_week_df['intro_count'].astype(float) \
+            / (introductions_county_week_df['sample_count'].astype(float) / introductions_county_week_df['case_count'])) / introductions_county_week_df['population']
+        
         
 
     #create a list of the weeks
@@ -232,6 +240,7 @@ def sobol_sensitivity_analysis(mean_introductions, std_dev_introductions, mean_s
         output_values.append(z_score)
 
     from SALib.analyze import sobol
+    
     #Perform the Sobol analysis
     Si = sobol.analyze(problem, np.array(output_values))
     #Print the first-order sensitivity indices
@@ -249,27 +258,29 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
     namer.enable_expansion()
 
     #read in the hardcoded_clusters.tsv file
-    df = pd.read_csv(hardcoded, sep='\t', header=0, parse_dates=['earliest_date'])
-    df2 = pd.read_csv(clusterswapped, sep='\t', header=0, parse_dates=['date'])
-    df2=df2[df2['region'].fillna('').str.contains(':VA')]
-    df2['date'] = pd.to_datetime(df2['date'])
+    hard_df = pd.read_csv(hardcoded, sep='\t', header=0, parse_dates=['earliest_date'])
+    sample_df = pd.read_csv(clusterswapped, sep='\t', header=0, parse_dates=['date'])
+    sample_df=sample_df[sample_df['region'].fillna('').str.contains(':VA')]
+    sample_df['date'] = pd.to_datetime(sample_df['date'])
     #drop the time from the date column
-    df2['date'] = df2['date'].dt.date
+    sample_df['date'] = sample_df['date'].dt.date
 
     #date issues. augment with Date from strain column (ID)
     #create id_date column by splitting the strain column by "|" and taking the last element
-    df2['id_date'] = df2['strain'].apply(lambda x: x.split('|')[-1])
+    sample_df['id_date'] = sample_df['strain'].apply(lambda x: x.split('|')[-1])
     #set values of "no-valid-date" to NaT
-    df2.loc[df2['id_date'] == 'no-valid-date', 'id_date'] = pd.NaT
-    df2['id_date'] = pd.to_datetime(df2['id_date'],format='%Y-%m-%d', errors='coerce')
+    sample_df.loc[sample_df['id_date'] == 'no-valid-date', 'id_date'] = pd.NaT
+    sample_df['id_date'] = pd.to_datetime(sample_df['id_date'],format='%Y-%m-%d', errors='coerce')
     #set values that don't have full date to nan
-    df2.loc[~df2['id_date'].dt.year.isna() & df2['id_date'].dt.month.isna() & df2['id_date'].dt.day.isna(), 'id_date'] = pd.NaT
+    sample_df.loc[~sample_df['id_date'].dt.year.isna() & sample_df['id_date'].dt.month.isna() & sample_df['id_date'].dt.day.isna(), 'id_date'] = pd.NaT
     #print summary statistics for counts of how many times date differs from id_date per sequencing_lab, ignore NaT
-    print(df2[~df2['date'].isna() & ~df2['id_date'].isna()].groupby('sequencing_lab').apply(lambda x: x[x['date'] != x['id_date']].shape[0]))
+    print(sample_df[~sample_df['date'].isna() & ~sample_df['id_date'].isna()].groupby('sequencing_lab').apply(lambda x: x[x['date'] != x['id_date']].shape[0]))
     #print one example of the difference for each lab, include only the sequencing_lab, strain, and date columns
-    print(df2[~df2['date'].isna() & ~df2['id_date'].isna()].groupby('sequencing_lab').apply(lambda x: x[x['date'] != x['id_date']][['sequencing_lab', 'strain', 'date', 'id_date']].head(1)))
+    print(sample_df[~sample_df['date'].isna() & ~sample_df['id_date'].isna()].groupby('sequencing_lab').apply(lambda x: x[x['date'] != x['id_date']][['sequencing_lab', 'strain', 'date', 'id_date']].head(1)))
     #where id_date is not NaT use id_date as the date
-    df2['date'] = df2['id_date'].fillna(df2['date']) 
+    sample_df['date'] = sample_df['id_date'].fillna(sample_df['date']) 
+
+
     
     
     #read in the lexicon file
@@ -282,14 +293,14 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
     #filter the table down to the lexicon selection in the first column using the region column in the hardcoded_clusters.tsv file
     
     #the lexicon doesn't introduce '_' like apparently the cluster tracker table does
-    df_selected = df[df['region'].str.replace('_',' ').isin(lexicon["map_code"])]
-    df_selected['region'] = df_selected['region'].str.replace('_',' ')
-    df_selected['variant_alias'] = df_selected['annotation_2'].map(alias_map)
+    cluster_df = hard_df[hard_df['region'].str.replace('_',' ').isin(lexicon["map_code"])]
+    cluster_df['region'] = cluster_df['region'].str.replace('_',' ')
+    cluster_df['variant_alias'] = cluster_df['annotation_2'].map(alias_map)
     
     #filter df_selected to those rows that do not have ":VA" as substring in the inferred_origin column
     #this hack for VA will need to be generalized for other regions
-    df_selected = df_selected[~df_selected['inferred_origin'].str.contains(':VA')]
-    df_selected['earliest_date'] = pd.to_datetime(df_selected['earliest_date'])
+    cluster_df = cluster_df[~cluster_df['inferred_origin'].str.contains(':VA')]
+    cluster_df['earliest_date'] = pd.to_datetime(cluster_df['earliest_date'])
 
 
     cases_df = None
@@ -300,24 +311,98 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
         cases_df = pd.read_csv(cases_file, header=0, parse_dates=['report_date'])
         cases_df['report_date'] = pd.to_datetime(cases_df['report_date'])
 
-        
+    
+    #read in the extra meta data file set the number of columns to 11 no header
+    #extra_meta_df = pd.read_csv(extra_meta, sep='\t', header=None)
+    #name the columns usherID,name,pango_lineage,nextclade_clade,gisaid_accession,county,collection_date,paui,sequencing_lab,specimen_id,specimen_accession_number
+    #extra_meta_df.columns = ['usherID','name','pango_lineage','nextclade_clade','gisaid_accession','county','collection_date','outbreak_name','sequencing_lab','specimen_id','specimen_accession_number']
+    #merge the extra meta data with the df_selected keep only outbreak_name on_left=strain on_right=usherID
+    #df2 = df2.merge(extra_meta_df[['usherID','outbreak_name']], left_on='strain', right_on='usherID', how='left')
+    
+    sample_df['outbreak_name']=sample_df['paui']
+    #print the number of rows that have a non-NaN value in the outbreak_name column but a NaN value in the strain column
+    print(f"Number of outbreak_names {sample_df[(sample_df['outbreak_name'].notna())].shape[0]}")
+    #highest number of occurring outbreak_name
+    outbreak_name_counts = sample_df['outbreak_name'].value_counts()
+    #get the outbreak_name with the highest count
+    max_outbreak_name = outbreak_name_counts.idxmax()
+    #get the number of unique clusters with max_outbreak_name
+    max_outbreak_clusters = sample_df[sample_df['outbreak_name'] == max_outbreak_name]['cluster'].unique().shape[0]
+    #get the number of unique strain with the max_outbreak_name
+    max_outbreak_strains = sample_df[sample_df['outbreak_name'] == max_outbreak_name]['strain'].unique().shape[0]
+    print(f"Number of unique clusters with outbreak name {max_outbreak_name}: {max_outbreak_clusters}")
+    print(f"Number of unique samples with outbreak name {max_outbreak_name}: {max_outbreak_strains}")
+    
 
+    #create a table based on group_by outbreak_name that has the number of unique clusters and the number of unique "strain" aka samples
+    oubreak_grouped = sample_df.groupby('outbreak_name').agg({'cluster': 'nunique', 'strain': 'nunique', 'date': lambda x: (x.max() - x.min()).days}).reset_index()
+    oubreak_grouped.columns = ['outbreak_name', 'cluster_count', 'sample_count', 'days']
+    #group by the cluster_count get the number of unique outbreak_names and the sum of sample_count
+    cluster_count_grouped = oubreak_grouped.groupby('cluster_count').agg({'outbreak_name': 'nunique', 'sample_count': 'sum','days':'mean'}).reset_index()
+    cluster_count_grouped.columns = ['cluster_count_group', 'outbreak_count', 'sample_count','days_mean']
+
+    outbreak_samples = sample_df[sample_df['outbreak_name'].notna()].shape[0]
+
+    import matplotlib.pyplot as plt
+    fig, ax1 = plt.subplots()
+
+    cluster_count_grouped['cluster_count_group'] = cluster_count_grouped['cluster_count_group'].astype(str)
+    x = np.arange(len(cluster_count_grouped['cluster_count_group']))
+
+    bar_width = 0.4
+
+    ax1.bar(x, cluster_count_grouped['outbreak_count'], width=bar_width, color='skyblue', label='Number of outbreak IDs')
+    ax1.set_xlabel('Cluster Bins (clusters per outbreak ID)')
+    ax1.set_ylabel('Count')
+    ax1.set_yscale('log')
+    ax1.set_xticks(x)
+    ax1.set_xticklabels(cluster_count_grouped['cluster_count_group'])
+    ax1.bar(x + bar_width, cluster_count_grouped['sample_count'], width=bar_width, color='lightcoral', label='Total samples')
+    ax2 = ax1.twinx()
+    #add a line plot of the mean days
+    ax2.plot(x, cluster_count_grouped['days_mean'], color='green', label='Mean days', marker='D', markersize=4)
+    ax2.set_ylabel('Mean outbreak duration (days)')
+    #minor ticks at on ax2 at 100
+    ax2.yaxis.set_minor_locator(ticker.MultipleLocator(100))
+   # get the handles and labels for both ax1 and ax2
+    handles1, labels1 = ax1.get_legend_handles_labels()
+    handles2, labels2 = ax2.get_legend_handles_labels()
+    # combine the handles and labels
+    handles = handles1 + handles2
+    labels = labels1 + labels2
+    plt.title(f"Outbreak and Sample Counts by Cluster Bin ({outbreak_samples} samples)")
+    plt.legend(handles, labels, loc='upper center')
+    plt.tight_layout()
+    plt.savefig(save_dir + '/' + save_name + '_outbreak_sample_counts.png', bbox_inches='tight')
+    plt.close()
+
+    
+    #create a violin plot of the number of sample_counts with the keys as the x-axis and the values as the y-axis
+
+    sns.violinplot(x='cluster_count', y='sample_count', data=oubreak_grouped)
+    plt.xlabel('Cluster Bins (clusters per outbreak ID)')
+    plt.ylabel('Outbreak size distribution (samples)')
+    plt.title(f"Outbreak size distribution by Cluster Bin ({outbreak_samples} samples)")
+    plt.savefig(save_dir + '/' + save_name + '_outbreak_size_distribution.png', bbox_inches='tight')
+    plt.close()
+
+        
 
     
     
     #get state population data from census
     state_df=get_state_pop(51)
 
-    introductions, introductions_county_week_df = get_temporal_distribution(df_selected, df2, lexicon, save_dir, save_name, cases_df, state_df)
+    introductions, introductions_county_week_df = get_temporal_distribution(cluster_df, sample_df, lexicon, save_dir, save_name, cases_df, state_df)
 
     #using the counties in the region column in df_selected and the counties in the name(s) attribute in a geojson generate a chlopleth map of the number of rows in df_selected per county
     #read in the geojson file
         #read in the geojson file
     
     #get the total number of samples which have a :VA in the region column from df2
-    total_va_samples = df2[df2['region'].fillna('').str.contains(':VA')].shape[0]
+    total_va_samples = sample_df[sample_df['region'].fillna('').str.contains(':VA')].shape[0]
     #get the total number of samples which have a :VA in the region column from df2 per region
-    total_va_samples_per_region = df2[df2['region'].fillna('').str.contains(':VA')].groupby('region').size()
+    total_va_samples_per_region = sample_df[sample_df['region'].fillna('').str.contains(':VA')].groupby('region').size()
 
     gdf = gpd.read_file(args.geojson)
     
@@ -369,7 +454,7 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
     std_dev_population = np.std(list(state_df['POPESTIMATE2020'].values))
 
     print(f"all samples: {total_va_samples} available after processing by clustertracker")
-    print(f"filtered samples: {len(df_selected)}")
+    print(f"filtered samples: {len(cluster_df)}")
     print('mean introductions/samples:', mean_ratio100k)
     print('std. dev introductions/samples:', std_dev_ratio100k)
     print('mean introductions:', mean_introductions)
@@ -409,8 +494,7 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
 
     #if cases_file is not None, use the introductions_county_week_df to create a chloropleth map of the z-score of ratio of introduction to cases
     if cases_file:
-        #if the case_count is less than the sample count then set case count to sample count in that row
-        introductions_county_week_df['case_count'] = introductions_county_week_df['case_count'].where(introductions_county_week_df['case_count'] > introductions_county_week_df['sample_count'], introductions_county_week_df['sample_count'])
+
         #drop any rows with inf value for intro_to_cases
         introductions_county_week_df = introductions_county_week_df.replace([np.inf, -np.inf], np.nan).dropna(subset=['intro_to_cases'])
         #calculate the mean and std. dev of the introductions to cases
@@ -434,7 +518,7 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
         cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap='OrRd'), ax=ax, orientation='horizontal', fraction=0.05, pad=0.05)
         cbar.set_label('Per county Z-score of introductions / cases')
         #add title
-        ax.set_title(f"Z-score of introductions / cases: using {len(df_selected)} samples")
+        ax.set_title(f"Z-score of introductions / cases: using {len(cluster_df)} samples")
         #save the chloropleth map
         plt.savefig(save_dir + '/' + save_name + '_z_score_intro_to_cases.png', bbox_inches='tight')
         plt.close()
@@ -457,9 +541,9 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
         #add a colorbar
         norm = colors.Normalize(vmin=gdf['intro_to_coverage_per_person'].min(), vmax=gdf['intro_to_coverage_per_person'].max())
         cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap='OrRd'), ax=ax, orientation='horizontal', fraction=0.05, pad=0.05)
-        cbar.set_label('Per county Z-score of introductions / (samples / cases per person)')
+        cbar.set_label('Per county Z-score of introductions / (samples / cases) per person')
         #add title
-        ax.set_title(f"Z-score of introductions / (samples / cases per person): using {len(df_selected)} samples")
+        ax.set_title(f"Z-score of introductions / (samples / cases) per person: using {len(cluster_df)} samples")
         #save the chloropleth map
         plt.savefig(save_dir + '/' + save_name + '_z_score_intro_to_coverage_per_person.png', bbox_inches='tight')
         plt.close()
@@ -469,7 +553,7 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
         sns.lmplot(x='intro_count', y='case_count', data=introductions_county_week_df)
         plt.xlabel('Number of introductions')
         plt.ylabel('Number of cases')
-        plt.title('Correlation of introductions to cases by week')
+        plt.title('Introductions vs cases by week')
         #save figure
         plt.savefig(save_dir + '/' + save_name + '_intro_to_cases_correlation.png', bbox_inches='tight')
         plt.close()
@@ -477,10 +561,27 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
         sns.lmplot(x='intro_count', y='sample_count', data=introductions_county_week_df)
         plt.xlabel('Number of introductions')
         plt.ylabel('Number of samples')
-        plt.title('Correlation of introductions to samples by week')
+        plt.title('Introductions vs samples by week')
         #save figure
         plt.savefig(save_dir + '/' + save_name + '_intro_to_samples_correlation.png', bbox_inches='tight')  
         plt.close()
+        #plot the correlation of introductions to samples/cases
+        sns.lmplot(x='intro_count', y='samples_to_cases', data=introductions_county_week_df)
+        plt.xlabel('Number of introductions')
+        plt.ylabel('Samples / Cases')
+        plt.title('Introductions vs (samples / cases) by week')
+        #save figure
+        plt.savefig(save_dir + '/' + save_name + '_intro_to_coverage_correlation.png', bbox_inches='tight')
+        plt.close()
+        #plot the correlation of introductions to samples/cases per person
+        sns.lmplot(x='intro_count', y='samples_to_cases_per_person', data=introductions_county_week_df)
+        plt.xlabel('Number of introductions')
+        plt.ylabel('(Samples / Cases per person)')
+        plt.title('Introductions vs (samples / cases per person) by week')
+        #save figure
+        plt.savefig(save_dir + '/' + save_name + '_intro_to_coverage_per_person_correlation.png', bbox_inches='tight')
+        plt.close()
+
 
 
         #calculate the mean and std. dev of the introductions to coverage
@@ -503,7 +604,7 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
         cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap='OrRd'), ax=ax, orientation='horizontal', fraction=0.05, pad=0.05)
         cbar.set_label('Per county Z-score of introductions / (samples / cases)')
         #add title
-        ax.set_title(f"Z-score of introductions / (samples / cases): using {len(df_selected)} samples")
+        ax.set_title(f"Z-score of introductions / (samples / cases): using {len(cluster_df)} samples")
         #save the chloropleth map
         plt.savefig(save_dir + '/' + save_name + '_z_score_intro_to_coverage.png', bbox_inches='tight')
         plt.close()
@@ -522,7 +623,7 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
     cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap='OrRd'), ax=ax, orientation='horizontal', fraction=0.05, pad=0.05)
     cbar.set_label('Per county Z-score of introductions / (samples per 100k)')
     #add title
-    ax.set_title(f"Per county Z-score of introductions / (samples per 100k): using {len(df_selected)} samples")
+    ax.set_title(f"Per county Z-score of introductions / (samples per 100k): using {len(cluster_df)} samples")
     #save the chloropleth map
     plt.savefig(save_dir + '/' + save_name + '.png', bbox_inches='tight')
     plt.close()
@@ -538,7 +639,7 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
     cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap='OrRd'), ax=ax, orientation='horizontal', fraction=0.05, pad=0.05)
     cbar.set_label('Per county Z-score of introductions / samples')
     #add title
-    ax.set_title(f"Per county Z-score of introductions / samples: using {len(df_selected)} samples")
+    ax.set_title(f"Per county Z-score of introductions / samples: using {len(cluster_df)} samples")
     #save the chloropleth map
     plt.savefig(save_dir + '/' + save_name + '_z_score_ratio2.png', bbox_inches='tight')
     plt.close()
@@ -555,7 +656,7 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
     cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap='OrRd'), ax=ax, orientation='horizontal', fraction=0.05, pad=0.05)
     cbar.set_label('Number of introductions')
     #add title
-    ax.set_title(f"Introductions: using {len(df_selected)} samples")
+    ax.set_title(f"Introductions: using {len(cluster_df)} samples")
     #save the chloropleth map
     plt.savefig(save_dir + '/' + save_name + '_introductions.png', bbox_inches='tight')
     plt.close()
@@ -571,7 +672,7 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
     cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap='OrRd'), ax=ax, orientation='horizontal', fraction=0.05, pad=0.05)
     cbar.set_label('Per county Z-score of introductions')
     #add title
-    ax.set_title(f"Z-score of introductions: using {len(df_selected)} samples")
+    ax.set_title(f"Z-score of introductions: using {len(cluster_df)} samples")
     #save the chloropleth map
     plt.savefig(save_dir + '/' + save_name + '_z_score_intro.png', bbox_inches='tight')
     plt.close()
@@ -587,7 +688,7 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
     cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap='OrRd'), ax=ax, orientation='horizontal', fraction=0.05, pad=0.05)
     cbar.set_label('Per county Z-score of population')
     #add title
-    ax.set_title(f"Z-score of population: using {len(df_selected)} samples")
+    ax.set_title(f"Z-score of population")
     #save the chloropleth map
     plt.savefig(save_dir + '/' + save_name + '_z_score_pop.png', bbox_inches='tight')
     plt.close()
@@ -628,7 +729,7 @@ def main(hardcoded, clusterswapped, lexicon_file, geojson, save_dir, save_name, 
     sns.lmplot(x='introductions', y='population', data=county_introductions)
     plt.xlabel('Number of introductions')
     plt.ylabel('Population')
-    plt.title('Correlation of introductions to population')
+    plt.title('Introductions vs population')
     #save figure
     plt.savefig(save_dir + '/' + save_name + '_intro_to_population_correlation.png', bbox_inches='tight')
     plt.close()
@@ -645,6 +746,8 @@ if __name__ == "__main__":
     parser.add_argument("-d", "--save_dir", help="The output directory", required=True)
     parser.add_argument("-n", "--save_name", help="The output name", required=True)
     parser.add_argument("-c", "--cases", default=None, help="The input cases file", required=False)
+
+
     #option for the geojson to use for the chloropleth map
     parser.add_argument("-g", "--geojson", help="The input geojson file", required=True)
     args = parser.parse_args()
