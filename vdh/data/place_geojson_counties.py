@@ -77,7 +77,8 @@ with open(f'state_and_county_lexicon.{interest_state_abbr}.txt', 'w') as f, open
     #writing this with the expectation that county,fips,longe county name. that name attribute will be used out of the geojson
     for feature in counties:
         # print(feature['properties']['coty_name_long'])
-        f.write(','.join([feature['properties']['coty_name_long'][0],feature['properties']['coty_name'][0]]) + '\n')
+        # print(feature['properties']['coty_fp_code'])
+        f.write(','.join([feature['properties']['coty_name_long'][0],feature['properties']['coty_fp_code'],feature['properties']['coty_name'][0]]) + '\n')
         f2.write(','.join([feature['properties']['coty_name_long'][0],feature['properties']['coty_name'][0]]) + '\n')
 
         #f.write(','.join([feature['properties']['name'],feature['properties']['geoid']]) + '\n')
