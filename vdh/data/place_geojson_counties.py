@@ -20,10 +20,16 @@ parser.add_argument('--remove', metavar='remove', type=str, help='name of state 
 
 args = parser.parse_args()
 
-#get the geojson
-with open(args.us) as f, open(args.state) as f2:
+#Find state of interest from command line argument
+all_counties_geojson = 'georef-united-states-of-america-county.geojson'
+interest_state_abbr = args.state[:2]
+interest_state = str(us_package.states.lookup(interest_state_abbr))
+
+#Get the geojson of first CLI argument and stored geojson file
+with open(args.us) as f, open(all_counties_geojson) as f2:
     us_map = json.load(f)
-    state = json.load(f2)
+    all_counties = json.load(f2)
+    
 
 #deep copy the us_map
 us_orig = deepcopy(us_map)
@@ -32,17 +38,27 @@ us_orig = deepcopy(us_map)
 if args.remove != None:
     #remove the state from the US
     us_map['features'] = [feature for feature in us_map['features'] if feature['properties']['name'] != args.remove]
+      
+#find relevant counties using interest_state and all_counties_geojson
+counties = []
+for feature in all_counties['features']:
+    # print(feature['properties']['ste_name'][0])
+    # print(interest_state)
+    if feature['properties']['ste_name'][0] == interest_state:
+        counties.append(feature)
+        # print("success")
+# print(counties)
 
 #get the id of the last US feature
 us_id = int(us_map['features'][-1]['id'])
 #append each of the state features to the US features
-for feature in state['features']:
+for feature in counties:
     us_id += 1
     feature['id'] = us_id
     #swap the name and namelsad attributes so that county name is the primary alias
-    feature['properties']['name'], feature['properties']['alias'] = feature['properties']['namelsad'], feature['properties']['name']
+    # feature['properties']['name'], feature['properties']['alias'] = feature['properties']['namelsad'], feature['properties']['name']
     #append :VA to the end of the name
-    feature['properties']['name'] = feature['properties']['name'] + ':VA'
+    # feature['properties']['name'] = feature['properties']['name'] + ':VA'
     us_map['features'].append(feature)
 
 #write the new GeoJSON file
@@ -54,13 +70,15 @@ with open(mashup, 'w') as outfile:
 #write a state_and_county_lexicon.va.txt file in the style of https://github.com/pathogen-genomics/introduction-website/blob/cdph/cdph/data/state_and_county_lexicon.txt
 #in two column format name of the county from VA and the shortened versions using the information from the GeoJSON
 #open the file
-with open('state_and_county_lexicon.va.txt', 'w') as f, open('county_lexicon.va.txt', 'w') as f2:
+with open(f'state_and_county_lexicon.{interest_state_abbr}.txt', 'w') as f, open(f'county_lexicon.{interest_state_abbr}.txt', 'w') as f2:
+# with open('state_and_county_lexicon.va.txt', 'w') as f, open('county_lexicon.va.txt', 'w') as f2:
     #write the header
     #write the county names and their shortened versions
     #writing this with the expectation that county,fips,longe county name. that name attribute will be used out of the geojson
-    for feature in state['features']:
-        f.write(','.join([feature['properties']['name'],feature['properties']['geoid'],feature['properties']['namelsad']]) + '\n')
-        f2.write(','.join([feature['properties']['name'],feature['properties']['geoid'],feature['properties']['namelsad']]) + '\n')
+    for feature in counties:
+        # print(feature['properties']['coty_name_long'])
+        f.write(','.join([feature['properties']['coty_name_long'][0],feature['properties']['coty_name'][0]]) + '\n')
+        f2.write(','.join([feature['properties']['coty_name_long'][0],feature['properties']['coty_name'][0]]) + '\n')
 
         #f.write(','.join([feature['properties']['name'],feature['properties']['geoid']]) + '\n')
     #now write all the states in the US and their abbreviation, use python library to get the abbreviation
@@ -71,4 +89,5 @@ with open('state_and_county_lexicon.va.txt', 'w') as f, open('county_lexicon.va.
         else:
             if us_package.states.lookup(feature['properties']['name']) == None:
                 print('Could not find the following in US states package ' + feature['properties']['name'])
-            f.write(feature['properties']['name'] + ',' + us_package.states.lookup(feature['properties']['name']).abbr + '\n')
+            elif us_package.states.lookup(feature['properties']['name']).abbr != None:
+                f.write(feature['properties']['name'] + ',' + us_package.states.lookup(feature['properties']['name']).abbr + '\n')
