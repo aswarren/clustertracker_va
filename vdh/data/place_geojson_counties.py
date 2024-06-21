@@ -45,6 +45,7 @@ if args.remove != None:
 counties = []
 for feature in all_counties['features']:
     if feature['properties']['ste_name'][0] == interest_state:
+        feature["properties"]["name"] = feature["properties"].pop("coty_name")[0]
         counties.append(feature)
 
 #get the id of the last US feature
@@ -60,7 +61,7 @@ for feature in counties:
 #write the new GeoJSON file
 #create mashup file name between US and state
 #concetenates '_counties.geojson' to state abbreviation to preserve GeoJSON format
-mashup = args.us.split('.')[0] + '_' + str(interest_state_abbr) + '_counties.geojson'
+mashup = args.us.split('.')[0] + '_' + str(interest_state_abbr) + '-counties.geo.json'
 with open(mashup, 'w') as outfile:
     json.dump(us_map, outfile)
 
@@ -69,8 +70,8 @@ with open(mashup, 'w') as outfile:
 #open the file
 with open(f'state_and_county_lexicon.{interest_state_abbr}.txt', 'w') as f, open(f'county_lexicon.{interest_state_abbr}.txt', 'w') as f2:
     for feature in counties:
-        f.write(','.join([feature['properties']['coty_name_long'][0],feature['properties']['coty_code'][0],feature['properties']['coty_name'][0]]) + '\n')
-        f2.write(','.join([feature['properties']['coty_name_long'][0],feature['properties']['coty_code'][0],feature['properties']['coty_name'][0]]) + '\n')
+        f.write(','.join([feature['properties']['coty_name_long'][0],feature['properties']['coty_code'][0],feature['properties']['name']]) + '\n')
+        f2.write(','.join([feature['properties']['coty_name_long'][0],feature['properties']['coty_code'][0],feature['properties']['name']]) + '\n')
 
     #now write all the states in the US and their abbreviation, use python library to get the abbreviation
     for feature in us_orig['features']:
